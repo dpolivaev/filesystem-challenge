@@ -52,4 +52,29 @@ public class ReservedBitsTest {
                 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L
         );
     }
+
+    @Test
+    public void releasesBits() {
+        final int memorySize = 2;
+        final int blockSize = 3;
+        final Random random = Mockito.mock(Random.class);
+        final int blockOffset = 1;
+        final int byteOffset = 2;
+
+        when(random.longs(0L, (long) memorySize)).thenReturn(LongStream.iterate(blockOffset, x -> blockOffset));
+        when(random.ints(0, blockSize)).thenReturn(IntStream.iterate(byteOffset, x -> byteOffset));
+
+        final ReservedBits uut = new ReservedBits(new TestMemory(memorySize, blockSize), blockSize, random);
+        uut.reserveBit();
+        uut.releaseBit(40L);
+        Assertions.assertThat(uut.reserveBit()).isEqualTo(40L);
+    }
+
+
+    @Test
+    public void releaseBitsThrowsException_ifBitWasNotReserved() {
+        final Random random = new Random();
+        final ReservedBits uut = new ReservedBits(new TestMemory(1, 1), 1, random);
+        Assertions.assertThatThrownBy(() -> uut.releaseBit(0L)).isInstanceOf(IllegalArgumentException.class);
+    }
 }

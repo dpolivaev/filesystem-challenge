@@ -23,6 +23,8 @@ class ReservedBits {
         for (long blockCount = 0; blockCount < blockNumber; blockCount++) {
             final long blockIndex = getPosition(blockOffset, blockCount, blockNumber);
             final DataBlock block = memory.at(blockIndex);
+            if (block.size() != blockSize)
+                throw new RuntimeException("Invalid block size");
             final long positionInBlock = reserveBit(block);
             if(positionInBlock != NOT_AVAILABLE)
                 return blockIndex * blockSize * Byte.SIZE + positionInBlock;
@@ -62,6 +64,21 @@ class ReservedBits {
     }
 
     void releaseBit(final long position) {
+        final int bitIndex = (int) (position & 0x7);
+        final long bytePosition = (position >> 3);
+        final long blockIndex = bytePosition / blockSize;
+        final int byteIndex = (int) (bytePosition % blockSize);
 
+        final DataBlock block = memory.at(blockIndex);
+        final byte bits = block.getByte(byteIndex);
+        final byte newBits = releaseBit(bits, bitIndex);
+        if (bits == newBits)
+            throw new IllegalStateException("Bit was not set");
+        block.put(byteIndex, newBits);
+
+    }
+
+    private byte releaseBit(final byte bits, final int bitIndex) {
+        return (byte) (bits & ~(1 << bitIndex));
     }
 }
