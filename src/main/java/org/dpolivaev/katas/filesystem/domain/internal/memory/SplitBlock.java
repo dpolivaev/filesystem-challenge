@@ -30,13 +30,13 @@ class SplitBlock implements DataBlock {
     }
 
     @Override
-    public void put(long offset, byte source) {
-        this.source.put(start + offset, source);
+    public void set(long offset, byte source) {
+        this.source.set(start + offset, source);
     }
 
     @Override
-    public void put(long offset, long length, byte[] source, long sourceOffset) {
-        this.source.put(start + offset, length, source, sourceOffset);
+    public void set(long offset, long length, byte[] source, long sourceOffset) {
+        this.source.set(start + offset, length, source, sourceOffset);
     }
 
     @Override

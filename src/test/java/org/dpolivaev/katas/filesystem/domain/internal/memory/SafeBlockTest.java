@@ -22,39 +22,39 @@ public class SafeBlockTest {
 
 
     @Test
-    public void putByteChecksOffset() {
-        assertThatThrownBy(() -> uut.put(-1, -1)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> uut.put(4, -1)).isInstanceOf(IllegalArgumentException.class);
+    public void setByteChecksOffset() {
+        assertThatThrownBy(() -> uut.set(-1, -1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> uut.set(4, -1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void putByteSucceeds() {
-        uut.put(0, -1);
+    public void setByteSucceeds() {
+        uut.set(0, -1);
         assertThat(uut.getByte(0)).isEqualTo((byte)-1);
     }
 
     @Test
-    public void putFromArrayChecksOffset() {
-        assertThatThrownBy(() -> uut.put(-1, 0, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> uut.put(4, 0, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
+    public void setFromArrayChecksOffset() {
+        assertThatThrownBy(() -> uut.set(-1, 0, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> uut.set(4, 0, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void putFromArrayChecksLength() {
-        assertThatThrownBy(() -> uut.put(1, -1, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> uut.put(3, 2, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
+    public void setFromArrayChecksLength() {
+        assertThatThrownBy(() -> uut.set(1, -1, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> uut.set(3, 2, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void putFromArraySucceeds() {
-        uut.put(1, 2, new byte[]{6, 7, 8}, 1);
-        verify(delegate).put(1, 2, new byte[]{6, 7, 8}, 1);
+    public void setFromArraySucceeds() {
+        uut.set(1, 2, new byte[]{6, 7, 8}, 1);
+        verify(delegate).set(1, 2, new byte[]{6, 7, 8}, 1);
     }
 
     @Test
-    public void putFromArrayChecksArgumentArray() {
-        assertThatThrownBy(() -> uut.put(1, 1, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> uut.put(1, 1, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
+    public void setFromArrayChecksArgumentArray() {
+        assertThatThrownBy(() -> uut.set(1, 1, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> uut.set(1, 1, new byte[]{}, 0)).isInstanceOf(IllegalArgumentException.class);
     }
     @Test
     public void getByteChecksOffset() {

@@ -18,9 +18,9 @@ public final class SafeBlock implements DataBlock {
     }
 
     @Override
-    public void put(long offset, byte source) {
+    public void set(long offset, byte source) {
         ensureValidOffset(offset);
-        this.source.put(offset, source);
+        this.source.set(offset, source);
     }
 
     private void ensureValidOffset(long offset) {
@@ -42,11 +42,11 @@ public final class SafeBlock implements DataBlock {
     }
 
     @Override
-    public void put(long offset, long length, byte[] source, long sourceOffset) {
+    public void set(long offset, long length, byte[] source, long sourceOffset) {
         ensureValidOffset(offset);
         ensureValidLength(offset, length);
         ensureValidArrayRange(source, sourceOffset, length);
-        this.source.put(offset, length, source, sourceOffset);
+        this.source.set(offset, length, source, sourceOffset);
     }
 
     @Override

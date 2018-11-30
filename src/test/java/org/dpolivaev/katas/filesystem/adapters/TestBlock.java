@@ -32,12 +32,12 @@ public class TestBlock implements DataBlock {
     }
 
     @Override
-    public void put(long offset, byte source) {
+    public void set(long offset, byte source) {
         data[(int) offset] = source;
     }
 
     @Override
-    public void put(long offset, long length, byte[] source, long sourceOffset) {
+    public void set(long offset, long length, byte[] source, long sourceOffset) {
         System.arraycopy(source, (int)sourceOffset, data, (int) offset, (int)length);
     }
 

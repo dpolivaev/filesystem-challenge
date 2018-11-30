@@ -7,34 +7,34 @@ public interface DataBlock extends Splittable<DataBlock>{
 
     long size();
 
-    void put(long offset, byte source);
+    void set(long offset, byte source);
 
-    default void put(final long offset, final long source) {
-        putNumber(offset, source, Long.BYTES);
+    default void set(final long offset, final long source) {
+        setNumber(offset, source, Long.BYTES);
     }
 
-    default void put(final long offset, final int source) {
-        putNumber(offset, Integer.toUnsignedLong(source), Integer.BYTES);
+    default void set(final long offset, final int source) {
+        setNumber(offset, Integer.toUnsignedLong(source), Integer.BYTES);
     }
 
-    default void putNumber(final long offset, long source, final int byteCount) {
+    default void setNumber(final long offset, long source, final int byteCount) {
         for (int i = byteCount - 1; i >= 0; i--) {
-            put(offset + i, (byte)(source & 0xFF));
+            set(offset + i, (byte)(source & 0xFF));
             source >>= 8;
         }
     }
 
-    default void put(final long offset, final byte[] source) {
-        put(offset, source.length, source, 0);
+    default void set(final long offset, final byte[] source) {
+        set(offset, source.length, source, 0);
     }
 
-    default void put(final long offset, final String source) {
+    default void set(final long offset, final String source) {
         final byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
-        put(offset, bytes.length);
-        put(offset + Integer.BYTES, bytes);
+        set(offset, bytes.length);
+        set(offset + Integer.BYTES, bytes);
     }
 
-    void put(long offset, long length, byte[] source, long sourceOffset);
+    void set(long offset, long length, byte[] source, long sourceOffset);
 
     byte getByte(long offset);
 

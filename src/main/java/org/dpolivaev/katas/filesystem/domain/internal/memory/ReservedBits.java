@@ -54,7 +54,7 @@ class ReservedBits {
         for(int bitPosition = 0; bitPosition < Byte.SIZE; bitPosition++) {
             final int modifiedBit = (candidate | modificaton);
             if(modifiedBit != candidate) {
-                block.put(byteIndex, (byte)modifiedBit);
+                block.set(byteIndex, (byte)modifiedBit);
                 return byteIndex * Byte.SIZE + bitPosition;
             }
             else
@@ -74,7 +74,7 @@ class ReservedBits {
         final byte newBits = releaseBit(bits, bitIndex);
         if (bits == newBits)
             throw new IllegalStateException("Bit was not set");
-        block.put(byteIndex, newBits);
+        block.set(byteIndex, newBits);
 
     }
 
