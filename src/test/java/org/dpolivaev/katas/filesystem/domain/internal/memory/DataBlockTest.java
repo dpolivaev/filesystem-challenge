@@ -4,7 +4,6 @@ import org.dpolivaev.katas.filesystem.adapters.TestBlock;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 public class DataBlockTest {
@@ -36,6 +35,14 @@ public class DataBlockTest {
         assertThat(uut.getLong(1 + 16)).isEqualTo(Long.MIN_VALUE);
         assertThat(uut.getLong(1 + 24)).isEqualTo(Long.MAX_VALUE);
         assertThat(uut.getByte(1 + 32)).isEqualTo((byte)0);
+    }
+
+    @Test
+    public void savesString() {
+        TestBlock uut = new TestBlock(1, 8);
+        uut.put(1, "abc");
+        assertThat(uut.getByte(0)).isEqualTo((byte)0);
+        assertThat(uut.getString(1)).isEqualTo("abc");
     }
 
     @Test
