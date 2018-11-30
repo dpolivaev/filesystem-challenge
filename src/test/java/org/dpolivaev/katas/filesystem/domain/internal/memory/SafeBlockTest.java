@@ -91,10 +91,17 @@ public class SafeBlockTest {
         verify(delegate).get(1L, 2L, destination, 1L);
     }
 
-
     @Test
     public void splitChecksOffset() {
         assertThatThrownBy(() -> uut.split(-1)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> uut.split(4)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+
+    @Test
+    public void splitReturnsSafeBlock() {
+        final Pair<DataBlock, DataBlock> pair = uut.split(2);
+        assertThat(pair.first).isInstanceOf(SafeBlock.class);
+        assertThat(pair.second).isInstanceOf(SafeBlock.class);
     }
 }

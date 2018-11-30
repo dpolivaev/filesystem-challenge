@@ -1,6 +1,6 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
-public final class SafeBlock implements DataBlock {
+final class SafeBlock implements DataBlock {
     private final DataBlock source;
 
     SafeBlock(final DataBlock source) {
@@ -66,7 +66,8 @@ public final class SafeBlock implements DataBlock {
     @Override
     public Pair<DataBlock, DataBlock> split(final long offset) {
         ensureValidOffset(offset);
-        return source.split(offset);
+        final Pair<DataBlock, DataBlock> pair = source.split(offset);
+        return new Pair<>(pair.first.safe(), pair.second.safe());
     }
 
     @Override

@@ -10,5 +10,9 @@ public interface Memory extends Splittable<Memory>{
         final Memory second = new SplitMemory(this, position, size());
             return new Pair<>(first, second);
     }
+
+    default Memory safe() {
+        return new SafeMemory(this);
+    }
 }
 
