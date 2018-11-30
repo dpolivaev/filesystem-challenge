@@ -4,6 +4,7 @@ import org.dpolivaev.katas.filesystem.adapters.TestBlock;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 public class DataBlockTest {
@@ -35,5 +36,31 @@ public class DataBlockTest {
         assertThat(uut.getLong(1 + 16)).isEqualTo(Long.MIN_VALUE);
         assertThat(uut.getLong(1 + 24)).isEqualTo(Long.MAX_VALUE);
         assertThat(uut.getByte(1 + 32)).isEqualTo((byte)0);
+    }
+
+    @Test
+    public void splitsBlocks() {
+        TestBlock uut = new TestBlock(1, 3);
+        uut.put(0, (byte)1);
+        uut.put(1, (byte)2);
+        uut.put(2, (byte)3);
+
+        Pair<DataBlock, DataBlock> pair = uut.split(2);
+
+        DataBlock first = pair.first;
+        assertThat(first.position()).isEqualTo(1);
+        assertThat(first.size()).isEqualTo(2);
+        assertThat(first.getByte(0)).isEqualTo((byte)1);
+        assertThat(first.getByte(1)).isEqualTo((byte)2);
+        DataBlock second = pair.second;
+        assertThat(second.position()).isEqualTo(1);
+        assertThat(second.size()).isEqualTo(1);
+        assertThat(second.getByte(0)).isEqualTo((byte)3);
+    }
+    @Test
+    public void spliBlocksThrowsIllegalArgumentException_ifSplitPositionExceedsAvailableRange() {
+        TestBlock uut = new TestBlock(1, 3);
+        assertThatThrownBy(() -> uut.split( -1));
+        assertThatThrownBy(() -> uut.split( 3));
     }
 }

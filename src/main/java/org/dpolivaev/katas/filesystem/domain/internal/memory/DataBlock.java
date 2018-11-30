@@ -43,4 +43,14 @@ public interface DataBlock extends Splittable<DataBlock>{
     default void get(byte[] destination, long sourceOffset) {
         get(0, size(), destination, sourceOffset);
     }
+
+    @Override
+    default Pair<DataBlock, DataBlock> split(long position) {
+        if(position < 0 || position >= size())
+            throw new IllegalArgumentException("Invalid split position");
+        DataBlock first = new SplitBlock(this, 0, position);
+        DataBlock second = new SplitBlock(this, position, size());
+        return new Pair<>(first, second);
+    }
 }
+
