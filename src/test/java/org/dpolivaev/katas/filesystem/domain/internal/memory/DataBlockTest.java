@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DataBlockTest {
     @Test
     public void savesIntegers() {
-        TestBlock uut = new TestBlock(1, 18);
+        final TestBlock uut = new TestBlock(1, 18);
         uut.set(1, -1);
         uut.set(5, 1);
         uut.set(9, Integer.MIN_VALUE);
@@ -24,7 +24,7 @@ public class DataBlockTest {
 
     @Test
     public void savesLongs() {
-        TestBlock uut = new TestBlock(1, 34);
+        final TestBlock uut = new TestBlock(1, 34);
         uut.set(1, -1L);
         uut.set(1 + 8, 1L);
         uut.set(1 + 16, Long.MIN_VALUE);
@@ -39,7 +39,7 @@ public class DataBlockTest {
 
     @Test
     public void savesString() {
-        TestBlock uut = new TestBlock(1, 8);
+        final TestBlock uut = new TestBlock(1, 8);
         uut.set(1, "abc");
         assertThat(uut.getByte(0)).isEqualTo((byte)0);
         assertThat(uut.getString(1)).isEqualTo("abc");
@@ -47,16 +47,16 @@ public class DataBlockTest {
 
     @Test
     public void splitsBlocks() {
-        TestBlock uut = new TestBlock(1, 3).filledAscendingFrom(1);
+        final TestBlock uut = new TestBlock(1, 3).filledAscendingFrom(1);
 
-        Pair<DataBlock, DataBlock> pair = uut.split(2);
+        final Pair<DataBlock, DataBlock> pair = uut.split(2);
 
-        DataBlock first = pair.first;
+        final DataBlock first = pair.first;
         assertThat(first.position()).isEqualTo(1);
         assertThat(first.size()).isEqualTo(2);
         assertThat(first.getByte(0)).isEqualTo((byte)1);
         assertThat(first.getByte(1)).isEqualTo((byte)2);
-        DataBlock second = pair.second;
+        final DataBlock second = pair.second;
         assertThat(second.position()).isEqualTo(1);
         assertThat(second.size()).isEqualTo(1);
         assertThat(second.getByte(0)).isEqualTo((byte)3);

@@ -1,7 +1,6 @@
 package org.dpolivaev.katas.filesystem.adapters;
 
 import org.dpolivaev.katas.filesystem.domain.internal.memory.DataBlock;
-import org.dpolivaev.katas.filesystem.domain.internal.memory.Pair;
 
 import java.util.Arrays;
 
@@ -10,12 +9,12 @@ public class TestBlock implements DataBlock {
     private final int id;
     private final byte[] data;
 
-    public TestBlock(int id, int size) {
+    public TestBlock(final int id, final int size) {
         this.id = id;
         this.data = new byte[size];
     }
 
-    public TestBlock filledAscendingFrom(int from){
+    public TestBlock filledAscendingFrom(final int from) {
         for(int i = 0; i < data.length; i++)
             data[i] = (byte)((from + i) & 0xff);
         return this;
@@ -32,22 +31,22 @@ public class TestBlock implements DataBlock {
     }
 
     @Override
-    public void set(long offset, byte source) {
+    public void set(final long offset, final byte source) {
         data[(int) offset] = source;
     }
 
     @Override
-    public void set(long offset, long length, byte[] source, long sourceOffset) {
+    public void set(final long offset, final long length, final byte[] source, final long sourceOffset) {
         System.arraycopy(source, (int)sourceOffset, data, (int) offset, (int)length);
     }
 
     @Override
-    public byte getByte(long offset) {
+    public byte getByte(final long offset) {
         return data[(int) offset];
     }
 
     @Override
-    public void get(long offset, long length, byte[] destination, long destinationOffset) {
+    public void get(final long offset, final long length, final byte[] destination, final long destinationOffset) {
         System.arraycopy(data, (int) (offset), destination, (int)destinationOffset, (int)length);
     }
 

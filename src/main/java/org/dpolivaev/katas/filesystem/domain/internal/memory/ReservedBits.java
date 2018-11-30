@@ -54,7 +54,7 @@ class ReservedBits {
         for(int bitPosition = 0; bitPosition < Byte.SIZE; bitPosition++) {
             final int modifiedBit = (candidate | modificaton);
             if(modifiedBit != candidate) {
-                block.set(byteIndex, (byte)modifiedBit);
+                block.set(byteIndex, (byte) modifiedBit);
                 return byteIndex * Byte.SIZE + bitPosition;
             }
             else

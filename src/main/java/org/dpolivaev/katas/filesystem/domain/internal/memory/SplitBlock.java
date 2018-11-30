@@ -5,7 +5,7 @@ class SplitBlock implements DataBlock {
     private final long start;
     private final long end;
 
-    SplitBlock(DataBlock source, long start, long end) {
+    SplitBlock(final DataBlock source, final long start, final long end) {
         this.source = source;
         this.start = start;
         this.end = end;
@@ -17,10 +17,10 @@ class SplitBlock implements DataBlock {
     }
 
     @Override
-    public Pair<DataBlock, DataBlock> split(long position) {
-        long splitPosition = start + position;
-        DataBlock first = new SplitBlock(source, start, splitPosition);
-        DataBlock second = new SplitBlock(source, splitPosition, this.end);
+    public Pair<DataBlock, DataBlock> split(final long position) {
+        final long splitPosition = start + position;
+        final DataBlock first = new SplitBlock(source, start, splitPosition);
+        final DataBlock second = new SplitBlock(source, splitPosition, this.end);
         return new Pair<>(first, second);
     }
 
@@ -30,22 +30,22 @@ class SplitBlock implements DataBlock {
     }
 
     @Override
-    public void set(long offset, byte source) {
+    public void set(final long offset, final byte source) {
         this.source.set(start + offset, source);
     }
 
     @Override
-    public void set(long offset, long length, byte[] source, long sourceOffset) {
+    public void set(final long offset, final long length, final byte[] source, final long sourceOffset) {
         this.source.set(start + offset, length, source, sourceOffset);
     }
 
     @Override
-    public byte getByte(long offset) {
+    public byte getByte(final long offset) {
         return source.getByte(start + offset);
     }
 
     @Override
-    public void get(long offset, long length, byte[] destination, long destinationOffset) {
+    public void get(final long offset, final long length, final byte[] destination, final long destinationOffset) {
         source.get(offset, length, destination, destinationOffset);
     }
 }

@@ -15,7 +15,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class SafeBlockTest {
     @Spy
-    private DataBlock delegate = new TestBlock(1, 4).filledAscendingFrom(1);
+    private final DataBlock delegate = new TestBlock(1, 4).filledAscendingFrom(1);
 
     @InjectMocks
     private SafeBlock uut;
@@ -86,7 +86,7 @@ public class SafeBlockTest {
 
     @Test
     public void getToArraySucceeds() {
-        byte[] destination = {6, 7, 8};
+        final byte[] destination = {6, 7, 8};
         uut.get(1, 2, destination, 1);
         verify(delegate).get(1L, 2L, destination, 1L);
     }

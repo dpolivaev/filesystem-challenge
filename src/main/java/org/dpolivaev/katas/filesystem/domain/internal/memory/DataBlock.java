@@ -19,7 +19,7 @@ public interface DataBlock extends Splittable<DataBlock>{
 
     default void setNumber(final long offset, long source, final int byteCount) {
         for (int i = byteCount - 1; i >= 0; i--) {
-            set(offset + i, (byte)(source & 0xFF));
+            set(offset + i, (byte) (source & 0xFF));
             source >>= 8;
         }
     }
