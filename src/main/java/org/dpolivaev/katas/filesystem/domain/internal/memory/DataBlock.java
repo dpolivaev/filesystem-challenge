@@ -63,7 +63,6 @@ public interface DataBlock extends Splittable<DataBlock>{
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
-
     void get(long offset, long length, byte[] destination, long destinationOffset);
 
     default void get(final long offset, final byte[] destination) {

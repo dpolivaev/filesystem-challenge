@@ -2,33 +2,31 @@ package org.dpolivaev.katas.filesystem.adapters;
 
 import org.dpolivaev.katas.filesystem.domain.internal.memory.DataBlock;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.Memory;
-import org.dpolivaev.katas.filesystem.domain.internal.memory.Pair;
 
 import java.util.Vector;
 
 public class TestMemory implements Memory {
 
     private final Vector<TestBlock> blocks;
-    private final int blockSize;
+    private final int memorySize;
 
-    public TestMemory(int blockCount, int blockSize) {
+    public TestMemory(final int blockCount, final int memorySize) {
         this.blocks = new Vector<>(blockCount);
         blocks.setSize(blockCount);
-        this.blockSize = blockSize;
+        this.memorySize = memorySize;
     }
 
-
     @Override
-    public long blockCount() {
+    public long size() {
         return blocks.size();
     }
 
     @Override
-    public DataBlock at(long position) {
-        int index = (int) position;
+    public DataBlock at(final long position) {
+        final int index = (int) position;
         TestBlock block = blocks.elementAt(index);
         if(block == null) {
-            block = new TestBlock(index, blockSize);
+            block = new TestBlock(index, memorySize);
             blocks.setElementAt(block, index);
         }
         return block;
