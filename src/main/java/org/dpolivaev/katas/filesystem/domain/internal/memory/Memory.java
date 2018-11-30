@@ -1,5 +1,6 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
-public interface Memory {
-    DataBlock at(long number);
+public interface Memory extends Splittable<Memory>{
+    long blockCount();
+    DataBlock at(long position);
 }
