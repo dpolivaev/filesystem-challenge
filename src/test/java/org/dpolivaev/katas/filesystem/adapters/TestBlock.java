@@ -15,6 +15,12 @@ public class TestBlock implements DataBlock {
         this.data = new byte[size];
     }
 
+    public TestBlock filledAscendingFrom(int from){
+        for(int i = 0; i < data.length; i++)
+            data[i] = (byte)((from + i) & 0xff);
+        return this;
+    }
+
     @Override
     public long position() {
         return id;
@@ -43,12 +49,6 @@ public class TestBlock implements DataBlock {
     @Override
     public void get(long offset, long length, byte[] destination, long destinationOffset) {
         System.arraycopy(data, (int) (offset), destination, (int)destinationOffset, (int)length);
-    }
-
-    public byte[] copy(){
-        byte[] copy = new byte[(int) size()];
-        get(copy, 0);
-        return copy;
     }
 
     @Override

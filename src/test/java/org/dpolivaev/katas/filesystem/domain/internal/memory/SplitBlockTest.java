@@ -9,11 +9,7 @@ public class SplitBlockTest {
 
     @Test
     public void splitsBlocks() {
-        TestBlock testBlock = new TestBlock(1, 4);
-        testBlock.put(0, (byte)1);
-        testBlock.put(1, (byte)2);
-        testBlock.put(2, (byte)3);
-        testBlock.put(3, (byte)4);
+        TestBlock testBlock = new TestBlock(1, 4).filledAscendingFrom(1);
 
         SplitBlock uut = new SplitBlock(testBlock, 1, 3);
 

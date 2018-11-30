@@ -40,10 +40,7 @@ public class DataBlockTest {
 
     @Test
     public void splitsBlocks() {
-        TestBlock uut = new TestBlock(1, 3);
-        uut.put(0, (byte)1);
-        uut.put(1, (byte)2);
-        uut.put(2, (byte)3);
+        TestBlock uut = new TestBlock(1, 3).filledAscendingFrom(1);
 
         Pair<DataBlock, DataBlock> pair = uut.split(2);
 
@@ -57,10 +54,4 @@ public class DataBlockTest {
         assertThat(second.size()).isEqualTo(1);
         assertThat(second.getByte(0)).isEqualTo((byte)3);
     }
-    @Test
-    public void spliBlocksThrowsIllegalArgumentException_ifSplitPositionExceedsAvailableRange() {
-        TestBlock uut = new TestBlock(1, 3);
-        assertThatThrownBy(() -> uut.split( -1));
-        assertThatThrownBy(() -> uut.split( 3));
-    }
-}
+ }
