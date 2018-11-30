@@ -35,8 +35,10 @@ public class TestMemory implements Memory {
     public DataBlock at(long position) {
         int index = (int) position;
         TestBlock block = blocks.elementAt(index);
-        if(block == null)
+        if(block == null) {
             block = new TestBlock(index, blockSize);
+            blocks.setElementAt(block, index);
+        }
         return block;
     }
 

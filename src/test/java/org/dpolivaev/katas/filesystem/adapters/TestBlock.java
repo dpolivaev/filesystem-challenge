@@ -6,6 +6,7 @@ import org.dpolivaev.katas.filesystem.domain.internal.memory.Pair;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 
 public class TestBlock implements DataBlock {
 
@@ -73,4 +74,13 @@ public class TestBlock implements DataBlock {
         return copy;
     }
 
+    @Override
+    public String toString() {
+        return "TestBlock{" +
+                "id=" + id +
+                ", data=" + Arrays.toString(data) +
+                ", start=" + start +
+                ", end=" + end +
+                '}';
+    }
 }
