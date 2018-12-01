@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class FilePageTest {
     @Test
-    public void descriptor() {
+    public void readsSizeAndNameFromDescriptor() {
         final PagePool pagePool = new PagePool(new TestPages(2, 1), new Random());
         final Page page = new TestPage(FilePage.DATA_POSITION);
         final PageEditor editor = new PageEditor();
@@ -19,20 +19,25 @@ public class FilePageTest {
         editor.write(10L);
         editor.write("name");
         final FilePage uut = new FilePage(pagePool, page);
+
         Assertions.assertThat(uut.fileName()).isEqualTo("name");
-        Assertions.assertThat(uut.size()).isEqualTo(10L);
+        Assertions.assertThat(uut.fileSize()).isEqualTo(10L);
     }
 
     @Test
-    public void read() {
+    public void savesByteOnInitialPage() {
         final PagePool pagePool = new PagePool(new TestPages(2, 1), new Random());
-        final Page page = new TestPage(FilePage.DATA_POSITION + 2);
+        final Page page = new TestPage(FilePage.DATA_POSITION + 1);
         final PageEditor editor = new PageEditor();
         editor.setPage(page);
-        editor.write(10L);
+        editor.write(0L);
         editor.write("name");
         final FilePage uut = new FilePage(pagePool, page);
-        Assertions.assertThat(uut.fileName()).isEqualTo("name");
-        Assertions.assertThat(uut.size()).isEqualTo(10L);
+
+        editor.setPage(uut);
+        editor.write((byte) -1);
+        editor.setPosition(0);
+        Assertions.assertThat(editor.readByte()).isEqualTo((byte) -1);
+        Assertions.assertThat(uut.fileSize()).isEqualTo(1L);
     }
 }

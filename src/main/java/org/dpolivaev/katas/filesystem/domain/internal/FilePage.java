@@ -29,12 +29,16 @@ class FilePage implements Page {
 
     @Override
     public long size() {
+        return Long.MAX_VALUE;
+    }
+
+    public long fileSize() {
         pageEditor.setPage(dataDescriptor);
         pageEditor.setPosition(SIZE_POSITION);
         return pageEditor.readLong();
     }
 
-    private void setSize(final long size) {
+    private void setFileSize(final long size) {
         pageEditor.setPage(dataDescriptor);
         pageEditor.setPosition(SIZE_POSITION);
         pageEditor.write(size);
@@ -68,8 +72,8 @@ class FilePage implements Page {
 
 
     private void increaseSize(final long requiredSize) {
-        if (size() < requiredSize)
-            setSize(requiredSize);
+        if (fileSize() < requiredSize)
+            setFileSize(requiredSize);
     }
 
     public void truncate(final long newSize) {
