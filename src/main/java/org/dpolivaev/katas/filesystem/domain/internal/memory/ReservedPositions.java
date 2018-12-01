@@ -5,15 +5,13 @@ import java.util.Random;
 
 class ReservedPositions {
     private final Memory memory;
-    private final int pageSize;
     private final long availablePositions;
     private final PrimitiveIterator.OfLong randomBitOffsets;
 
-    ReservedPositions(final Memory memory, final int pageSize, final long availablePositions, final Random random) {
-        if (availablePositions < 0 || availablePositions > memory.size() * pageSize * Byte.SIZE)
+    ReservedPositions(final Memory memory, final long availablePositions, final Random random) {
+        if (availablePositions < 0 || availablePositions > memory.size() * memory.pageSize() * Byte.SIZE)
             throw new IllegalArgumentException("Invalid availablePositions");
         this.memory = memory;
-        this.pageSize = pageSize;
         this.availablePositions = availablePositions;
         this.randomBitOffsets = random.longs(0, availablePositions).iterator();
     }
@@ -26,8 +24,8 @@ class ReservedPositions {
                 position -= availablePositions;
             final int bitIndex = (int) (position & 0x7);
             final long bytePosition = (position >> 3);
-            final long pageIndex = bytePosition / pageSize;
-            final int byteIndex = (int) (bytePosition % pageSize);
+            final long pageIndex = bytePosition / pageSize();
+            final int byteIndex = (int) (bytePosition % pageSize());
             final Page page = memory.at(pageIndex);
             final byte bits = page.readByte(byteIndex);
             final byte newBits = setBit(bits, bitIndex);
@@ -39,6 +37,10 @@ class ReservedPositions {
         throw new OutOfMemoryException("No bits available");
     }
 
+    private int pageSize() {
+        return memory.pageSize();
+    }
+
     private byte setBit(final byte bits, final int bitIndex) {
         return (byte) (bits | (1 << bitIndex));
     }
@@ -46,8 +48,8 @@ class ReservedPositions {
     void releasePosition(final long position) {
         final int bitIndex = (int) (position & 0x7);
         final long bytePosition = (position >> 3);
-        final long pageIndex = bytePosition / pageSize;
-        final int byteIndex = (int) (bytePosition % pageSize);
+        final long pageIndex = bytePosition / pageSize();
+        final int byteIndex = (int) (bytePosition % pageSize());
         final Page page = memory.at(pageIndex);
         final byte bits = page.readByte(byteIndex);
         final byte newBits = unsetBit(bits, bitIndex);

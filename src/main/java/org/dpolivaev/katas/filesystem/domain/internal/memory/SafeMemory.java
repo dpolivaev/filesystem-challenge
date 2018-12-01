@@ -13,6 +13,11 @@ class SafeMemory implements Memory {
         return source.size();
     }
 
+    @Override
+    public int pageSize() {
+        return source.pageSize();
+    }
+
     private void ensureValidPosition(final long position) {
         if (position < 0 || position >= size())
             throw new IllegalArgumentException("Invalid offset " + position);
@@ -22,13 +27,6 @@ class SafeMemory implements Memory {
     public Page at(final long position) {
         ensureValidPosition(position);
         return source.at(position);
-    }
-
-    @Override
-    public Pair<Memory, Memory> split(final long position) {
-        ensureValidPosition(position);
-        final Pair<Memory, Memory> pair = source.split(position);
-        return new Pair<>(pair.first.safe(), pair.second.safe());
     }
 
     @Override

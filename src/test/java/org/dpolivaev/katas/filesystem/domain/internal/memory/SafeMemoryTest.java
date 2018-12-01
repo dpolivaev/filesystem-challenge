@@ -23,12 +23,6 @@ public class SafeMemoryTest {
     }
 
     @Test
-    public void splitChecksOffset() {
-        assertThatThrownBy(() -> uut.split(-1)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> uut.split(4)).isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
     public void atChecksOffset() {
         assertThatThrownBy(() -> uut.at(-1)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> uut.at(4)).isInstanceOf(IllegalArgumentException.class);
@@ -37,14 +31,6 @@ public class SafeMemoryTest {
     @Test
     public void atSucceeds() {
         assertThat(uut.at(0L)).isSameAs(delegate.at(0L));
-    }
-
-
-    @Test
-    public void splitReturnsSafeMemory() {
-        final Pair<Memory, Memory> pair = uut.split(2);
-        assertThat(pair.first).isInstanceOf(SafeMemory.class);
-        assertThat(pair.second).isInstanceOf(SafeMemory.class);
     }
 
 }
