@@ -25,11 +25,6 @@ class SubPage implements Page {
     }
 
     @Override
-    public long pageNumber() {
-        return source.pageNumber();
-    }
-
-    @Override
     public void write(final long offset, final byte source) {
         this.source.write(start + offset, source);
     }

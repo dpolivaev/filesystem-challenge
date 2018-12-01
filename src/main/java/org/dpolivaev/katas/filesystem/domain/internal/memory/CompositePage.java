@@ -20,11 +20,6 @@ abstract public class CompositePage implements Page {
     }
 
     @Override
-    public long pageNumber() {
-        return pageNumber;
-    }
-
-    @Override
     abstract public long size();
 
     @Override

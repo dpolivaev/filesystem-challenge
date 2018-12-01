@@ -19,11 +19,6 @@ class FilePage implements Page {
     }
 
     @Override
-    public long pageNumber() {
-        return dataDescriptor.pageNumber();
-    }
-
-    @Override
     public long size() {
         pageEditor.setPage(dataDescriptor);
         pageEditor.setPosition(SIZE_POSITION);

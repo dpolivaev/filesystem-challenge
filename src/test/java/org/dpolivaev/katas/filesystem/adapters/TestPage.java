@@ -6,11 +6,9 @@ import java.util.Arrays;
 
 public class TestPage implements Page {
 
-    private final int id;
     private final byte[] data;
 
-    public TestPage(final int id, final int size) {
-        this.id = id;
+    public TestPage(final int size) {
         this.data = new byte[size];
     }
 
@@ -18,11 +16,6 @@ public class TestPage implements Page {
         for(int i = 0; i < data.length; i++)
             data[i] = (byte)((from + i) & 0xff);
         return this;
-    }
-
-    @Override
-    public long pageNumber() {
-        return id;
     }
 
     @Override
@@ -52,9 +45,8 @@ public class TestPage implements Page {
 
     @Override
     public String toString() {
-        return "TestPage{" +
-                "id=" + id +
-                ", data=" + Arrays.toString(data) +
+        return "TestPage{"
+                + Arrays.toString(data) +
                 '}';
     }
 }

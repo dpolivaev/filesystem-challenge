@@ -1,8 +1,6 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
 public interface Page {
-    long pageNumber();
-
     long size();
 
     void write(long offset, byte source);

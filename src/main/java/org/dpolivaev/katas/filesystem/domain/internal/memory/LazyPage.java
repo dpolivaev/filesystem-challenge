@@ -12,11 +12,6 @@ public class LazyPage implements Page {
         this.pageSize = pageSize;
     }
 
-    @Override
-    public long pageNumber() {
-        return suppliedPage().pageNumber();
-    }
-
     private Page suppliedPage() {
         if (suppliedPage == null)
             suppliedPage = pageSupplier.get();

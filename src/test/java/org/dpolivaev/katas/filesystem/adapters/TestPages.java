@@ -31,7 +31,7 @@ public class TestPages implements Pages {
         final int index = (int) position;
         TestPage page = pages.elementAt(index);
         if (page == null) {
-            page = new TestPage(index, pageSize);
+            page = new TestPage(pageSize);
             pages.setElementAt(page, index);
         }
         return page;
