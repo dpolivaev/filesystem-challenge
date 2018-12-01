@@ -25,6 +25,13 @@ public class PagePool {
         return new PageAllocation(pages.at(reservationPages + pageNumber), pageNumber + 1);
     }
 
+    Page at(final long pageNumber) {
+        if (reservations.isReserved(pageNumber - 1))
+            return pages.at(reservationPages + pageNumber - 1);
+        else
+            throw new IllegalArgumentException("Page not reserved");
+    }
+
     void release(final long pageNumber) {
         reservations.releasePosition(pageNumber - 1);
     }

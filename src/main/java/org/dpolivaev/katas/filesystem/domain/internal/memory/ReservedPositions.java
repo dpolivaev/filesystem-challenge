@@ -7,6 +7,10 @@ class ReservedPositions {
     private final Pages pages;
     private final long availablePositions;
     private final PrimitiveIterator.OfLong randomBitOffsets;
+    private int bitIndex;
+    private int byteIndex;
+    private Page page;
+    private byte bits;
 
     ReservedPositions(final Pages pages, final long availablePositions, final Random random) {
         if (availablePositions < 0 || availablePositions > pages.size() * pages.pageSize() * Byte.SIZE)
@@ -22,12 +26,7 @@ class ReservedPositions {
             long position = positionOffset + counter;
             if (position >= availablePositions)
                 position -= availablePositions;
-            final int bitIndex = (int) (position & 0x7);
-            final long bytePosition = (position >> 3);
-            final long pageIndex = bytePosition / pageSize();
-            final int byteIndex = (int) (bytePosition % pageSize());
-            final Page page = pages.at(pageIndex);
-            final byte bits = page.readByte(byteIndex);
+            findBit(position);
             final byte newBits = setBit(bits, bitIndex);
             if (bits != newBits) {
                 page.write(byteIndex, newBits);
@@ -35,6 +34,15 @@ class ReservedPositions {
             }
         }
         throw new OutOfMemoryException("No pages available");
+    }
+
+    private void findBit(final long position) {
+        bitIndex = (int) (position & 0x7);
+        final long bytePosition = (position >> 3);
+        final long pageIndex = bytePosition / pageSize();
+        byteIndex = (int) (bytePosition % pageSize());
+        page = pages.at(pageIndex);
+        bits = page.readByte(byteIndex);
     }
 
     private int pageSize() {
@@ -46,12 +54,7 @@ class ReservedPositions {
     }
 
     void releasePosition(final long position) {
-        final int bitIndex = (int) (position & 0x7);
-        final long bytePosition = (position >> 3);
-        final long pageIndex = bytePosition / pageSize();
-        final int byteIndex = (int) (bytePosition % pageSize());
-        final Page page = pages.at(pageIndex);
-        final byte bits = page.readByte(byteIndex);
+        findBit(position);
         final byte newBits = unsetBit(bits, bitIndex);
         if (bits == newBits)
             throw new IllegalArgumentException("Bit was not set");
@@ -60,5 +63,11 @@ class ReservedPositions {
 
     private byte unsetBit(final byte bits, final int bitIndex) {
         return (byte) (bits & ~(1 << bitIndex));
+    }
+
+    public boolean isReserved(final long position) {
+        findBit(position);
+        final byte newBits = unsetBit(bits, bitIndex);
+        return newBits != bits;
     }
 }

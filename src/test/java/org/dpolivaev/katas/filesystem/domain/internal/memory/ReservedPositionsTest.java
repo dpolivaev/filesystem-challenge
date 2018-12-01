@@ -46,13 +46,19 @@ public class ReservedPositionsTest {
         final ReservedPositions uut = new ReservedPositions(new TestPages(memorySize, pageSize), availablePositions, random);
 
         LongStream.range(bitOffset, availablePositions).forEach(
-                expected -> Assertions.assertThat(uut.reservePosition()).isEqualTo(expected)
+                expected -> assertThatReservedPositionIsExpected(uut, expected)
         );
 
         LongStream.range(0, bitOffset).forEach(
-                expected -> Assertions.assertThat(uut.reservePosition()).isEqualTo(expected)
+                expected -> assertThatReservedPositionIsExpected(uut, expected)
         );
         Assertions.assertThatThrownBy(() -> uut.reservePosition()).isInstanceOf(OutOfMemoryException.class);
+    }
+
+    private void assertThatReservedPositionIsExpected(final ReservedPositions uut, final long expectedPosition) {
+        final long position = uut.reservePosition();
+        Assertions.assertThat(position).isEqualTo(expectedPosition);
+        Assertions.assertThat(uut.isReserved(expectedPosition)).isTrue();
     }
 
     @Test
@@ -69,7 +75,8 @@ public class ReservedPositionsTest {
 
         uut.reservePosition();
         uut.releasePosition(bitOffset);
-        Assertions.assertThat(uut.reservePosition()).isEqualTo(bitOffset);
+        Assertions.assertThat(uut.isReserved(bitOffset)).isFalse();
+        assertThatReservedPositionIsExpected(uut, bitOffset);
     }
 
 

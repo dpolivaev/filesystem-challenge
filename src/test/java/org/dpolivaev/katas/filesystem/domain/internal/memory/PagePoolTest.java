@@ -1,6 +1,5 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
-import org.assertj.core.api.Assertions;
 import org.dpolivaev.katas.filesystem.adapters.TestPages;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -8,6 +7,8 @@ import org.mockito.Mockito;
 import java.util.Random;
 import java.util.stream.LongStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 public class PagePoolTest {
@@ -22,16 +23,21 @@ public class PagePoolTest {
     public void reservesPage1_from2() {
         final TestPages memory = new TestPages(2, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 1));
+
         final PageAllocation page = uut.reserve();
-        Assertions.assertThat(page.pageNumber).isEqualTo(1L);
+
+        assertThat(page.pageNumber).isEqualTo(1L);
+        assertThat(uut.at(1L)).isSameAs(page);
     }
 
     @Test
     public void reservesPage1_from10() {
         final TestPages memory = new TestPages(10, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 8));
+
         final PageAllocation page = uut.reserve();
-        Assertions.assertThat(page.pageNumber).isEqualTo(1L);
+
+        assertThat(page.pageNumber).isEqualTo(1L);
     }
 
 
@@ -39,23 +45,31 @@ public class PagePoolTest {
     public void reservesPage1_from11() {
         final TestPages memory = new TestPages(11, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 9));
+
         final PageAllocation page = uut.reserve();
-        Assertions.assertThat(page.pageNumber).isEqualTo(1L);
+
+        assertThat(page.pageNumber).isEqualTo(1L);
     }
 
     @Test
     public void reservesPages_9_and_1_from11() {
         final TestPages memory = new TestPages(11, 1);
+
         final PagePool uut = new PagePool(memory, randomReturningConstant(8, 9));
-        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(9L);
-        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(1L);
+
+        assertThat(uut.reserve().pageNumber).isEqualTo(9L);
+        assertThat(uut.reserve().pageNumber).isEqualTo(1L);
     }
 
     @Test
     public void releasesPage() {
         final TestPages memory = new TestPages(11, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(8, 9));
-        uut.release(uut.reserve().pageNumber);
-        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(9L);
+
+        final long pageNumber = uut.reserve().pageNumber;
+        uut.release(pageNumber);
+
+        assertThatThrownBy(() -> uut.at(pageNumber)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(uut.reserve().pageNumber).isEqualTo(9L);
     }
 }
