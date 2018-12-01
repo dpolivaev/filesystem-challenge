@@ -40,4 +40,24 @@ public class FilePageTest {
         Assertions.assertThat(editor.readByte()).isEqualTo((byte) -1);
         Assertions.assertThat(uut.fileSize()).isEqualTo(1L);
     }
+
+
+    @Test
+    public void savesByteAfterInitialPage() {
+        final PagePool pagePool = new PagePool(new TestPages(2, 1), new Random());
+        final Page page = new TestPage(FilePage.DATA_POSITION + 1);
+        final PageEditor editor = new PageEditor();
+        editor.setPage(page);
+        editor.write(0L);
+        editor.write("name");
+        final FilePage uut = new FilePage(pagePool, page);
+
+        editor.setPage(uut);
+        editor.setPosition(1);
+        editor.write((byte) -1);
+        editor.setPosition(0);
+        Assertions.assertThat(editor.readByte()).isEqualTo((byte) 0);
+        Assertions.assertThat(editor.readByte()).isEqualTo((byte) -1);
+        Assertions.assertThat(uut.fileSize()).isEqualTo(1L);
+    }
 }

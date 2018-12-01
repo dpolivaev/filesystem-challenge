@@ -44,7 +44,6 @@ class FilePage implements Page {
         pageEditor.write(size);
     }
 
-
     public String fileName() {
         pageEditor.setPage(dataDescriptor);
         pageEditor.setPosition(NAME_POSITION);
@@ -60,6 +59,7 @@ class FilePage implements Page {
 
     private void selectWritingPosition(final long offset, final long length) {
         pageEditor.setPage(new ArbitraryCompositePage(this::forWriting, 1));
+        pageEditor.setPosition(offset);
     }
 
     private Page forWriting(final long index) {
@@ -68,6 +68,7 @@ class FilePage implements Page {
 
     private void selectReadingPosition(final long offset, final long length) {
         pageEditor.setPage(new ArbitraryCompositePage(this::forWriting, 1));
+        pageEditor.setPosition(offset);
     }
 
 
