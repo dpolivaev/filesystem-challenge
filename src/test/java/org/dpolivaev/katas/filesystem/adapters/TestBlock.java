@@ -1,10 +1,10 @@
 package org.dpolivaev.katas.filesystem.adapters;
 
-import org.dpolivaev.katas.filesystem.domain.internal.memory.DataBlock;
+import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 
 import java.util.Arrays;
 
-public class TestBlock implements DataBlock {
+public class TestBlock implements Page {
 
     private final int id;
     private final byte[] data;
@@ -31,22 +31,22 @@ public class TestBlock implements DataBlock {
     }
 
     @Override
-    public void set(final long offset, final byte source) {
+    public void write(final long offset, final byte source) {
         data[(int) offset] = source;
     }
 
     @Override
-    public void set(final long offset, final long length, final byte[] source, final long sourceOffset) {
+    public void write(final long offset, final long length, final byte[] source, final long sourceOffset) {
         System.arraycopy(source, (int)sourceOffset, data, (int) offset, (int)length);
     }
 
     @Override
-    public byte getByte(final long offset) {
+    public byte readByte(final long offset) {
         return data[(int) offset];
     }
 
     @Override
-    public void get(final long offset, final long length, final byte[] destination, final long destinationOffset) {
+    public void read(final long offset, final long length, final byte[] destination, final long destinationOffset) {
         System.arraycopy(data, (int) (offset), destination, (int)destinationOffset, (int)length);
     }
 

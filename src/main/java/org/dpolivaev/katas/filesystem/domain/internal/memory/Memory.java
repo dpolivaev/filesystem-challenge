@@ -2,7 +2,8 @@ package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
 public interface Memory extends Splittable<Memory>{
     long size();
-    DataBlock at(long position);
+
+    Page at(long position);
 
     @Override
     default Pair<Memory, Memory> split(final long position) {

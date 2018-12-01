@@ -1,6 +1,6 @@
 package org.dpolivaev.katas.filesystem.adapters;
 
-import org.dpolivaev.katas.filesystem.domain.internal.memory.DataBlock;
+import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.Memory;
 
 import java.util.Vector;
@@ -22,7 +22,7 @@ public class TestMemory implements Memory {
     }
 
     @Override
-    public DataBlock at(final long position) {
+    public Page at(final long position) {
         final int index = (int) position;
         TestBlock block = blocks.elementAt(index);
         if(block == null) {

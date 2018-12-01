@@ -1,12 +1,12 @@
 package org.dpolivaev.katas.filesystem.domain.internal;
 
-import org.dpolivaev.katas.filesystem.domain.internal.memory.DataBlock;
+import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 
 class FileMemory {
-    private final DataBlock dataDescriptor;
+    private final Page dataDescriptor;
     private final int offset;
 
-    FileMemory(DataBlock dataDescriptor, int offset){
+    FileMemory(final Page dataDescriptor, final int offset) {
         this.dataDescriptor = dataDescriptor;
         this.offset = offset;
     }
@@ -16,15 +16,15 @@ class FileMemory {
         return 0;
     }
 
-    void truncate(long newSize) {
+    void truncate(final long newSize) {
 
     }
 
-    void write(int offset, int length, byte[] source, long sourceOffset) {
+    void write(final int offset, final int length, final byte[] source, final long sourceOffset) {
 
     }
 
-    void read(int offset, int length, byte[] destination, long destinationOffset) {
+    void read(final int offset, final int length, final byte[] destination, final long destinationOffset) {
 
     }
 

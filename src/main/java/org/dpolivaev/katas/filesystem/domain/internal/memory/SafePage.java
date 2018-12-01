@@ -1,9 +1,9 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
-final class SafeBlock implements DataBlock {
-    private final DataBlock source;
+final class SafePage implements Page {
+    private final Page source;
 
-    SafeBlock(final DataBlock source) {
+    SafePage(final Page source) {
         this.source = source;
     }
 
@@ -18,9 +18,9 @@ final class SafeBlock implements DataBlock {
     }
 
     @Override
-    public void set(final long offset, final byte source) {
+    public void write(final long offset, final byte source) {
         ensureValidOffset(offset);
-        this.source.set(offset, source);
+        this.source.write(offset, source);
     }
 
     private void ensureValidOffset(final long offset) {
@@ -42,36 +42,36 @@ final class SafeBlock implements DataBlock {
     }
 
     @Override
-    public void set(final long offset, final long length, final byte[] source, final long sourceOffset) {
+    public void write(final long offset, final long length, final byte[] source, final long sourceOffset) {
         ensureValidOffset(offset);
         ensureValidLength(offset, length);
         ensureValidArrayRange(source, sourceOffset, length);
-        this.source.set(offset, length, source, sourceOffset);
+        this.source.write(offset, length, source, sourceOffset);
     }
 
     @Override
-    public byte getByte(final long offset) {
+    public byte readByte(final long offset) {
         ensureValidOffset(offset);
-        return source.getByte(offset);
+        return source.readByte(offset);
     }
 
     @Override
-    public void get(final long offset, final long length, final byte[] destination, final long destinationOffset) {
+    public void read(final long offset, final long length, final byte[] destination, final long destinationOffset) {
         ensureValidOffset(offset);
         ensureValidLength(offset, length);
         ensureValidArrayRange(destination, destinationOffset, length);
-        source.get(offset, length, destination, destinationOffset);
+        source.read(offset, length, destination, destinationOffset);
     }
 
     @Override
-    public Pair<DataBlock, DataBlock> split(final long offset) {
+    public Pair<Page, Page> split(final long offset) {
         ensureValidOffset(offset);
-        final Pair<DataBlock, DataBlock> pair = source.split(offset);
+        final Pair<Page, Page> pair = source.split(offset);
         return new Pair<>(pair.first.safe(), pair.second.safe());
     }
 
     @Override
-    public SafeBlock safe() {
+    public SafePage safe() {
         return this;
     }
 }

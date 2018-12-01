@@ -3,10 +3,10 @@ package org.dpolivaev.katas.filesystem.domain.internal.memory;
 import org.dpolivaev.katas.filesystem.adapters.TestMemory;
 import org.junit.Test;
 
-public class MemoryReservationsTest {
+public class PagePoolTest {
     @Test
     public void name() {
-        MemoryReservations uut = new MemoryReservations(new TestMemory(100, 1024));
+        final PagePool uut = new PagePool(new TestMemory(100, 1024));
 
     }
 }

@@ -5,24 +5,24 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SplitBlockTest {
+public class SubPageTest {
 
     @Test
     public void splitsBlocks() {
-        TestBlock testBlock = new TestBlock(1, 4).filledAscendingFrom(1);
+        final TestBlock testBlock = new TestBlock(1, 4).filledAscendingFrom(1);
 
-        SplitBlock uut = new SplitBlock(testBlock, 1, 3);
+        final SubPage uut = new SubPage(testBlock, 1, 3);
 
-        Pair<DataBlock, DataBlock> pair = uut.split(1);
+        final Pair<Page, Page> pair = uut.split(1);
 
-        DataBlock first = pair.first;
+        final Page first = pair.first;
         assertThat(first.position()).isEqualTo(1);
         assertThat(first.size()).isEqualTo(1);
-        assertThat(first.getByte(0)).isEqualTo((byte)2);
-        DataBlock second = pair.second;
+        assertThat(first.readByte(0)).isEqualTo((byte) 2);
+        final Page second = pair.second;
         assertThat(second.position()).isEqualTo(1);
         assertThat(second.size()).isEqualTo(1);
-        assertThat(second.getByte(0)).isEqualTo((byte)3);
+        assertThat(second.readByte(0)).isEqualTo((byte) 3);
     }
 
 }

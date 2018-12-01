@@ -19,7 +19,7 @@ class SafeMemory implements Memory {
     }
 
     @Override
-    public DataBlock at(final long position) {
+    public Page at(final long position) {
         ensureValidPosition(position);
         return source.at(position);
     }

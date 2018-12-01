@@ -28,11 +28,11 @@ class ReservedPositions {
             final long bytePosition = (position >> 3);
             final long blockIndex = bytePosition / blockSize;
             final int byteIndex = (int) (bytePosition % blockSize);
-            final DataBlock block = memory.at(blockIndex);
-            final byte bits = block.getByte(byteIndex);
+            final Page block = memory.at(blockIndex);
+            final byte bits = block.readByte(byteIndex);
             final byte newBits = setBit(bits, bitIndex);
             if (bits != newBits) {
-                block.set(byteIndex, newBits);
+                block.write(byteIndex, newBits);
                 return position;
             }
         }
@@ -48,12 +48,12 @@ class ReservedPositions {
         final long bytePosition = (position >> 3);
         final long blockIndex = bytePosition / blockSize;
         final int byteIndex = (int) (bytePosition % blockSize);
-        final DataBlock block = memory.at(blockIndex);
-        final byte bits = block.getByte(byteIndex);
+        final Page block = memory.at(blockIndex);
+        final byte bits = block.readByte(byteIndex);
         final byte newBits = unsetBit(bits, bitIndex);
         if (bits == newBits)
             throw new IllegalArgumentException("Bit was not set");
-        block.set(byteIndex, newBits);
+        block.write(byteIndex, newBits);
     }
 
     private byte unsetBit(final byte bits, final int bitIndex) {
