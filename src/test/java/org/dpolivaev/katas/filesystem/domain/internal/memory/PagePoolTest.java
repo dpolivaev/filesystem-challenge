@@ -19,36 +19,36 @@ public class PagePoolTest {
     }
 
     @Test
-    public void reservesPage0_from2() {
+    public void reservesPage1_from2() {
         final TestPages memory = new TestPages(2, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 1));
         final PageAllocation page = uut.reserve();
-        Assertions.assertThat(page.pageNumber).isEqualTo(0L);
+        Assertions.assertThat(page.pageNumber).isEqualTo(1L);
     }
 
     @Test
-    public void reservesPage0_from10() {
+    public void reservesPage1_from10() {
         final TestPages memory = new TestPages(10, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 8));
         final PageAllocation page = uut.reserve();
-        Assertions.assertThat(page.pageNumber).isEqualTo(0L);
+        Assertions.assertThat(page.pageNumber).isEqualTo(1L);
     }
 
 
     @Test
-    public void reservesPage0_from11() {
+    public void reservesPage1_from11() {
         final TestPages memory = new TestPages(11, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 9));
         final PageAllocation page = uut.reserve();
-        Assertions.assertThat(page.pageNumber).isEqualTo(0L);
+        Assertions.assertThat(page.pageNumber).isEqualTo(1L);
     }
 
     @Test
-    public void reservesPages_8_and_0_from11() {
+    public void reservesPages_9_and_1_from11() {
         final TestPages memory = new TestPages(11, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(8, 9));
-        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(8L);
-        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(0L);
+        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(9L);
+        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(1L);
     }
 
     @Test
@@ -56,6 +56,6 @@ public class PagePoolTest {
         final TestPages memory = new TestPages(11, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(8, 9));
         uut.release(uut.reserve().pageNumber);
-        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(8L);
+        Assertions.assertThat(uut.reserve().pageNumber).isEqualTo(9L);
     }
 }

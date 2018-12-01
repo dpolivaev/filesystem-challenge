@@ -22,11 +22,11 @@ public class PagePool {
 
     PageAllocation reserve() {
         final long pageNumber = reservations.reservePosition();
-        return new PageAllocation(pages.at(reservationPages + pageNumber), pageNumber);
+        return new PageAllocation(pages.at(reservationPages + pageNumber), pageNumber + 1);
     }
 
     void release(final long pageNumber) {
-        reservations.releasePosition(pageNumber);
+        reservations.releasePosition(pageNumber - 1);
     }
 
 }
