@@ -48,7 +48,7 @@ class PageEditor {
         position++;
     }
 
-    void write(final byte[] source, final long sourceOffset, final long length) {
+    void write(final byte[] source, final int sourceOffset, final int length) {
         ensureValidPosition();
         ensureValidLength(length);
         ensureValidArrayRange(source, sourceOffset, length);
@@ -63,7 +63,7 @@ class PageEditor {
         return value;
     }
 
-    void read(final byte[] destination, final long destinationOffset, final long length) {
+    void read(final byte[] destination, final int destinationOffset, final int length) {
         ensureValidPosition();
         ensureValidLength(length);
         ensureValidArrayRange(destination, destinationOffset, length);

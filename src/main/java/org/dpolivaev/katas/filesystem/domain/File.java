@@ -4,7 +4,7 @@ public interface File extends Element {
     long size();
     void truncate(long newSize);
 
-    void write(int offset, long length, byte[] source, long sourceOffset);
+    void write(long offset, int length, byte[] source, int sourceOffset);
 
-    void read(int offset, long length, byte[] destination, long destinationOffset);
+    void read(long offset, int length, byte[] destination, int destinationOffset);
 }

@@ -53,24 +53,18 @@ class FilePage implements Page {
     @Override
     public void write(final long offset, final byte source) {
         increaseSize(offset + 1);
-        selectWritingPosition(offset, 1);
+        setPosition(offset);
         pageEditor.write(source);
     }
 
-    private void selectWritingPosition(final long offset, final long length) {
-        pageEditor.setPage(new ArbitraryCompositePage(this::forWriting, 1));
+    private void setPosition(final long offset) {
+        pageEditor.setPage(new ArbitraryCompositePage(this::dataPage, 1));
         pageEditor.setPosition(offset);
     }
 
-    private Page forWriting(final long index) {
+    private Page dataPage(final long index) {
         return data;
     }
-
-    private void selectReadingPosition(final long offset, final long length) {
-        pageEditor.setPage(new ArbitraryCompositePage(this::forWriting, 1));
-        pageEditor.setPosition(offset);
-    }
-
 
     private void increaseSize(final long requiredSize) {
         if (fileSize() < requiredSize)
@@ -82,9 +76,9 @@ class FilePage implements Page {
     }
 
     @Override
-    public void write(final long offset, final long length, final byte[] source, final long sourceOffset) {
+    public void write(final long offset, final int length, final byte[] source, final int sourceOffset) {
         increaseSize(offset + length);
-        selectWritingPosition(offset, length);
+        setPosition(offset);
         pageEditor.write(source, sourceOffset, length);
 
     }
@@ -93,15 +87,15 @@ class FilePage implements Page {
     public byte readByte(final long offset) {
         if (offset >= size())
             throw new EndOfFileException();
-        selectReadingPosition(offset, 1);
+        setPosition(offset);
         return pageEditor.readByte();
     }
 
     @Override
-    public void read(final long offset, final long length, final byte[] destination, final long destinationOffset) {
+    public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
         if (offset > size() + length)
             throw new EndOfFileException();
-        selectReadingPosition(offset, length);
+        setPosition(offset);
         pageEditor.write(destination, destinationOffset, length);
     }
 

@@ -5,11 +5,11 @@ public interface Page {
 
     void write(long offset, byte source);
 
-    void write(long offset, long length, byte[] source, long sourceOffset);
+    void write(long offset, int length, byte[] source, int sourceOffset);
 
     byte readByte(long offset);
 
-    void read(long offset, long length, byte[] destination, long destinationOffset);
+    void read(long offset, int length, byte[] destination, int destinationOffset);
 
     default Pair<Page, Page> split(final long position) {
         if (position < 0 || position > size())

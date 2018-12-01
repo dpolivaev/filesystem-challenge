@@ -29,8 +29,8 @@ public class TestPage implements Page {
     }
 
     @Override
-    public void write(final long offset, final long length, final byte[] source, final long sourceOffset) {
-        System.arraycopy(source, (int)sourceOffset, data, (int) offset, (int)length);
+    public void write(final long offset, final int length, final byte[] source, final int sourceOffset) {
+        System.arraycopy(source, sourceOffset, data, (int) offset, length);
     }
 
     @Override
@@ -39,8 +39,8 @@ public class TestPage implements Page {
     }
 
     @Override
-    public void read(final long offset, final long length, final byte[] destination, final long destinationOffset) {
-        System.arraycopy(data, (int) (offset), destination, (int)destinationOffset, (int)length);
+    public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
+        System.arraycopy(data, (int) (offset), destination, destinationOffset, length);
     }
 
     @Override

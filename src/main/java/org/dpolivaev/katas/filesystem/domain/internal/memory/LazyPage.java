@@ -1,5 +1,6 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class LazyPage implements Page {
@@ -12,7 +13,7 @@ public class LazyPage implements Page {
         this.pageSize = pageSize;
     }
 
-    private Page suppliedPage() {
+    private Page writingPage() {
         if (suppliedPage == null)
             suppliedPage = pageSupplier.get();
         return suppliedPage;
@@ -25,21 +26,27 @@ public class LazyPage implements Page {
 
     @Override
     public void write(final long offset, final byte source) {
-        suppliedPage().write(offset, source);
+        writingPage().write(offset, source);
     }
 
     @Override
-    public void write(final long offset, final long length, final byte[] source, final long sourceOffset) {
-        suppliedPage().write(offset, length, source, sourceOffset);
+    public void write(final long offset, final int length, final byte[] source, final int sourceOffset) {
+        writingPage().write(offset, length, source, sourceOffset);
     }
 
     @Override
     public byte readByte(final long offset) {
-        return suppliedPage().readByte(offset);
+        if (suppliedPage != null)
+            return suppliedPage.readByte(offset);
+        else
+            return 0;
     }
 
     @Override
-    public void read(final long offset, final long length, final byte[] destination, final long destinationOffset) {
-        suppliedPage().read(offset, length, destination, destinationOffset);
+    public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
+        if (suppliedPage != null)
+            suppliedPage.read(offset, length, destination, destinationOffset);
+        else
+            Arrays.fill(destination, destinationOffset, destinationOffset + length, (byte) 0);
     }
 }

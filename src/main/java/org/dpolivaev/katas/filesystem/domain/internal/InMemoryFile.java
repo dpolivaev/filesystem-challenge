@@ -33,12 +33,12 @@ class InMemoryFile implements File {
     }
 
     @Override
-    public void write(final int offset, final long length, final byte[] source, final long sourceOffset) {
+    public void write(final long offset, final int length, final byte[] source, final int sourceOffset) {
         filePage.write(offset, length, source, sourceOffset);
     }
 
     @Override
-    public void read(final int offset, final long length, final byte[] destination, final long destinationOffset) {
+    public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
         filePage.read(offset, length, destination, destinationOffset);
     }
 }
