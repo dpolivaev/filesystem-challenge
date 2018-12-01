@@ -5,8 +5,8 @@ import java.util.function.LongFunction;
 import java.util.stream.LongStream;
 
 public class ArbitraryCompositePage extends CompositePage {
-    public ArbitraryCompositePage(final LongFunction<Page> pages, final long pageNumber, final long pageCount) {
-        super(pages, pageNumber, pageCount);
+    public ArbitraryCompositePage(final LongFunction<Page> pages, final long pageCount) {
+        super(pages, pageCount);
     }
 
     @Override

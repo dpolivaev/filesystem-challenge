@@ -8,11 +8,9 @@ abstract public class CompositePage implements Page {
 
     protected int currentPageIndex;
     protected long currentPageOffset;
-    private final long pageNumber;
     protected final long pageCount;
 
-    public CompositePage(final LongFunction<Page> pages, final long pageNumber, final long pageCount) {
-        this.pageNumber = pageNumber;
+    public CompositePage(final LongFunction<Page> pages, final long pageCount) {
         this.pageCount = pageCount;
         if (pageCount <= 0)
             throw new IllegalArgumentException("No pages");

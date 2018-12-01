@@ -1,18 +1,25 @@
 package org.dpolivaev.katas.filesystem.domain.internal;
 
+import org.dpolivaev.katas.filesystem.domain.internal.memory.ArbitraryCompositePage;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.PagePool;
+import org.dpolivaev.katas.filesystem.domain.internal.memory.Pair;
 
 class FilePage implements Page {
     private static final int SIZE_POSITION = 0;
-    private static final long NAME_POSITION = 4;
+    private static final long NAME_POSITION = SIZE_POSITION + Long.BYTES;
+    private static final long DIRECT_PAGE_REFERENCE_POSITION = NAME_POSITION + 32;
+    private static final long INDIRECT_PAGE_REFERENCE_POSITION_1 = DIRECT_PAGE_REFERENCE_POSITION + Long.BYTES;
     private final PagePool filePagePool;
     private final Page dataDescriptor;
     private final PageEditor pageEditor;
+    private final Page data;
 
     FilePage(final PagePool filePagePool, final Page dataDescriptor) {
         this.filePagePool = filePagePool;
-        this.dataDescriptor = dataDescriptor;
+        final Pair<Page, Page> pagePair = dataDescriptor.split(INDIRECT_PAGE_REFERENCE_POSITION_1);
+        this.dataDescriptor = pagePair.first;
+        this.data = pagePair.second;
         this.pageEditor = new PageEditor();
         pageEditor.setPage(dataDescriptor);
 
@@ -25,6 +32,13 @@ class FilePage implements Page {
         return pageEditor.readLong();
     }
 
+    private void setSize(final long size) {
+        pageEditor.setPage(dataDescriptor);
+        pageEditor.setPosition(SIZE_POSITION);
+        pageEditor.write(size);
+    }
+
+
     public String fileName() {
         pageEditor.setPage(dataDescriptor);
         pageEditor.setPosition(NAME_POSITION);
@@ -34,15 +48,26 @@ class FilePage implements Page {
     @Override
     public void write(final long offset, final byte source) {
         increaseSize(offset + 1);
-        selectEditPosition(offset);
+        selectWritingPosition(offset, 1);
         pageEditor.write(source);
     }
 
-    private void selectEditPosition(final long offset) {
-        throw new RuntimeException("Method not implemented");
+    private void selectWritingPosition(final long offset, final long length) {
+        pageEditor.setPage(new ArbitraryCompositePage(this::forWriting, 1));
     }
 
+    private Page forWriting(final long index) {
+        return data;
+    }
+
+    private void selectReadingPosition(final long offset, final long length) {
+        pageEditor.setPage(new ArbitraryCompositePage(this::forWriting, 1));
+    }
+
+
     private void increaseSize(final long requiredSize) {
+        if (size() < requiredSize)
+            setSize(requiredSize);
     }
 
     public void truncate(final long newSize) {
@@ -52,7 +77,8 @@ class FilePage implements Page {
     @Override
     public void write(final long offset, final long length, final byte[] source, final long sourceOffset) {
         increaseSize(offset + length);
-        throw new RuntimeException("Method not implemented");
+        selectWritingPosition(offset, length);
+        pageEditor.write(source, sourceOffset, length);
 
     }
 
@@ -60,14 +86,16 @@ class FilePage implements Page {
     public byte readByte(final long offset) {
         if (offset >= size())
             throw new EndOfFileException();
-        throw new RuntimeException("Method not implemented");
+        selectReadingPosition(offset, 1);
+        return pageEditor.readByte();
     }
 
     @Override
     public void read(final long offset, final long length, final byte[] destination, final long destinationOffset) {
         if (offset > size() + length)
             throw new EndOfFileException();
-        throw new RuntimeException("Method not implemented");
+        selectReadingPosition(offset, length);
+        pageEditor.write(destination, destinationOffset, length);
     }
 
 }
