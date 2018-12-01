@@ -3,80 +3,99 @@ package org.dpolivaev.katas.filesystem.domain.internal.memory;
 import java.nio.charset.StandardCharsets;
 
 public class Editor {
-    public void write(final long offset, final byte source) {
+    public void write(final byte source) {
         page.write(offset, source);
+        offset++;
     }
 
-    public void write(final long offset, final long length, final byte[] source, final long sourceOffset) {
+    public void setPage(final Page page) {
+        this.page = page;
+        this.offset = 0;
+    }
+
+    public void setPosition(final long position) {
+        this.offset = position;
+    }
+
+    public void write(final long length, final byte[] source, final long sourceOffset) {
         page.write(offset, length, source, sourceOffset);
+        offset += length;
     }
 
-    public byte readByte(final long offset) {
-        return page.readByte(offset);
+    public byte readByte() {
+        final byte value = page.readByte(offset);
+        offset++;
+        return value;
     }
 
-    public void read(final long offset, final long length, final byte[] destination, final long destinationOffset) {
+    public void read(final long length, final byte[] destination, final long destinationOffset) {
         page.read(offset, length, destination, destinationOffset);
     }
 
-    private final Page page;
+    private Page page;
 
-    public Editor(final Page page) {
-        this.page = page;
+    private long offset = 0;
+
+    public Editor() {
+        this.page = null;
+        this.offset = 0;
     }
 
-    public void write(final long offset, final long source) {
-        writeNumber(offset, source, Long.BYTES);
+
+    public void write(final long source) {
+        writeNumber(source, Long.BYTES);
     }
 
-    public void write(final long offset, final int source) {
-        writeNumber(offset, Integer.toUnsignedLong(source), Integer.BYTES);
+    public void write(final int source) {
+        writeNumber(Integer.toUnsignedLong(source), Integer.BYTES);
     }
 
-    public void writeNumber(final long offset, long source, final int byteCount) {
+    public void writeNumber(long source, final int byteCount) {
+        final long offset = this.offset;
         for (int i = byteCount - 1; i >= 0; i--) {
-            write(offset + i, (byte) (source & 0xFF));
+            this.offset = offset + i;
+            write((byte) (source & 0xFF));
             source >>= 8;
         }
+        this.offset = offset + byteCount;
     }
 
-    public void write(final long offset, final byte[] source) {
-        write(offset, source.length, source, 0);
+    public void write(final byte[] source) {
+        write(source.length, source, 0);
     }
 
-    public void write(final long offset, final String source) {
+    public void write(final String source) {
         final byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
-        write(offset, bytes.length);
-        write(offset + Integer.BYTES, bytes);
+        write(bytes.length);
+        write(bytes);
     }
 
-    public int readInt(final long offset) {
-        return (int) readNumber(offset, 4);
+    public int readInt() {
+        return (int) readNumber(4);
     }
 
-    public long readLong(final long offset) {
-        return readNumber(offset, 8);
+    public long readLong() {
+        return readNumber(8);
     }
 
-    public long readNumber(long offset, final int byteCount) {
+    public long readNumber(final int byteCount) {
         long result = 0;
         for (int i = 0; i < byteCount; i++) {
             result <<= 8;
-            result |= (readByte(offset) & 0xFF);
-            offset++;
+            result |= (readByte() & 0xFF);
         }
         return result;
     }
 
-    public String readString(final int offset) {
-        final int length = readInt(offset);
+    public String readString() {
+        final int length = readInt();
         final byte[] buffer = new byte[length];
-        read(offset + Integer.BYTES, buffer);
+        read(buffer);
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
-    public void read(final long offset, final byte[] destination) {
-        read(offset, destination.length, destination, 0);
+    public void read(final byte[] destination) {
+        read(destination.length, destination, 0);
     }
 
 

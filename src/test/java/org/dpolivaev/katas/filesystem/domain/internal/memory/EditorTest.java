@@ -9,40 +9,69 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EditorTest {
     @Test
     public void savesIntegers() {
-        final Editor uut = new Editor(new TestPage(1, 18));
-        uut.write(1, -1);
-        uut.write(5, 1);
-        uut.write(9, Integer.MIN_VALUE);
-        uut.write(13, Integer.MAX_VALUE);
-        assertThat(uut.readByte(0)).isEqualTo((byte) 0);
-        assertThat(uut.readInt(1)).isEqualTo(-1);
-        assertThat(uut.readInt(5)).isEqualTo(1);
-        assertThat(uut.readInt(9)).isEqualTo(Integer.MIN_VALUE);
-        assertThat(uut.readInt(13)).isEqualTo(Integer.MAX_VALUE);
-        assertThat(uut.readByte(7)).isEqualTo((byte) 0);
+        final Editor uut = new Editor();
+        TestPage page = new TestPage(1, 18);
+        uut.setPage(page);
+        uut.setPosition(1);
+        uut.write(-1);
+        uut.write(1);
+        uut.write(Integer.MIN_VALUE);
+        uut.write(Integer.MAX_VALUE);
+
+        uut.setPosition(0);
+        assertThat(uut.readByte()).isEqualTo((byte) 0);
+        assertThat(uut.readInt()).isEqualTo(-1);
+        assertThat(uut.readInt()).isEqualTo(1);
+        assertThat(uut.readInt()).isEqualTo(Integer.MIN_VALUE);
+        assertThat(uut.readInt()).isEqualTo(Integer.MAX_VALUE);
+        assertThat(uut.readByte()).isEqualTo((byte) 0);
     }
 
     @Test
     public void savesLongs() {
-        final Editor uut = new Editor(new TestPage(1, 34));
-        uut.write(1, -1L);
-        uut.write(1 + 8, 1L);
-        uut.write(1 + 16, Long.MIN_VALUE);
-        uut.write(1 + 24, Long.MAX_VALUE);
-        assertThat(uut.readByte(0)).isEqualTo((byte) 0);
-        assertThat(uut.readLong(1)).isEqualTo(-1L);
-        assertThat(uut.readLong(1 + 8)).isEqualTo(1L);
-        assertThat(uut.readLong(1 + 16)).isEqualTo(Long.MIN_VALUE);
-        assertThat(uut.readLong(1 + 24)).isEqualTo(Long.MAX_VALUE);
-        assertThat(uut.readByte(1 + 32)).isEqualTo((byte) 0);
+        final Editor uut = new Editor();
+        uut.setPage(new TestPage(1, 34));
+        uut.setPosition(1);
+
+        uut.write(-1L);
+        uut.write(1L);
+        uut.write(Long.MIN_VALUE);
+        uut.write(Long.MAX_VALUE);
+
+        uut.setPosition(0);
+        assertThat(uut.readByte()).isEqualTo((byte) 0);
+        assertThat(uut.readLong()).isEqualTo(-1L);
+        assertThat(uut.readLong()).isEqualTo(1L);
+        assertThat(uut.readLong()).isEqualTo(Long.MIN_VALUE);
+        assertThat(uut.readLong()).isEqualTo(Long.MAX_VALUE);
+        assertThat(uut.readByte()).isEqualTo((byte) 0);
     }
 
     @Test
     public void savesString() {
-        final Editor uut = new Editor(new TestPage(1, 8));
-        uut.write(1, "abc");
-        assertThat(uut.readByte(0)).isEqualTo((byte) 0);
-        assertThat(uut.readString(1)).isEqualTo("abc");
+        final Editor uut = new Editor();
+        uut.setPage(new TestPage(1, 8));
+        uut.setPosition(1);
+
+        uut.write("abc");
+
+        uut.setPosition(0);
+        assertThat(uut.readByte()).isEqualTo((byte) 0);
+        assertThat(uut.readString()).isEqualTo("abc");
     }
 
+
+    @Test
+    public void resetsPosition_whenPageIsSet() {
+        final Editor uut = new Editor();
+        TestPage page = new TestPage(1, 8);
+        uut.setPage(page);
+        uut.setPosition(1);
+
+        uut.write("abc");
+
+        uut.setPage(page);
+        assertThat(uut.readByte()).isEqualTo((byte) 0);
+        assertThat(uut.readString()).isEqualTo("abc");
+    }
 }
