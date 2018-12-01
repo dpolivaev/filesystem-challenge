@@ -23,7 +23,7 @@ public class PagePoolTest {
         final TestMemory memory = new TestMemory(2, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 1));
         final Page page = uut.reserve();
-        Assertions.assertThat(page.position()).isEqualTo(1L);
+        Assertions.assertThat(page.pageNumber()).isEqualTo(1L);
     }
 
     @Test
@@ -31,7 +31,7 @@ public class PagePoolTest {
         final TestMemory memory = new TestMemory(10, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 8));
         final Page page = uut.reserve();
-        Assertions.assertThat(page.position()).isEqualTo(1L);
+        Assertions.assertThat(page.pageNumber()).isEqualTo(1L);
     }
 
 
@@ -40,15 +40,15 @@ public class PagePoolTest {
         final TestMemory memory = new TestMemory(11, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 9));
         final Page page = uut.reserve();
-        Assertions.assertThat(page.position()).isEqualTo(2L);
+        Assertions.assertThat(page.pageNumber()).isEqualTo(2L);
     }
 
     @Test
     public void reservesPages_10_and_2_from11() {
         final TestMemory memory = new TestMemory(11, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(8, 9));
-        Assertions.assertThat(uut.reserve().position()).isEqualTo(10L);
-        Assertions.assertThat(uut.reserve().position()).isEqualTo(2L);
+        Assertions.assertThat(uut.reserve().pageNumber()).isEqualTo(10L);
+        Assertions.assertThat(uut.reserve().pageNumber()).isEqualTo(2L);
     }
 
     @Test
@@ -56,6 +56,6 @@ public class PagePoolTest {
         final TestMemory memory = new TestMemory(11, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(8, 9));
         uut.release(uut.reserve());
-        Assertions.assertThat(uut.reserve().position()).isEqualTo(10L);
+        Assertions.assertThat(uut.reserve().pageNumber()).isEqualTo(10L);
     }
 }

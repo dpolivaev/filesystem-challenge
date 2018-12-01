@@ -25,8 +25,8 @@ class SubPage implements Page {
     }
 
     @Override
-    public long position() {
-        return source.position();
+    public long pageNumber() {
+        return source.pageNumber();
     }
 
     @Override

@@ -3,44 +3,67 @@ package org.dpolivaev.katas.filesystem.domain.internal.memory;
 import java.nio.charset.StandardCharsets;
 
 public class Editor {
-    public void write(final byte source) {
-        page.write(offset, source);
-        offset++;
-    }
+    private Page page = null;
+
+    private long position = 0;
 
     public void setPage(final Page page) {
         this.page = page;
-        this.offset = 0;
+        this.position = 0;
     }
 
     public void setPosition(final long position) {
-        this.offset = position;
+        if (position < 0)
+            throw new IllegalArgumentException("Invalid position " + position);
+        this.position = position;
     }
 
-    public void write(final long length, final byte[] source, final long sourceOffset) {
-        page.write(offset, length, source, sourceOffset);
-        offset += length;
+    private void ensureValidPosition() {
+        if (position >= page.size())
+            throw new IllegalArgumentException("Invalid position " + position);
+    }
+
+    private void ensureValidArrayRange(final byte[] source, final long offset, final long length) {
+        if (offset < 0) {
+            throw new IllegalArgumentException("Invalid position " + offset);
+        } else if (offset + length > source.length) {
+            throw new IllegalArgumentException("Invalid length " + length);
+        }
+    }
+
+    private void ensureValidLength(final long length) {
+        if (length < 0 || position + length > page.size())
+            throw new IllegalArgumentException("Invalid length " + length);
+    }
+
+    public void write(final byte source) {
+        ensureValidPosition();
+        page.write(position, source);
+        position++;
+    }
+
+    public void write(final byte[] source, final long sourceOffset, final long length) {
+        ensureValidPosition();
+        ensureValidLength(length);
+        ensureValidArrayRange(source, sourceOffset, length);
+        page.write(position, length, source, sourceOffset);
+        position += length;
     }
 
     public byte readByte() {
-        final byte value = page.readByte(offset);
-        offset++;
+        ensureValidPosition();
+        final byte value = page.readByte(position);
+        position++;
         return value;
     }
 
-    public void read(final long length, final byte[] destination, final long destinationOffset) {
-        page.read(offset, length, destination, destinationOffset);
+    public void read(final byte[] destination, final long destinationOffset, final long length) {
+        ensureValidPosition();
+        ensureValidLength(length);
+        ensureValidArrayRange(destination, destinationOffset, length);
+        page.read(position, length, destination, destinationOffset);
+        position += length;
     }
-
-    private Page page;
-
-    private long offset = 0;
-
-    public Editor() {
-        this.page = null;
-        this.offset = 0;
-    }
-
 
     public void write(final long source) {
         writeNumber(source, Long.BYTES);
@@ -51,17 +74,17 @@ public class Editor {
     }
 
     public void writeNumber(long source, final int byteCount) {
-        final long offset = this.offset;
+        final long offset = this.position;
         for (int i = byteCount - 1; i >= 0; i--) {
-            this.offset = offset + i;
+            this.position = offset + i;
             write((byte) (source & 0xFF));
             source >>= 8;
         }
-        this.offset = offset + byteCount;
+        this.position = offset + byteCount;
     }
 
     public void write(final byte[] source) {
-        write(source.length, source, 0);
+        write(source, 0, source.length);
     }
 
     public void write(final String source) {
@@ -95,8 +118,6 @@ public class Editor {
     }
 
     public void read(final byte[] destination) {
-        read(destination.length, destination, 0);
+        read(destination, 0, destination.length);
     }
-
-
 }

@@ -16,11 +16,11 @@ public class SubPageTest {
         final Pair<Page, Page> pair = uut.split(1);
 
         final Page first = pair.first;
-        assertThat(first.position()).isEqualTo(1);
+        assertThat(first.pageNumber()).isEqualTo(1);
         assertThat(first.size()).isEqualTo(1);
         assertThat(first.readByte(0)).isEqualTo((byte) 2);
         final Page second = pair.second;
-        assertThat(second.position()).isEqualTo(1);
+        assertThat(second.pageNumber()).isEqualTo(1);
         assertThat(second.size()).isEqualTo(1);
         assertThat(second.readByte(0)).isEqualTo((byte) 3);
     }

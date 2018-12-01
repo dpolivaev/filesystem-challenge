@@ -21,7 +21,7 @@ public class TestPage implements Page {
     }
 
     @Override
-    public long position() {
+    public long pageNumber() {
         return id;
     }
 

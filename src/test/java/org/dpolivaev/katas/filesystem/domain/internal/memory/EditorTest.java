@@ -4,13 +4,15 @@ import org.dpolivaev.katas.filesystem.adapters.TestPage;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 public class EditorTest {
+    private final Editor uut = new Editor();
+    
     @Test
     public void savesIntegers() {
-        final Editor uut = new Editor();
-        TestPage page = new TestPage(1, 18);
+        final TestPage page = new TestPage(1, 18);
         uut.setPage(page);
         uut.setPosition(1);
         uut.write(-1);
@@ -29,7 +31,6 @@ public class EditorTest {
 
     @Test
     public void savesLongs() {
-        final Editor uut = new Editor();
         uut.setPage(new TestPage(1, 34));
         uut.setPosition(1);
 
@@ -49,7 +50,6 @@ public class EditorTest {
 
     @Test
     public void savesString() {
-        final Editor uut = new Editor();
         uut.setPage(new TestPage(1, 8));
         uut.setPosition(1);
 
@@ -63,8 +63,7 @@ public class EditorTest {
 
     @Test
     public void resetsPosition_whenPageIsSet() {
-        final Editor uut = new Editor();
-        TestPage page = new TestPage(1, 8);
+        final TestPage page = new TestPage(1, 8);
         uut.setPage(page);
         uut.setPosition(1);
 
@@ -74,4 +73,73 @@ public class EditorTest {
         assertThat(uut.readByte()).isEqualTo((byte) 0);
         assertThat(uut.readString()).isEqualTo("abc");
     }
+
+
+    @Test
+    public void setPositionChecksOffset() {
+        assertThatThrownBy(() -> uut.setPosition(-1)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void setByteChecksOffset() {
+        uut.setPage(new TestPage(1, 4));
+        uut.setPosition(4);
+        assertThatThrownBy(() -> uut.write((byte) -1)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void setFromArrayChecksOffset() {
+        uut.setPage(new TestPage(1, 4));
+        uut.setPosition(4);
+        assertThatThrownBy(() -> uut.write(new byte[]{}, 0, 0)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void setFromArrayChecksLength() {
+        uut.setPage(new TestPage(1, 4));
+        uut.setPosition(1);
+        assertThatThrownBy(() -> uut.write(new byte[]{}, 0, -1)).isInstanceOf(IllegalArgumentException.class);
+        uut.setPosition(3);
+        assertThatThrownBy(() -> uut.write(new byte[1], 0, 2)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void setFromArrayChecksArgumentArray() {
+        uut.setPage(new TestPage(1, 4));
+        uut.setPosition(1);
+        assertThatThrownBy(() -> uut.write(new byte[]{}, 1, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> uut.write(new byte[]{}, 0, 1)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void getByteChecksOffset() {
+        uut.setPage(new TestPage(1, 4));
+        uut.setPosition(4);
+        assertThatThrownBy(() -> uut.readByte()).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void getToArrayChecksOffset() {
+        uut.setPage(new TestPage(1, 4));
+        uut.setPosition(4);
+        assertThatThrownBy(() -> uut.read(new byte[]{}, 0, 0)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void getToArrayChecksLength() {
+        uut.setPage(new TestPage(1, 4));
+        uut.setPosition(1);
+        assertThatThrownBy(() -> uut.read(new byte[]{}, 0, -1)).isInstanceOf(IllegalArgumentException.class);
+        uut.setPosition(3);
+        assertThatThrownBy(() -> uut.read(new byte[1], 0, 2)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void getFromArrayChecksArgumentArray() {
+        uut.setPage(new TestPage(1, 4));
+        uut.setPosition(1);
+        assertThatThrownBy(() -> uut.read(new byte[]{}, 1, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> uut.read(new byte[]{}, 0, 1)).isInstanceOf(IllegalArgumentException.class);
+    }
+    
 }

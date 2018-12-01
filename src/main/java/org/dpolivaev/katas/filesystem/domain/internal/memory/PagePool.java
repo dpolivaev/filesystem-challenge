@@ -21,7 +21,7 @@ public class PagePool {
     }
 
     void release(final Page page) {
-        reservations.releasePosition(page.position() - reservationPages);
+        reservations.releasePosition(page.pageNumber() - reservationPages);
     }
 
 }
