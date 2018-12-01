@@ -1,6 +1,6 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
-import org.dpolivaev.katas.filesystem.adapters.TestBlock;
+import org.dpolivaev.katas.filesystem.adapters.TestPage;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,10 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SubPageTest {
 
     @Test
-    public void splitsBlocks() {
-        final TestBlock testBlock = new TestBlock(1, 4).filledAscendingFrom(1);
+    public void splitsPages() {
+        final TestPage testPage = new TestPage(1, 4).filledAscendingFrom(1);
 
-        final SubPage uut = new SubPage(testBlock, 1, 3);
+        final SubPage uut = new SubPage(testPage, 1, 3);
 
         final Pair<Page, Page> pair = uut.split(1);
 

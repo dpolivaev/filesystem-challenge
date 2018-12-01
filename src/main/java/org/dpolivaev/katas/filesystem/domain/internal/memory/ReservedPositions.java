@@ -5,34 +5,34 @@ import java.util.Random;
 
 class ReservedPositions {
     private final Memory memory;
-    private final int blockSize;
-    private final long availableBits;
+    private final int pageSize;
+    private final long availablePositions;
     private final PrimitiveIterator.OfLong randomBitOffsets;
 
-    ReservedPositions(final Memory memory, final int blockSize, final Random random, final long availableBits) {
-        if (availableBits < 0 || availableBits > memory.size() * blockSize * Byte.SIZE)
-            throw new IllegalArgumentException("Invalid availableBits");
+    ReservedPositions(final Memory memory, final int pageSize, final long availablePositions, final Random random) {
+        if (availablePositions < 0 || availablePositions > memory.size() * pageSize * Byte.SIZE)
+            throw new IllegalArgumentException("Invalid availablePositions");
         this.memory = memory;
-        this.blockSize = blockSize;
-        this.availableBits = availableBits;
-        this.randomBitOffsets = random.longs(0, availableBits).iterator();
+        this.pageSize = pageSize;
+        this.availablePositions = availablePositions;
+        this.randomBitOffsets = random.longs(0, availablePositions).iterator();
     }
 
     long reservePosition() {
         final long positionOffset = randomBitOffsets.nextLong();
-        for (int counter = 0; counter < availableBits; counter++) {
+        for (int counter = 0; counter < availablePositions; counter++) {
             long position = positionOffset + counter;
-            if (position >= availableBits)
-                position -= availableBits;
+            if (position >= availablePositions)
+                position -= availablePositions;
             final int bitIndex = (int) (position & 0x7);
             final long bytePosition = (position >> 3);
-            final long blockIndex = bytePosition / blockSize;
-            final int byteIndex = (int) (bytePosition % blockSize);
-            final Page block = memory.at(blockIndex);
-            final byte bits = block.readByte(byteIndex);
+            final long pageIndex = bytePosition / pageSize;
+            final int byteIndex = (int) (bytePosition % pageSize);
+            final Page page = memory.at(pageIndex);
+            final byte bits = page.readByte(byteIndex);
             final byte newBits = setBit(bits, bitIndex);
             if (bits != newBits) {
-                block.write(byteIndex, newBits);
+                page.write(byteIndex, newBits);
                 return position;
             }
         }
@@ -46,14 +46,14 @@ class ReservedPositions {
     void releasePosition(final long position) {
         final int bitIndex = (int) (position & 0x7);
         final long bytePosition = (position >> 3);
-        final long blockIndex = bytePosition / blockSize;
-        final int byteIndex = (int) (bytePosition % blockSize);
-        final Page block = memory.at(blockIndex);
-        final byte bits = block.readByte(byteIndex);
+        final long pageIndex = bytePosition / pageSize;
+        final int byteIndex = (int) (bytePosition % pageSize);
+        final Page page = memory.at(pageIndex);
+        final byte bits = page.readByte(byteIndex);
         final byte newBits = unsetBit(bits, bitIndex);
         if (bits == newBits)
             throw new IllegalArgumentException("Bit was not set");
-        block.write(byteIndex, newBits);
+        page.write(byteIndex, newBits);
     }
 
     private byte unsetBit(final byte bits, final int bitIndex) {

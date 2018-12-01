@@ -1,6 +1,6 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
-import org.dpolivaev.katas.filesystem.adapters.TestBlock;
+import org.dpolivaev.katas.filesystem.adapters.TestPage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class SafePageTest {
     @Spy
-    private final Page delegate = new TestBlock(1, 4).filledAscendingFrom(1);
+    private final Page delegate = new TestPage(1, 4).filledAscendingFrom(1);
 
     @InjectMocks
     private SafePage uut;
@@ -99,7 +99,7 @@ public class SafePageTest {
 
 
     @Test
-    public void splitReturnsSafeBlock() {
+    public void splitReturnsSafePage() {
         final Pair<Page, Page> pair = uut.split(2);
         assertThat(pair.first).isInstanceOf(SafePage.class);
         assertThat(pair.second).isInstanceOf(SafePage.class);

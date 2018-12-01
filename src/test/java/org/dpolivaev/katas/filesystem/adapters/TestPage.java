@@ -4,17 +4,17 @@ import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 
 import java.util.Arrays;
 
-public class TestBlock implements Page {
+public class TestPage implements Page {
 
     private final int id;
     private final byte[] data;
 
-    public TestBlock(final int id, final int size) {
+    public TestPage(final int id, final int size) {
         this.id = id;
         this.data = new byte[size];
     }
 
-    public TestBlock filledAscendingFrom(final int from) {
+    public TestPage filledAscendingFrom(final int from) {
         for(int i = 0; i < data.length; i++)
             data[i] = (byte)((from + i) & 0xff);
         return this;
@@ -52,7 +52,7 @@ public class TestBlock implements Page {
 
     @Override
     public String toString() {
-        return "TestBlock{" +
+        return "TestPage{" +
                 "id=" + id +
                 ", data=" + Arrays.toString(data) +
                 '}';

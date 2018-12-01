@@ -7,29 +7,29 @@ import java.util.Vector;
 
 public class TestMemory implements Memory {
 
-    private final Vector<TestBlock> blocks;
+    private final Vector<TestPage> pages;
     private final int memorySize;
 
-    public TestMemory(final int blockCount, final int memorySize) {
-        this.blocks = new Vector<>(blockCount);
-        blocks.setSize(blockCount);
+    public TestMemory(final int pageCount, final int memorySize) {
+        this.pages = new Vector<>(pageCount);
+        pages.setSize(pageCount);
         this.memorySize = memorySize;
     }
 
     @Override
     public long size() {
-        return blocks.size();
+        return pages.size();
     }
 
     @Override
     public Page at(final long position) {
         final int index = (int) position;
-        TestBlock block = blocks.elementAt(index);
-        if(block == null) {
-            block = new TestBlock(index, memorySize);
-            blocks.setElementAt(block, index);
+        TestPage page = pages.elementAt(index);
+        if(page == null) {
+            page = new TestPage(index, memorySize);
+            pages.setElementAt(page, index);
         }
-        return block;
+        return page;
     }
 }
 

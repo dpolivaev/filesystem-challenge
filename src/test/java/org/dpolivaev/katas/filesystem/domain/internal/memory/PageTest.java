@@ -1,14 +1,14 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
-import org.dpolivaev.katas.filesystem.adapters.TestBlock;
+import org.dpolivaev.katas.filesystem.adapters.TestPage;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PageTest {
     @Test
-    public void splitsBlocks() {
-        final TestBlock uut = new TestBlock(1, 3).filledAscendingFrom(1);
+    public void splitsPages() {
+        final TestPage uut = new TestPage(1, 3).filledAscendingFrom(1);
 
         final Pair<Page, Page> pair = uut.split(2);
 
