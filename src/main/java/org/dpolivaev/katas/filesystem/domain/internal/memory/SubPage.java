@@ -18,6 +18,8 @@ class SubPage implements Page {
 
     @Override
     public Pair<Page, Page> split(final long position) {
+        if (position < 0 || position > size())
+            throw new IllegalArgumentException("Invalid position " + position);
         final long splitPosition = start + position;
         final Page first = new SubPage(source, start, splitPosition);
         final Page second = new SubPage(source, splitPosition, this.end);

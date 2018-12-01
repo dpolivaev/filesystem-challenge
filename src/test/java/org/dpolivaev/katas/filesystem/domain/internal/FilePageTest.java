@@ -12,8 +12,8 @@ import java.util.Random;
 public class FilePageTest {
     @Test
     public void descriptor() {
-        final PagePool pagePool = new PagePool(new TestPages(1, 1024), new Random());
-        final Page page = new TestPage(1024);
+        final PagePool pagePool = new PagePool(new TestPages(2, 1), new Random());
+        final Page page = new TestPage(FilePage.DATA_POSITION);
         final PageEditor editor = new PageEditor();
         editor.setPage(page);
         editor.write(10L);
@@ -25,8 +25,8 @@ public class FilePageTest {
 
     @Test
     public void read() {
-        final PagePool pagePool = new PagePool(new TestPages(1, 1024), new Random());
-        final Page page = new TestPage(1024);
+        final PagePool pagePool = new PagePool(new TestPages(2, 1), new Random());
+        final Page page = new TestPage(FilePage.DATA_POSITION + 2);
         final PageEditor editor = new PageEditor();
         editor.setPage(page);
         editor.write(10L);

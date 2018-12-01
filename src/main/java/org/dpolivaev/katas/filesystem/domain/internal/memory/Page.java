@@ -12,7 +12,7 @@ public interface Page {
     void read(long offset, long length, byte[] destination, long destinationOffset);
 
     default Pair<Page, Page> split(final long position) {
-        if (position < 0 || position >= size())
+        if (position < 0 || position > size())
             throw new IllegalArgumentException("Invalid position " + position);
         final Page first = new SubPage(this, 0, position);
         final Page second = new SubPage(this, position, size());

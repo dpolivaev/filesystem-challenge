@@ -6,10 +6,12 @@ import org.dpolivaev.katas.filesystem.domain.internal.memory.PagePool;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.Pair;
 
 class FilePage implements Page {
-    private static final int SIZE_POSITION = 0;
-    private static final long NAME_POSITION = SIZE_POSITION + Long.BYTES;
-    private static final long DIRECT_PAGE_REFERENCE_POSITION = NAME_POSITION + 32;
-    private static final long INDIRECT_PAGE_REFERENCE_POSITION_1 = DIRECT_PAGE_REFERENCE_POSITION + Long.BYTES;
+    static final int SIZE_POSITION = 0;
+    static final int NAME_POSITION = SIZE_POSITION + Long.BYTES;
+    static final int NAME_SIZE = 32;
+    static final int DIRECT_PAGE_REFERENCE_POSITION = NAME_POSITION + NAME_SIZE;
+    static final int INDIRECT_PAGE_REFERENCE_POSITION_1 = DIRECT_PAGE_REFERENCE_POSITION + Long.BYTES;
+    static final int DATA_POSITION = INDIRECT_PAGE_REFERENCE_POSITION_1 + Long.BYTES;
     private final PagePool filePagePool;
     private final Page dataDescriptor;
     private final PageEditor pageEditor;
@@ -17,7 +19,7 @@ class FilePage implements Page {
 
     FilePage(final PagePool filePagePool, final Page dataDescriptor) {
         this.filePagePool = filePagePool;
-        final Pair<Page, Page> pagePair = dataDescriptor.split(INDIRECT_PAGE_REFERENCE_POSITION_1);
+        final Pair<Page, Page> pagePair = dataDescriptor.split(DATA_POSITION);
         this.dataDescriptor = pagePair.first;
         this.data = pagePair.second;
         this.pageEditor = new PageEditor();

@@ -7,9 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PageTest {
+    final TestPage uut = new TestPage(3).filledAscendingFrom(1);
+
     @Test
-    public void splitsPages() {
-        final TestPage uut = new TestPage(3).filledAscendingFrom(1);
+    public void splitsPagesInTheMiddle() {
 
         final Pair<Page, Page> pair = uut.split(2);
 
@@ -23,12 +24,30 @@ public class PageTest {
     }
 
     @Test
+    public void splitsPagesAt0() {
+        final Pair<Page, Page> pair = uut.split(0);
+
+        final Page first = pair.first;
+        assertThat(first.size()).isEqualTo(0);
+        final Page second = pair.second;
+        assertThat(second.size()).isEqualTo(3);
+        assertThat(second.readByte(0)).isEqualTo((byte) 1);
+    }
+
+    @Test
+    public void splitsPagesAtTheEnd() {
+        final Pair<Page, Page> pair = uut.split(3);
+
+        final Page first = pair.first;
+        assertThat(first.size()).isEqualTo(3);
+        assertThat(first.readByte(2)).isEqualTo((byte) 3);
+        final Page second = pair.second;
+        assertThat(second.size()).isEqualTo(0);
+    }
+    @Test
     public void splitChecksOffset() {
         final TestPage uut = new TestPage(3).filledAscendingFrom(1);
         assertThatThrownBy(() -> uut.split(-1)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> uut.split(4)).isInstanceOf(IllegalArgumentException.class);
     }
-
-
-
 }
