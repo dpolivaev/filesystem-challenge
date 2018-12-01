@@ -1,21 +1,27 @@
-package org.dpolivaev.katas.filesystem.domain.internal.memory;
+package org.dpolivaev.katas.filesystem.domain.internal;
+
+import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 
 import java.nio.charset.StandardCharsets;
 
-public class Editor {
+class PageEditor {
     private Page page = null;
 
     private long position = 0;
 
-    public void setPage(final Page page) {
+    void setPage(final Page page) {
         this.page = page;
         this.position = 0;
     }
 
-    public void setPosition(final long position) {
+    void setPosition(final long position) {
         if (position < 0)
             throw new IllegalArgumentException("Invalid position " + position);
         this.position = position;
+    }
+
+    long getPosition() {
+        return position;
     }
 
     private void ensureValidPosition() {
@@ -36,13 +42,13 @@ public class Editor {
             throw new IllegalArgumentException("Invalid length " + length);
     }
 
-    public void write(final byte source) {
+    void write(final byte source) {
         ensureValidPosition();
         page.write(position, source);
         position++;
     }
 
-    public void write(final byte[] source, final long sourceOffset, final long length) {
+    void write(final byte[] source, final long sourceOffset, final long length) {
         ensureValidPosition();
         ensureValidLength(length);
         ensureValidArrayRange(source, sourceOffset, length);
@@ -50,14 +56,14 @@ public class Editor {
         position += length;
     }
 
-    public byte readByte() {
+    byte readByte() {
         ensureValidPosition();
         final byte value = page.readByte(position);
         position++;
         return value;
     }
 
-    public void read(final byte[] destination, final long destinationOffset, final long length) {
+    void read(final byte[] destination, final long destinationOffset, final long length) {
         ensureValidPosition();
         ensureValidLength(length);
         ensureValidArrayRange(destination, destinationOffset, length);
@@ -65,43 +71,39 @@ public class Editor {
         position += length;
     }
 
-    public void write(final long source) {
+    void write(final long source) {
         writeNumber(source, Long.BYTES);
     }
 
-    public void write(final int source) {
+    void write(final int source) {
         writeNumber(Integer.toUnsignedLong(source), Integer.BYTES);
     }
 
-    public void writeNumber(long source, final int byteCount) {
-        final long offset = this.position;
-        for (int i = byteCount - 1; i >= 0; i--) {
-            this.position = offset + i;
-            write((byte) (source & 0xFF));
-            source >>= 8;
-        }
-        this.position = offset + byteCount;
+    private void writeNumber(final long source, final int byteCount) {
+        if (byteCount > 1)
+            writeNumber(source >> 8, byteCount - 1);
+        write((byte) (source & 0xFF));
     }
 
-    public void write(final byte[] source) {
+    void write(final byte[] source) {
         write(source, 0, source.length);
     }
 
-    public void write(final String source) {
+    void write(final String source) {
         final byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
         write(bytes.length);
         write(bytes);
     }
 
-    public int readInt() {
+    int readInt() {
         return (int) readNumber(4);
     }
 
-    public long readLong() {
+    long readLong() {
         return readNumber(8);
     }
 
-    public long readNumber(final int byteCount) {
+    private long readNumber(final int byteCount) {
         long result = 0;
         for (int i = 0; i < byteCount; i++) {
             result <<= 8;
@@ -110,14 +112,14 @@ public class Editor {
         return result;
     }
 
-    public String readString() {
+    String readString() {
         final int length = readInt();
         final byte[] buffer = new byte[length];
         read(buffer);
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
-    public void read(final byte[] destination) {
+    void read(final byte[] destination) {
         read(destination, 0, destination.length);
     }
 }

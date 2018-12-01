@@ -4,14 +4,14 @@ import java.util.PrimitiveIterator;
 import java.util.Random;
 
 class ReservedPositions {
-    private final Memory memory;
+    private final Pages pages;
     private final long availablePositions;
     private final PrimitiveIterator.OfLong randomBitOffsets;
 
-    ReservedPositions(final Memory memory, final long availablePositions, final Random random) {
-        if (availablePositions < 0 || availablePositions > memory.size() * memory.pageSize() * Byte.SIZE)
+    ReservedPositions(final Pages pages, final long availablePositions, final Random random) {
+        if (availablePositions < 0 || availablePositions > pages.size() * pages.pageSize() * Byte.SIZE)
             throw new IllegalArgumentException("Invalid availablePositions");
-        this.memory = memory;
+        this.pages = pages;
         this.availablePositions = availablePositions;
         this.randomBitOffsets = random.longs(0, availablePositions).iterator();
     }
@@ -26,7 +26,7 @@ class ReservedPositions {
             final long bytePosition = (position >> 3);
             final long pageIndex = bytePosition / pageSize();
             final int byteIndex = (int) (bytePosition % pageSize());
-            final Page page = memory.at(pageIndex);
+            final Page page = pages.at(pageIndex);
             final byte bits = page.readByte(byteIndex);
             final byte newBits = setBit(bits, bitIndex);
             if (bits != newBits) {
@@ -34,11 +34,11 @@ class ReservedPositions {
                 return position;
             }
         }
-        throw new OutOfMemoryException("No bits available");
+        throw new OutOfMemoryException("No pages available");
     }
 
     private int pageSize() {
-        return memory.pageSize();
+        return pages.pageSize();
     }
 
     private byte setBit(final byte bits, final int bitIndex) {
@@ -50,7 +50,7 @@ class ReservedPositions {
         final long bytePosition = (position >> 3);
         final long pageIndex = bytePosition / pageSize();
         final int byteIndex = (int) (bytePosition % pageSize());
-        final Page page = memory.at(pageIndex);
+        final Page page = pages.at(pageIndex);
         final byte bits = page.readByte(byteIndex);
         final byte newBits = unsetBit(bits, bitIndex);
         if (bits == newBits)

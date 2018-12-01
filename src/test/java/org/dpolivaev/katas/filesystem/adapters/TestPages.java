@@ -1,16 +1,16 @@
 package org.dpolivaev.katas.filesystem.adapters;
 
-import org.dpolivaev.katas.filesystem.domain.internal.memory.Memory;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
+import org.dpolivaev.katas.filesystem.domain.internal.memory.Pages;
 
 import java.util.Vector;
 
-public class TestMemory implements Memory {
+public class TestPages implements Pages {
 
     private final Vector<TestPage> pages;
     private final int pageSize;
 
-    public TestMemory(final int pageCount, final int pageSize) {
+    public TestPages(final int pageCount, final int pageSize) {
         this.pages = new Vector<>(pageCount);
         pages.setSize(pageCount);
         this.pageSize = pageSize;
@@ -39,7 +39,7 @@ public class TestMemory implements Memory {
 
     @Override
     public String toString() {
-        return "TestMemory{" +
+        return "TestPages{" +
                 "size=" + size() +
                 "pageSize=" + pageSize +
                 ", pages=" + pages +

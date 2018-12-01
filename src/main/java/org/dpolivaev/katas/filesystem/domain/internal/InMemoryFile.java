@@ -2,16 +2,13 @@ package org.dpolivaev.katas.filesystem.domain.internal;
 
 import org.dpolivaev.katas.filesystem.domain.Directory;
 import org.dpolivaev.katas.filesystem.domain.File;
-import org.dpolivaev.katas.filesystem.domain.internal.memory.Memory;
 
 class InMemoryFile implements File {
-    private final FileMemory fileMemory;
-    private final String name;
+    private final FilePage filePage;
     private final Directory parentDirectory;
 
-    InMemoryFile(FileMemory fileMemory, String name, Directory parentDirectory) {
-        this.fileMemory = fileMemory;
-        this.name = name;
+    InMemoryFile(final FilePage filePage, final Directory parentDirectory) {
+        this.filePage = filePage;
         this.parentDirectory = parentDirectory;
     }
 
@@ -22,26 +19,26 @@ class InMemoryFile implements File {
 
     @Override
     public String name() {
-        return name;
+        return filePage.fileName();
     }
 
     @Override
-    public int size() {
-        return fileMemory.size();
+    public long size() {
+        return filePage.size();
     }
 
     @Override
-    public void truncate(long newSize) {
-        fileMemory.truncate(newSize);
+    public void truncate(final long newSize) {
+        filePage.truncate(newSize);
     }
 
     @Override
-    public void write(int offset, int length, byte[] source, long sourceOffset) {
-        fileMemory.write(offset, length, source, sourceOffset);
+    public void write(final int offset, final long length, final byte[] source, final long sourceOffset) {
+        filePage.write(offset, length, source, sourceOffset);
     }
 
     @Override
-    public void read(int offset, int length, byte[] destination, long destinationOffset) {
-        fileMemory.read(offset, length, destination, destinationOffset);
+    public void read(final int offset, final long length, final byte[] destination, final long destinationOffset) {
+        filePage.read(offset, length, destination, destinationOffset);
     }
 }

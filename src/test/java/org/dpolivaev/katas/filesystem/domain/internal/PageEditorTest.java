@@ -1,4 +1,4 @@
-package org.dpolivaev.katas.filesystem.domain.internal.memory;
+package org.dpolivaev.katas.filesystem.domain.internal;
 
 import org.dpolivaev.katas.filesystem.adapters.TestPage;
 import org.junit.Test;
@@ -7,8 +7,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
-public class EditorTest {
-    private final Editor uut = new Editor();
+public class PageEditorTest {
+    private final PageEditor uut = new PageEditor();
     
     @Test
     public void savesIntegers() {

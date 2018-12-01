@@ -6,12 +6,12 @@ import org.dpolivaev.katas.filesystem.domain.File;
 import java.util.List;
 
 public class InMemoryDirectory implements Directory {
-    private final String name;
     private final Directory parentDirectory;
+    private final FilePage directoryPage;
 
-    InMemoryDirectory(String name, Directory parentDirectory) {
-        this.name = name;
+    InMemoryDirectory(final Directory parentDirectory, final FilePage directoryPage) {
         this.parentDirectory = parentDirectory;
+        this.directoryPage = directoryPage;
     }
 
     @Override
@@ -21,36 +21,36 @@ public class InMemoryDirectory implements Directory {
 
     @Override
     public String name() {
-        return name;
+        return directoryPage.fileName();
     }
 
     @Override
-    public File file(String name) {
+    public File file(final String name) {
         return null;
     }
 
     @Override
-    public File createFile(String name) {
+    public File createFile(final String name) {
         return null;
     }
 
     @Override
-    public void deleteFile(String name) {
+    public void deleteFile(final String name) {
 
     }
 
     @Override
-    public Directory directory(String name) {
+    public Directory directory(final String name) {
         return null;
     }
 
     @Override
-    public Directory createDirectory(String name) {
+    public Directory createDirectory(final String name) {
         return null;
     }
 
     @Override
-    public void deleteDirectory(String name) {
+    public void deleteDirectory(final String name) {
 
     }
 

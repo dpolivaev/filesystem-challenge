@@ -1,7 +1,7 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
 import org.assertj.core.api.Assertions;
-import org.dpolivaev.katas.filesystem.adapters.TestMemory;
+import org.dpolivaev.katas.filesystem.adapters.TestPages;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -18,17 +18,17 @@ public class ReservedPositionsTest {
         final int pageSize = 2;
         final Random random = Mockito.mock(Random.class);
         Assertions.assertThatThrownBy(() -> new ReservedPositions(
-                new TestMemory(memorySize, pageSize), -1, random)
+                new TestPages(memorySize, pageSize), -1, random)
         ).isInstanceOf(IllegalArgumentException.class);
         Assertions.assertThatThrownBy(() -> new ReservedPositions(
-                new TestMemory(memorySize, pageSize), memorySize * pageSize * Byte.SIZE + 1, random)
+                new TestPages(memorySize, pageSize), memorySize * pageSize * Byte.SIZE + 1, random)
         ).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void throwsOutOfMemoryException_ifAllAvailablePositionsAreReserved() {
         final Random random = new Random();
-        final ReservedPositions uut = new ReservedPositions(new TestMemory(1, 1), 1, random);
+        final ReservedPositions uut = new ReservedPositions(new TestPages(1, 1), 1, random);
         uut.reservePosition();
         Assertions.assertThatThrownBy(() -> uut.reservePosition()).isInstanceOf(OutOfMemoryException.class);
     }
@@ -43,7 +43,7 @@ public class ReservedPositionsTest {
         final Random random = Mockito.mock(Random.class);
         when(random.longs(0L, availablePositions)).thenReturn(LongStream.iterate(bitOffset, x -> bitOffset));
 
-        final ReservedPositions uut = new ReservedPositions(new TestMemory(memorySize, pageSize), availablePositions, random);
+        final ReservedPositions uut = new ReservedPositions(new TestPages(memorySize, pageSize), availablePositions, random);
 
         LongStream.range(bitOffset, availablePositions).forEach(
                 expected -> Assertions.assertThat(uut.reservePosition()).isEqualTo(expected)
@@ -65,7 +65,7 @@ public class ReservedPositionsTest {
         final Random random = Mockito.mock(Random.class);
         when(random.longs(0L, availablePositions)).thenReturn(LongStream.iterate(bitOffset, x -> bitOffset));
 
-        final ReservedPositions uut = new ReservedPositions(new TestMemory(memorySize, pageSize), availablePositions, random);
+        final ReservedPositions uut = new ReservedPositions(new TestPages(memorySize, pageSize), availablePositions, random);
 
         uut.reservePosition();
         uut.releasePosition(bitOffset);
@@ -76,7 +76,7 @@ public class ReservedPositionsTest {
     @Test
     public void releasePositionThrowsException_ifPositionWasNotReserved() {
         final Random random = new Random();
-        final ReservedPositions uut = new ReservedPositions(new TestMemory(1, 1), 1, random);
+        final ReservedPositions uut = new ReservedPositions(new TestPages(1, 1), 1, random);
         Assertions.assertThatThrownBy(() -> uut.releasePosition(0L)).isInstanceOf(IllegalArgumentException.class);
     }
 }
