@@ -36,6 +36,16 @@ class ReservedPositions {
         throw new OutOfMemoryException("No pages available");
     }
 
+    void reservePosition(final long position) {
+        findBit(position);
+        final byte newBits = setBit(bits, bitIndex);
+        if (bits != newBits) {
+            page.write(byteIndex, newBits);
+        } else
+            throw new IllegalArgumentException("Position already reserved");
+    }
+
+
     private void findBit(final long position) {
         bitIndex = (int) (position & 0x7);
         final long bytePosition = (position >> 3);

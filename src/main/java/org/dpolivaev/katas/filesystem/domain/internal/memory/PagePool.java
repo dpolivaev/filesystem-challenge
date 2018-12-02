@@ -20,9 +20,14 @@ public class PagePool {
         return pages.pageSize();
     }
 
-    public PageAllocation reserve() {
+    public PageAllocation allocate() {
         final long pageNumber = reservations.reservePosition();
         return new PageAllocation(pages.at(reservationPages + pageNumber), pageNumber + 1);
+    }
+
+    public Page allocate(final long pageNumber) {
+        reservations.reservePosition(pageNumber - 1);
+        return pages.at(reservationPages + pageNumber - 1);
     }
 
     public Page at(final long pageNumber) {

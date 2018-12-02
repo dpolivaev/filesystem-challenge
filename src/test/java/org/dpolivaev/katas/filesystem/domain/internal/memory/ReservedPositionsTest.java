@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import java.util.Random;
 import java.util.stream.LongStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 public class ReservedPositionsTest {
@@ -34,7 +35,15 @@ public class ReservedPositionsTest {
     }
 
     @Test
-    public void reservesPositions() {
+    public void reservesGivenPosition() {
+        final Random random = new Random();
+        final ReservedPositions uut = new ReservedPositions(new TestPages(100, 100), 1000, random);
+        uut.reservePosition(5);
+        assertThat(uut.isReserved(5)).isTrue();
+    }
+
+    @Test
+    public void reservesRandomPositions() {
         final int memorySize = 2;
         final int pageSize = 3;
         final long availablePositions = memorySize * pageSize * Byte.SIZE;
@@ -57,8 +66,8 @@ public class ReservedPositionsTest {
 
     private void assertThatReservedPositionIsExpected(final ReservedPositions uut, final long expectedPosition) {
         final long position = uut.reservePosition();
-        Assertions.assertThat(position).isEqualTo(expectedPosition);
-        Assertions.assertThat(uut.isReserved(expectedPosition)).isTrue();
+        assertThat(position).isEqualTo(expectedPosition);
+        assertThat(uut.isReserved(expectedPosition)).isTrue();
     }
 
     @Test
@@ -75,7 +84,7 @@ public class ReservedPositionsTest {
 
         uut.reservePosition();
         uut.releasePosition(bitOffset);
-        Assertions.assertThat(uut.isReserved(bitOffset)).isFalse();
+        assertThat(uut.isReserved(bitOffset)).isFalse();
         assertThatReservedPositionIsExpected(uut, bitOffset);
     }
 
