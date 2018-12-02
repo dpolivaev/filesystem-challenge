@@ -14,18 +14,17 @@ class FilePage implements Page {
     static final int DATA_POSITION = PAGE_REFERENCE_POSITION + PAGE_LEVEL_COUNT * Long.BYTES;
     private final PagePool filePagePool;
     private final Page dataDescriptor;
-    private final PageEditor pageEditor;
+    private final PageEditor editor;
     private final Page data;
 
     FilePage(final PagePool filePagePool, final Page dataDescriptor) {
         this.filePagePool = filePagePool;
         final Pair<Page, Page> pagePair = dataDescriptor.split(DATA_POSITION);
         this.dataDescriptor = pagePair.first;
-        this.pageEditor = new PageEditor();
-        this.pageEditor.setPage(dataDescriptor);
+        this.editor = new PageEditor();
+        this.editor.setPage(dataDescriptor);
         final List<Page> pages = createPages(pagePair.second);
         data = new ArbitraryCompositePage(pages::get, pages.size());
-
     }
 
     private List<Page> createPages(final Page data) {
@@ -58,7 +57,7 @@ class FilePage implements Page {
             if (pageNumber != 0)
                 nextLevelReferencePage = filePagePool.at(pageNumber);
             else
-                nextLevelReferencePage = allocatePoolPage(referencePage, index);
+                nextLevelReferencePage = new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
             final int poolPageSize = filePagePool.pageSize();
             final int pageCount = poolPageSize / Long.BYTES;
             return new SameSizeCompositePage(i -> referencedPage(nextLevelReferencePage, i, referenceLevel - 1, levelPageSize),
@@ -68,7 +67,7 @@ class FilePage implements Page {
 
     private Page allocatePoolPage(final Page page, final int index) {
         final PageAllocation allocation = filePagePool.reserve();
-        editor(page, index * Long.BYTES).write(allocation.pageNumber);
+        editor.on(page, index * Long.BYTES, () -> editor.write(allocation.pageNumber));
         return allocation.page;
     }
 
@@ -86,9 +85,9 @@ class FilePage implements Page {
     }
 
     private PageEditor editor(final Page page, final int position) {
-        pageEditor.setPage(page);
-        pageEditor.setPosition(position);
-        return pageEditor;
+        editor.setPage(page);
+        editor.setPosition(position);
+        return editor;
     }
 
     private void setFileSize(final long size) {
@@ -103,12 +102,12 @@ class FilePage implements Page {
     public void write(final long offset, final byte source) {
         increaseSize(offset + 1);
         setPosition(offset);
-        pageEditor.write(source);
+        editor.write(source);
     }
 
     private void setPosition(final long offset) {
-        pageEditor.setPage(data);
-        pageEditor.setPosition(offset);
+        editor.setPage(data);
+        editor.setPosition(offset);
     }
 
 
@@ -125,7 +124,7 @@ class FilePage implements Page {
     public void write(final long offset, final int length, final byte[] source, final int sourceOffset) {
         increaseSize(offset + length);
         setPosition(offset);
-        pageEditor.write(source, sourceOffset, length);
+        editor.write(source, sourceOffset, length);
 
     }
 
@@ -134,7 +133,7 @@ class FilePage implements Page {
         if (offset >= size())
             throw new EndOfFileException();
         setPosition(offset);
-        return pageEditor.readByte();
+        return editor.readByte();
     }
 
     @Override
@@ -142,7 +141,7 @@ class FilePage implements Page {
         if (offset > size() + length)
             throw new EndOfFileException();
         setPosition(offset);
-        pageEditor.write(destination, destinationOffset, length);
+        editor.write(destination, destinationOffset, length);
     }
 
 }

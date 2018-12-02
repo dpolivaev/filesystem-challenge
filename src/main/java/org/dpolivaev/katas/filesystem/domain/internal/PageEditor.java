@@ -20,6 +20,19 @@ class PageEditor {
         this.position = position;
     }
 
+    void on(final Page page, final long position, final Runnable runnable) {
+        final Page oldPage = this.page;
+        final long oldPosition = this.position;
+        this.page = page;
+        this.position = position;
+        try {
+            runnable.run();
+        } finally {
+            this.page = oldPage;
+            this.position = oldPosition;
+        }
+    }
+
     long getPosition() {
         return position;
     }
