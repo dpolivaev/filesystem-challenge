@@ -1,16 +1,16 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
 
-import java.util.function.LongFunction;
+import java.util.function.IntFunction;
 
 abstract public class CompositePage implements Page {
-    protected final LongFunction<Page> pages;
+    protected final IntFunction<Page> pages;
 
     protected int currentPageIndex;
     protected long currentPageOffset;
-    protected final long pageCount;
+    protected final int pageCount;
 
-    public CompositePage(final LongFunction<Page> pages, final long pageCount) {
+    public CompositePage(final IntFunction<Page> pages, final int pageCount) {
         this.pageCount = pageCount;
         if (pageCount <= 0)
             throw new IllegalArgumentException("No pages");

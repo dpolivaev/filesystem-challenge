@@ -1,12 +1,12 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
 
-import java.util.function.LongFunction;
+import java.util.function.IntFunction;
 
 public class SameSizeCompositePage extends CompositePage {
     private final long pageSize;
 
-    public SameSizeCompositePage(final LongFunction<Page> pages, final long pageCount, final long pageSize) {
+    public SameSizeCompositePage(final IntFunction<Page> pages, final int pageCount, final long pageSize) {
         super(pages, pageCount);
         this.pageSize = pageSize;
     }

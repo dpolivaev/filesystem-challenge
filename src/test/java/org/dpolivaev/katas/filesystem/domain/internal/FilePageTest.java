@@ -13,6 +13,8 @@ import org.mockito.Mockito;
 import java.util.Random;
 import java.util.stream.LongStream;
 
+import static org.dpolivaev.katas.filesystem.domain.internal.FilePage.PAGE_LEVEL_COUNT;
+
 public class FilePageTest {
 
     private PagePool pagePool;
@@ -45,17 +47,18 @@ public class FilePageTest {
     }
 
     @Test
-    public void calculatesItsMaximumSize() {
- /*       createFilePage(0, 2, Long.BYTES);
-        Assertions.assertThat(uut.size()).isEqualTo(8L);
-
-        createFilePage(1, 2, Long.BYTES);
-        Assertions.assertThat(uut.size()).isEqualTo(9L);
-
-*/
-        createFilePage(0, 1024, 2 * Long.BYTES);
-        Assertions.assertThat(uut.size() / Long.BYTES).isEqualTo(2 + 4);
+    public void calculatesMaximumSize_for16BytePages() {
+        createFilePage(Long.BYTES, 1024, 2 * Long.BYTES);
+        Assertions.assertThat(uut.size() / Long.BYTES).isEqualTo((2 << PAGE_LEVEL_COUNT) - 1);
     }
+
+    @Test
+    public void calculatesMaximumSize_for1024BytePages() {
+        createFilePage(1024, 1024, 1024);
+        final long sizeInGigabytes = uut.size() / (1024 * 1024 * 1024);
+        Assertions.assertThat(sizeInGigabytes).isEqualTo(258L);
+    }
+
 
     @Test
     public void readsFileSizeAndNameFromDescriptor() {
@@ -91,14 +94,27 @@ public class FilePageTest {
 
 
     @Test
-    public void name() {
-        createFilePage(1, 100, 2 * Long.BYTES);
+    public void useLevel_1_pages() {
+        createFilePage(0, 100, 2 * Long.BYTES);
 
         editor.setPosition(10);
         editor.write(0x1234567887654321L);
 
         editor.setPosition(10);
         Assertions.assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
-        Assertions.assertThat(uut.fileSize()).isEqualTo(8L);
+        Assertions.assertThat(uut.fileSize()).isEqualTo(18L);
+    }
+
+
+    @Test
+    public void useLevel_2_pages() {
+        createFilePage(0, 100, 2 * Long.BYTES);
+
+        editor.setPosition(16);
+        editor.write(0x1234567887654321L);
+
+        editor.setPosition(16);
+        Assertions.assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
+        Assertions.assertThat(uut.fileSize()).isEqualTo(24L);
     }
 }

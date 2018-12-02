@@ -1,17 +1,17 @@
 package org.dpolivaev.katas.filesystem.domain.internal.memory;
 
 
-import java.util.function.LongFunction;
-import java.util.stream.LongStream;
+import java.util.function.IntFunction;
+import java.util.stream.IntStream;
 
 public class ArbitraryCompositePage extends CompositePage {
-    public ArbitraryCompositePage(final LongFunction<Page> pages, final long pageCount) {
+    public ArbitraryCompositePage(final IntFunction<Page> pages, final int pageCount) {
         super(pages, pageCount);
     }
 
     @Override
     public long size() {
-        return LongStream.range(0, pageCount).mapToObj(this.pages).mapToLong(Page::size).sum();
+        return IntStream.range(0, pageCount).mapToObj(this.pages).mapToLong(Page::size).sum();
     }
 
     @Override

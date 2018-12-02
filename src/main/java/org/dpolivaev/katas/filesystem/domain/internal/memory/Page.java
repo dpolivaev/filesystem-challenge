@@ -18,4 +18,12 @@ public interface Page {
         final Page second = new SubPage(this, position, size());
         return new Pair<>(first, second);
     }
+
+    default Page subpage(final long from, final long length) {
+        if (from < 0 || from > size())
+            throw new IllegalArgumentException("Invalid from " + from);
+        if (length < 0 || from + length > size())
+            throw new IllegalArgumentException("Invalid length " + length);
+        return new SubPage(this, from, from + length);
+    }
 }
