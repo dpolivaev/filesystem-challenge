@@ -41,4 +41,7 @@ public class PagePool {
         reservations.releasePosition(pageNumber - 1);
     }
 
+    public boolean containsPage(final long pageNumber) {
+        return reservations.isReserved(pageNumber - 1);
+    }
 }

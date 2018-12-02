@@ -5,19 +5,19 @@ import org.dpolivaev.katas.filesystem.domain.FileSystem;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.PagePool;
 
-public class InMemoryFileSystem implements FileSystem {
-    private final Page fileSystemDescriptor;
-    private final PagePool fileDescriptorPool;
-    private final PagePool filePagePool;
+class InMemoryFileSystem implements FileSystem {
 
-    public InMemoryFileSystem(final Page fileSystemDescriptor, final PagePool fileDescriptorPool, final PagePool filePagePool) {
-        this.fileSystemDescriptor = fileSystemDescriptor;
-        this.fileDescriptorPool = fileDescriptorPool;
-        this.filePagePool = filePagePool;
+    public static final int ROOT_PAGE_NUMBER = 1;
+    private final InMemoryDirectory rootDirectory;
+
+    public InMemoryFileSystem(final PagePool pagePool) {
+        final Page rootDescriptor = pagePool.containsPage(ROOT_PAGE_NUMBER) ? pagePool.at(1) : pagePool.allocate(1);
+        rootDirectory = new InMemoryDirectory(pagePool, rootDescriptor, null);
+
     }
 
     @Override
     public Directory root() {
-        return null;
+        return rootDirectory;
     }
 }

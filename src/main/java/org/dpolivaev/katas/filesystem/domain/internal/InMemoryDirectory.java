@@ -21,9 +21,9 @@ class InMemoryDirectory implements Directory {
     private final Directory parentDirectory;
 
 
-    InMemoryDirectory(final PagePool pagePool, final InMemoryFile directoryData, final Directory parentDirectory) {
+    InMemoryDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory) {
         this.pagePool = pagePool;
-        this.directoryData = directoryData;
+        this.directoryData = new InMemoryFile(new FilePage(pagePool, directoryData), this);
         this.parentDirectory = parentDirectory != null ? parentDirectory : this;
         editor = new PageEditor();
     }
@@ -47,8 +47,7 @@ class InMemoryDirectory implements Directory {
     }
 
     private Directory toDirectory(final Page page) {
-        final InMemoryFile file = new InMemoryFile(new FilePage(pagePool, page), this);
-        return new InMemoryDirectory(pagePool, file, this);
+        return new InMemoryDirectory(pagePool, page, this);
     }
 
     public Optional<Page> findByName(final String name, final DirectoryElements elementType) {
@@ -75,7 +74,7 @@ class InMemoryDirectory implements Directory {
     private List<Page> descriptors(final DirectoryElements elementType) {
         final List<Page> pages = new ArrayList<>();
         directoryData.setPosition(0);
-        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = editor.getPosition()) {
+        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
             final byte element = directoryData.readByte();
             final long pageNumber = directoryData.readLong();
             if (element == elementType.ordinal()) {
@@ -87,7 +86,7 @@ class InMemoryDirectory implements Directory {
 
     private void register(final DirectoryElements elementType, final long pageNumber) {
         directoryData.setPosition(0);
-        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = editor.getPosition()) {
+        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
             final byte element = directoryData.readByte();
             if (element == DirectoryElements.FREE_SPACE.ordinal()) {
                 directoryData.setPosition(directoryData.getPosition() - Byte.BYTES);
@@ -102,7 +101,7 @@ class InMemoryDirectory implements Directory {
 
     private void deleteElement(final String name, final DirectoryElements elementType) {
         directoryData.setPosition(0);
-        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = editor.getPosition()) {
+        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
             final byte element = directoryData.readByte();
             final long pageNumber = directoryData.readLong();
             if (element == elementType.ordinal()) {
