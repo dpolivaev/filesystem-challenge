@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-public class FilePage implements Page {
+class FilePage implements Page {
     static final int PAGE_SIZE = 1024;
     private static final byte[] ZEROS = new byte[PAGE_SIZE];
     private final MappedByteBuffer byteBuffer;
