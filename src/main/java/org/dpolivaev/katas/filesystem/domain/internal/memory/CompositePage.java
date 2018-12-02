@@ -65,4 +65,17 @@ abstract public class CompositePage implements Page {
         }
         currentPage().write(offset, length, destination, destinationOffset);
     }
+
+    @Override
+    public void erase(long offset, long length) {
+        findPage(offset);
+        final long availableLengthOnPage = currentPage().size() - offset - currentPageOffset;
+        while (availableLengthOnPage < length) {
+            currentPage().erase(offset, availableLengthOnPage);
+            offset = 0;
+            length -= availableLengthOnPage;
+            currentPageIndex++;
+        }
+        currentPage().erase(offset, length);
+    }
 }

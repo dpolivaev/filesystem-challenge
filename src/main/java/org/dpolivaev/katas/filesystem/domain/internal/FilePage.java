@@ -98,15 +98,8 @@ class FilePage implements Page {
     @Override
     public void write(final long offset, final byte source) {
         increaseSize(offset + 1);
-        setPosition(offset);
-        editor.write(source);
+        data.write(offset, source);
     }
-
-    private void setPosition(final long offset) {
-        editor.setPage(data);
-        editor.setPosition(offset);
-    }
-
 
     private void increaseSize(final long requiredSize) {
         if (fileSize() < requiredSize)
@@ -121,8 +114,7 @@ class FilePage implements Page {
     @Override
     public void write(final long offset, final int length, final byte[] source, final int sourceOffset) {
         increaseSize(offset + length);
-        setPosition(offset);
-        editor.write(source, sourceOffset, length);
+        data.write(offset, length, source, sourceOffset);
 
     }
 
@@ -130,16 +122,18 @@ class FilePage implements Page {
     public byte readByte(final long offset) {
         if (offset >= size())
             throw new EndOfFileException();
-        setPosition(offset);
-        return editor.readByte();
+        return data.readByte(offset);
     }
 
     @Override
     public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
         if (offset > size() + length)
             throw new EndOfFileException();
-        setPosition(offset);
-        editor.read(destination, destinationOffset, length);
+        data.read(offset, length, destination, destinationOffset);
     }
 
+    @Override
+    public void erase(final long offset, final long length) {
+        data.erase(offset, length);
+    }
 }

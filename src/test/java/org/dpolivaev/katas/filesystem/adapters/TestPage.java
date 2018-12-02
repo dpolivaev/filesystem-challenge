@@ -46,6 +46,11 @@ public class TestPage implements Page {
     }
 
     @Override
+    public void erase(final long offset, final long length) {
+        Arrays.fill(data, (int) offset, (int) (offset + length), (byte) 0);
+    }
+
+    @Override
     public String toString() {
         return "TestPage{"
                 + Arrays.toString(data) +

@@ -45,4 +45,9 @@ class SubPage implements Page {
     public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
         source.read(offset, length, destination, destinationOffset);
     }
+
+    @Override
+    public void erase(final long offset, final long length) {
+        source.erase(start + offset, length);
+    }
 }

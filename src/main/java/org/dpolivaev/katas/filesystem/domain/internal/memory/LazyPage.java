@@ -49,4 +49,10 @@ public class LazyPage implements Page {
         else
             Arrays.fill(destination, destinationOffset, destinationOffset + length, (byte) 0);
     }
+
+    @Override
+    public void erase(final long offset, final long length) {
+        if (suppliedPage != null)
+            suppliedPage.erase(offset, length);
+    }
 }

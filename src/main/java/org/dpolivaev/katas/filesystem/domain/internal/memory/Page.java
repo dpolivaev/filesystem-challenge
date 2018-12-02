@@ -11,6 +11,12 @@ public interface Page {
 
     void read(long offset, int length, byte[] destination, int destinationOffset);
 
+    default void erase() {
+        erase(0, size());
+    }
+
+    void erase(long offset, long length);
+
     default Pair<Page, Page> split(final long position) {
         if (position < 0 || position > size())
             throw new IllegalArgumentException("Invalid position " + position);
