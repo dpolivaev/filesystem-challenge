@@ -123,17 +123,17 @@ class PageEditor {
     }
 
     int readInt() {
-        return (int) readNumber(4);
+        return (int) readNumber(Integer.BYTES);
     }
 
     long readLong() {
-        return readNumber(8);
+        return readNumber(Long.BYTES);
     }
 
     private long readNumber(final int byteCount) {
         long result = 0;
         for (int i = 0; i < byteCount; i++) {
-            result <<= 8;
+            result <<= Long.BYTES;
             result |= (readByte() & 0xFF);
         }
         return result;
