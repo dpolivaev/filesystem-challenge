@@ -26,7 +26,7 @@ class PageEditor {
 
     private void ensureValidPosition() {
         if (position >= page.size())
-            throw new IllegalArgumentException("Invalid position " + position);
+            throw new IllegalArgumentException("Invalid position " + position + " should be less than " + page.size());
     }
 
     private void ensureValidArrayRange(final byte[] source, final long offset, final long length) {

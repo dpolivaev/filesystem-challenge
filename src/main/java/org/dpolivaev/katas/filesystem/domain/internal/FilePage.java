@@ -1,9 +1,6 @@
 package org.dpolivaev.katas.filesystem.domain.internal;
 
-import org.dpolivaev.katas.filesystem.domain.internal.memory.ArbitraryCompositePage;
-import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
-import org.dpolivaev.katas.filesystem.domain.internal.memory.PagePool;
-import org.dpolivaev.katas.filesystem.domain.internal.memory.Pair;
+import org.dpolivaev.katas.filesystem.domain.internal.memory.*;
 
 class FilePage implements Page {
     static final int SIZE_POSITION = 0;
@@ -21,33 +18,60 @@ class FilePage implements Page {
         this.filePagePool = filePagePool;
         final Pair<Page, Page> pagePair = dataDescriptor.split(DATA_POSITION);
         this.dataDescriptor = pagePair.first;
-        this.data = pagePair.second;
         this.pageEditor = new PageEditor();
-        pageEditor.setPage(dataDescriptor);
+        this.pageEditor.setPage(dataDescriptor);
+        final Page[] pages = createPages(pagePair.second);
+        data = new ArbitraryCompositePage(index -> pages[(int) index], pages.length);
 
+    }
+
+    private Page[] createPages(final Page data) {
+        final int poolPageSize = filePagePool.pageSize();
+        final Page directReferenced = new SameSizeCompositePage(
+                index -> indirectPage(0, DIRECT_PAGE_REFERENCE_POSITION, poolPageSize),
+                1, poolPageSize);
+        return new Page[]{data, directReferenced};
+    }
+
+    private Page indirectPage(final long index, final int referencePosition, final int pageSize) {
+        final long pageNumber = descriptor(referencePosition).readLong();
+        if (pageNumber != 0)
+            return filePagePool.at(pageNumber);
+        else
+            return new LazyPage(() -> allocatePoolPage(referencePosition), pageSize);
+    }
+
+    private Page allocatePoolPage(final int referencePosition) {
+        final PageAllocation allocation = filePagePool.reserve();
+        descriptor(referencePosition).write(allocation.pageNumber);
+        return allocation.page;
     }
 
     @Override
     public long size() {
-        return Long.MAX_VALUE;
+        return data.size();
     }
 
     public long fileSize() {
-        pageEditor.setPage(dataDescriptor);
-        pageEditor.setPosition(SIZE_POSITION);
-        return pageEditor.readLong();
+        return descriptor(SIZE_POSITION).readLong();
+    }
+
+    private PageEditor descriptor(final int position) {
+        return editor(dataDescriptor, position);
+    }
+
+    private PageEditor editor(final Page page, final int position) {
+        pageEditor.setPage(page);
+        pageEditor.setPosition(position);
+        return pageEditor;
     }
 
     private void setFileSize(final long size) {
-        pageEditor.setPage(dataDescriptor);
-        pageEditor.setPosition(SIZE_POSITION);
-        pageEditor.write(size);
+        descriptor(SIZE_POSITION).write(size);
     }
 
     public String fileName() {
-        pageEditor.setPage(dataDescriptor);
-        pageEditor.setPosition(NAME_POSITION);
-        return pageEditor.readString();
+        return descriptor(NAME_POSITION).readString();
     }
 
     @Override
@@ -58,13 +82,10 @@ class FilePage implements Page {
     }
 
     private void setPosition(final long offset) {
-        pageEditor.setPage(new ArbitraryCompositePage(this::dataPage, 1));
+        pageEditor.setPage(data);
         pageEditor.setPosition(offset);
     }
 
-    private Page dataPage(final long index) {
-        return data;
-    }
 
     private void increaseSize(final long requiredSize) {
         if (fileSize() < requiredSize)
