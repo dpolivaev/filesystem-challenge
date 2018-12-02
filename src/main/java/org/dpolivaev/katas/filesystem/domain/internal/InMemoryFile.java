@@ -22,7 +22,7 @@ class InMemoryFile implements File {
 
     @Override
     public String name() {
-        return filePage.fileName();
+        return filePage.name();
     }
 
     @Override

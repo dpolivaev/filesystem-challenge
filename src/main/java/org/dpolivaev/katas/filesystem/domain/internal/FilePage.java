@@ -13,14 +13,14 @@ class FilePage implements Page {
     static final int PAGE_REFERENCE_POSITION = NAME_POSITION + NAME_SIZE;
     public static final int PAGE_LEVEL_COUNT = 5;
     static final int DATA_POSITION = PAGE_REFERENCE_POSITION + PAGE_LEVEL_COUNT * Long.BYTES;
-    private final PagePool filePagePool;
+    private final PagePool pagePool;
     private final Page descriptorAndDataPage;
     private final Page dataDescriptor;
     private final PageEditor editor;
     private final Page data;
 
-    FilePage(final PagePool filePagePool, final Page descriptorAndDataPage) {
-        this.filePagePool = filePagePool;
+    FilePage(final PagePool pagePool, final Page descriptorAndDataPage) {
+        this.pagePool = pagePool;
         this.descriptorAndDataPage = descriptorAndDataPage;
         final Pair<Page, Page> pagePair = descriptorAndDataPage.split(DATA_POSITION);
         this.dataDescriptor = pagePair.first;
@@ -31,7 +31,7 @@ class FilePage implements Page {
     }
 
     private List<Page> createPages(final Page data) {
-        final int poolPageSize = filePagePool.pageSize();
+        final int poolPageSize = pagePool.pageSize();
         final Page referencesPage = dataDescriptor.subpage(PAGE_REFERENCE_POSITION, PAGE_LEVEL_COUNT * Long.BYTES);
         final List<Page> pages = new ArrayList<>(PAGE_LEVEL_COUNT + 1);
         pages.add(data);
@@ -51,17 +51,17 @@ class FilePage implements Page {
         final long pageNumber = editor.on(referencePage, index * Long.BYTES, editor::readLong);
         if (referenceLevel == 0) {
             if (pageNumber != 0)
-                return filePagePool.at(pageNumber);
+                return pagePool.at(pageNumber);
             else {
                 return new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
             }
         } else {
             final Page nextLevelReferencePage;
             if (pageNumber != 0)
-                nextLevelReferencePage = filePagePool.at(pageNumber);
+                nextLevelReferencePage = pagePool.at(pageNumber);
             else
                 nextLevelReferencePage = new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
-            final int poolPageSize = filePagePool.pageSize();
+            final int poolPageSize = pagePool.pageSize();
             final int pageCount = poolPageSize / Long.BYTES;
             final long nextLevelPageSize = levelPageSize / pageCount;
             return new SameSizeCompositePage(i -> referencedPage(nextLevelReferencePage, i, referenceLevel - 1, nextLevelPageSize),
@@ -87,8 +87,8 @@ class FilePage implements Page {
     private void destroyReferencedPages(final Page page, final int index, final int level) {
         final long pageNumber = editor.on(page, index * Long.BYTES, editor::readLong);
         if (pageNumber != 0) {
-            final Page referencedPage = filePagePool.at(pageNumber);
-            filePagePool.release(pageNumber);
+            final Page referencedPage = pagePool.at(pageNumber);
+            pagePool.release(pageNumber);
             editor.on(page, index * Long.BYTES, () -> editor.write(0L));
             if (level > 0) {
                 IntStream.range(0, (int) referencedPage.size() / Long.BYTES).forEach(i -> destroyReferencedPages(referencedPage, i, level - 1));
@@ -100,7 +100,7 @@ class FilePage implements Page {
 
 
     private Page allocatePoolPage(final Page page, final int index) {
-        final PageAllocation allocation = filePagePool.reserve();
+        final PageAllocation allocation = pagePool.allocate();
         editor.on(page, index * Long.BYTES, () -> editor.write(allocation.pageNumber));
         return allocation.page;
     }
@@ -124,8 +124,12 @@ class FilePage implements Page {
         descriptor(SIZE_POSITION).write(size);
     }
 
-    public String fileName() {
+    String name() {
         return descriptor(NAME_POSITION).readString();
+    }
+
+    void setName(final String name) {
+
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 class PageEditor {
     private Page page = null;
@@ -41,6 +42,19 @@ class PageEditor {
         this.position = position;
         try {
             return supplier.getAsLong();
+        } finally {
+            this.page = oldPage;
+            this.position = oldPosition;
+        }
+    }
+
+    <T> T on(final Page page, final long position, final Supplier<T> supplier) {
+        final Page oldPage = this.page;
+        final long oldPosition = this.position;
+        this.page = page;
+        this.position = position;
+        try {
+            return supplier.get();
         } finally {
             this.page = oldPage;
             this.position = oldPosition;
@@ -116,10 +130,15 @@ class PageEditor {
         write(source, 0, source.length);
     }
 
-    void write(final String source) {
-        final byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
+    void write(final String value) {
+        final byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
         write(bytes.length);
         write(bytes);
+    }
+
+
+    int requiredLength(final String value) {
+        return value.getBytes(StandardCharsets.UTF_8).length + Integer.BYTES;
     }
 
     int readInt() {

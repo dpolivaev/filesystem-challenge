@@ -69,7 +69,7 @@ public class FilePageTest {
         editor.write(4L);
         editor.write("name");
 
-        assertThat(uut.fileName()).isEqualTo("name");
+        assertThat(uut.name()).isEqualTo("name");
         assertThat(uut.fileSize()).isEqualTo(4L);
     }
 
