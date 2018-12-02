@@ -3,6 +3,7 @@ package org.dpolivaev.katas.filesystem.adapters;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class TestPage implements Page {
 
@@ -55,5 +56,9 @@ public class TestPage implements Page {
         return "TestPage{"
                 + Arrays.toString(data) +
                 '}';
+    }
+
+    public boolean isEmpty() {
+        return IntStream.range(0, data.length).parallel().allMatch(i -> data[i] == 0);
     }
 }

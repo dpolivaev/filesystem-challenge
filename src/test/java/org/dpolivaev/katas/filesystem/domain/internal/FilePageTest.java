@@ -1,9 +1,7 @@
 package org.dpolivaev.katas.filesystem.domain.internal;
 
-import org.assertj.core.api.Assertions;
 import org.dpolivaev.katas.filesystem.adapters.TestPage;
 import org.dpolivaev.katas.filesystem.adapters.TestPages;
-import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.PagePool;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,15 +11,18 @@ import org.mockito.Mockito;
 import java.util.Random;
 import java.util.stream.LongStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.dpolivaev.katas.filesystem.domain.internal.FilePage.DATA_POSITION;
 import static org.dpolivaev.katas.filesystem.domain.internal.FilePage.PAGE_LEVEL_COUNT;
 
 public class FilePageTest {
 
     private PagePool pagePool;
-    private Page firstPage;
+    private TestPage firstPage;
     private PageEditor editor;
     private FilePage uut;
     private FilePage another;
+    private TestPages testPages;
 
     @Before
     public void setUp() {
@@ -30,7 +31,8 @@ public class FilePageTest {
 
     private void createFilePage(final int firstPageDataSize, final int pagesInPool, final int poolPageSize) {
         final Random random = mockRandomWithSequence_0toN();
-        pagePool = new PagePool(new TestPages(pagesInPool, poolPageSize), random);
+        testPages = new TestPages(pagesInPool, poolPageSize);
+        pagePool = new PagePool(testPages, random);
         firstPage = new TestPage(FilePage.DATA_POSITION + firstPageDataSize);
         editor.setPage(firstPage);
         editor.write(0L);
@@ -49,14 +51,14 @@ public class FilePageTest {
     @Test
     public void calculatesMaximumSize_for16BytePages() {
         createFilePage(Long.BYTES, 1024, 2 * Long.BYTES);
-        Assertions.assertThat(uut.size() / Long.BYTES).isEqualTo((2 << PAGE_LEVEL_COUNT) - 1);
+        assertThat(uut.size() / Long.BYTES).isEqualTo((2 << PAGE_LEVEL_COUNT) - 1);
     }
 
     @Test
     public void calculatesMaximumSize_for1024BytePages() {
         createFilePage(1024, 1024, 1024);
         final long sizeInGigabytes = uut.size() / (1024 * 1024 * 1024);
-        Assertions.assertThat(sizeInGigabytes).isEqualTo(258L);
+        assertThat(sizeInGigabytes).isEqualTo(258L);
     }
 
 
@@ -67,8 +69,8 @@ public class FilePageTest {
         editor.write(4L);
         editor.write("name");
 
-        Assertions.assertThat(uut.fileName()).isEqualTo("name");
-        Assertions.assertThat(uut.fileSize()).isEqualTo(4L);
+        assertThat(uut.fileName()).isEqualTo("name");
+        assertThat(uut.fileSize()).isEqualTo(4L);
     }
 
     @Test
@@ -77,8 +79,8 @@ public class FilePageTest {
         editor.write((byte) -1);
 
         editor.setPage(another);
-        Assertions.assertThat(editor.readByte()).isEqualTo((byte) -1);
-        Assertions.assertThat(uut.fileSize()).isEqualTo(1L);
+        assertThat(editor.readByte()).isEqualTo((byte) -1);
+        assertThat(uut.fileSize()).isEqualTo(1L);
     }
 
     @Test
@@ -88,8 +90,8 @@ public class FilePageTest {
         editor.write(0x1234567887654321L);
 
         editor.setPage(another);
-        Assertions.assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
-        Assertions.assertThat(uut.fileSize()).isEqualTo(8L);
+        assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
+        assertThat(uut.fileSize()).isEqualTo(8L);
     }
 
 
@@ -101,8 +103,8 @@ public class FilePageTest {
         editor.write(0x1234567887654321L);
 
         editor.setPosition(10);
-        Assertions.assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
-        Assertions.assertThat(uut.fileSize()).isEqualTo(18L);
+        assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
+        assertThat(uut.fileSize()).isEqualTo(18L);
     }
 
 
@@ -114,8 +116,8 @@ public class FilePageTest {
         editor.write(0x1234567887654321L);
 
         editor.setPosition(16);
-        Assertions.assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
-        Assertions.assertThat(uut.fileSize()).isEqualTo(24L);
+        assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
+        assertThat(uut.fileSize()).isEqualTo(24L);
     }
 
     @Test
@@ -127,7 +129,41 @@ public class FilePageTest {
         editor.write(0x1234567887654321L);
 
         editor.setPosition(position);
-        Assertions.assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
-        Assertions.assertThat(uut.fileSize()).isEqualTo(uut.size());
+        assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
+        assertThat(uut.fileSize()).isEqualTo(uut.size());
+    }
+
+
+    @Test
+    public void truncate_releasesAllPagesToPoolAndDeletesData() {
+        createFilePage(0, 100, 2 * Long.BYTES);
+
+        final long position = uut.size() - Long.BYTES;
+        editor.setPosition(position);
+        editor.write(0x1234567887654321L);
+
+        uut.truncate();
+
+        assertThat(uut.fileSize()).isEqualTo(0L);
+        assertThat(testPages.areEmpty()).isTrue();
+
+        firstPage.erase(0, DATA_POSITION);
+        assertThat(firstPage.isEmpty()).isTrue();
+
+    }
+
+
+    @Test
+    public void destroy_releasesAllPagesToPoolAndDeletesDataAndDescriptor() {
+        createFilePage(0, 100, 2 * Long.BYTES);
+
+        final long position = uut.size() - Long.BYTES;
+        editor.setPosition(position);
+        editor.write(0x1234567887654321L);
+
+        uut.destroy();
+
+        assertThat(testPages.areEmpty()).isTrue();
+        assertThat(firstPage.isEmpty()).isTrue();
     }
 }

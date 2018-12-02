@@ -4,6 +4,7 @@ import org.dpolivaev.katas.filesystem.domain.internal.memory.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 class FilePage implements Page {
     static final int SIZE_POSITION = 0;
@@ -13,16 +14,18 @@ class FilePage implements Page {
     public static final int PAGE_LEVEL_COUNT = 5;
     static final int DATA_POSITION = PAGE_REFERENCE_POSITION + PAGE_LEVEL_COUNT * Long.BYTES;
     private final PagePool filePagePool;
+    private final Page descriptorAndDataPage;
     private final Page dataDescriptor;
     private final PageEditor editor;
     private final Page data;
 
-    FilePage(final PagePool filePagePool, final Page dataDescriptor) {
+    FilePage(final PagePool filePagePool, final Page descriptorAndDataPage) {
         this.filePagePool = filePagePool;
-        final Pair<Page, Page> pagePair = dataDescriptor.split(DATA_POSITION);
+        this.descriptorAndDataPage = descriptorAndDataPage;
+        final Pair<Page, Page> pagePair = descriptorAndDataPage.split(DATA_POSITION);
         this.dataDescriptor = pagePair.first;
         this.editor = new PageEditor();
-        this.editor.setPage(dataDescriptor);
+        this.editor.setPage(descriptorAndDataPage);
         final List<Page> pages = createPages(pagePair.second);
         data = new ArbitraryCompositePage(pages::get, pages.size());
     }
@@ -66,6 +69,36 @@ class FilePage implements Page {
         }
     }
 
+
+    public void destroy() {
+        truncate();
+        descriptorAndDataPage.erase(0, DATA_POSITION);
+    }
+
+    public void truncate() {
+        final Page referencesPage = dataDescriptor.subpage(PAGE_REFERENCE_POSITION, PAGE_LEVEL_COUNT * Long.BYTES);
+        for (int level = 0; level < PAGE_LEVEL_COUNT; level++) {
+            destroyReferencedPages(referencesPage, level, level);
+        }
+        setFileSize(0);
+        descriptorAndDataPage.erase(DATA_POSITION, descriptorAndDataPage.size() - DATA_POSITION);
+    }
+
+    private void destroyReferencedPages(final Page page, final int index, final int level) {
+        final long pageNumber = editor.on(page, index * Long.BYTES, editor::readLong);
+        if (pageNumber != 0) {
+            final Page referencedPage = filePagePool.at(pageNumber);
+            filePagePool.release(pageNumber);
+            editor.on(page, index * Long.BYTES, () -> editor.write(0L));
+            if (level > 0) {
+                IntStream.range(0, (int) referencedPage.size() / Long.BYTES).forEach(i -> destroyReferencedPages(referencedPage, i, level - 1));
+            } else {
+                referencedPage.erase();
+            }
+        }
+    }
+
+
     private Page allocatePoolPage(final Page page, final int index) {
         final PageAllocation allocation = filePagePool.reserve();
         editor.on(page, index * Long.BYTES, () -> editor.write(allocation.pageNumber));
@@ -103,11 +136,6 @@ class FilePage implements Page {
 
     private void increaseSize(final long requiredSize) {
         if (fileSize() < requiredSize)
-            setFileSize(requiredSize);
-    }
-
-    public void truncate(final long requiredSize) {
-        if (fileSize() > requiredSize)
             setFileSize(requiredSize);
     }
 

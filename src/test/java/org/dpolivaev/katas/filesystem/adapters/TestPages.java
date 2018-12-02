@@ -45,5 +45,9 @@ public class TestPages implements Pages {
                 ", pages=" + pages +
                 '}';
     }
+
+    public boolean areEmpty() {
+        return pages.stream().filter(page -> page != null).allMatch(TestPage::isEmpty);
+    }
 }
 
