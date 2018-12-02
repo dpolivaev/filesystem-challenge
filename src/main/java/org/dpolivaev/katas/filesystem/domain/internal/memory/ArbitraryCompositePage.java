@@ -5,13 +5,16 @@ import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 public class ArbitraryCompositePage extends CompositePage {
+    private final long size;
+
     public ArbitraryCompositePage(final IntFunction<Page> pages, final int pageCount) {
         super(pages, pageCount);
+        size = IntStream.range(0, pageCount).mapToObj(this.pages).mapToLong(Page::size).sum();
     }
 
     @Override
     public long size() {
-        return IntStream.range(0, pageCount).mapToObj(this.pages).mapToLong(Page::size).sum();
+        return size;
     }
 
     @Override
