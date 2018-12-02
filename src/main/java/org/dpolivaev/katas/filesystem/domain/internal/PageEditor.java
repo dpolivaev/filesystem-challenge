@@ -3,6 +3,7 @@ package org.dpolivaev.katas.filesystem.domain.internal;
 import org.dpolivaev.katas.filesystem.domain.internal.memory.Page;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.LongSupplier;
 
 class PageEditor {
     private Page page = null;
@@ -27,6 +28,19 @@ class PageEditor {
         this.position = position;
         try {
             runnable.run();
+        } finally {
+            this.page = oldPage;
+            this.position = oldPosition;
+        }
+    }
+
+    long on(final Page page, final long position, final LongSupplier supplier) {
+        final Page oldPage = this.page;
+        final long oldPosition = this.position;
+        this.page = page;
+        this.position = position;
+        try {
+            return supplier.getAsLong();
         } finally {
             this.page = oldPage;
             this.position = oldPosition;

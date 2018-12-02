@@ -29,7 +29,7 @@ class FilePage implements Page {
 
     private List<Page> createPages(final Page data) {
         final int poolPageSize = filePagePool.pageSize();
-        final Page referencesPage = dataDescriptor.subpage(PAGE_REFERENCE_POSITION, 2 * Long.BYTES);
+        final Page referencesPage = dataDescriptor.subpage(PAGE_REFERENCE_POSITION, PAGE_LEVEL_COUNT * Long.BYTES);
         final List<Page> pages = new ArrayList<>(PAGE_LEVEL_COUNT + 1);
         pages.add(data);
         long levelPageSize = poolPageSize;
@@ -38,14 +38,14 @@ class FilePage implements Page {
             final long finalLevelPageSize = levelPageSize;
             pages.add(new SameSizeCompositePage(
                     index -> referencedPage(referencesPage, level, level, finalLevelPageSize),
-                    1, levelPageSize));
+                    1, finalLevelPageSize));
             levelPageSize *= poolPageSize / Long.BYTES;
         }
         return pages;
     }
 
     private Page referencedPage(final Page referencePage, final int index, final int referenceLevel, final long levelPageSize) {
-        final long pageNumber = editor(referencePage, index * Long.BYTES).readLong();
+        final long pageNumber = editor.on(referencePage, index * Long.BYTES, editor::readLong);
         if (referenceLevel == 0) {
             if (pageNumber != 0)
                 return filePagePool.at(pageNumber);
@@ -60,8 +60,9 @@ class FilePage implements Page {
                 nextLevelReferencePage = new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
             final int poolPageSize = filePagePool.pageSize();
             final int pageCount = poolPageSize / Long.BYTES;
-            return new SameSizeCompositePage(i -> referencedPage(nextLevelReferencePage, i, referenceLevel - 1, levelPageSize),
-                    pageCount, levelPageSize / (pageCount));
+            final long nextLevelPageSize = levelPageSize / pageCount;
+            return new SameSizeCompositePage(i -> referencedPage(nextLevelReferencePage, i, referenceLevel - 1, nextLevelPageSize),
+                    pageCount, nextLevelPageSize);
         }
     }
 
@@ -81,11 +82,7 @@ class FilePage implements Page {
     }
 
     private PageEditor descriptor(final int position) {
-        return editor(dataDescriptor, position);
-    }
-
-    private PageEditor editor(final Page page, final int position) {
-        editor.setPage(page);
+        editor.setPage(dataDescriptor);
         editor.setPosition(position);
         return editor;
     }
@@ -116,8 +113,9 @@ class FilePage implements Page {
             setFileSize(requiredSize);
     }
 
-    public void truncate(final long newSize) {
-        throw new RuntimeException("Method not implemented");
+    public void truncate(final long requiredSize) {
+        if (fileSize() > requiredSize)
+            setFileSize(requiredSize);
     }
 
     @Override
@@ -141,7 +139,7 @@ class FilePage implements Page {
         if (offset > size() + length)
             throw new EndOfFileException();
         setPosition(offset);
-        editor.write(destination, destinationOffset, length);
+        editor.read(destination, destinationOffset, length);
     }
 
 }

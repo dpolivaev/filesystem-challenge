@@ -24,10 +24,10 @@ public class PagePoolTest {
         final TestPages memory = new TestPages(2, 1);
         final PagePool uut = new PagePool(memory, randomReturningConstant(0, 1));
 
-        final PageAllocation page = uut.reserve();
+        final PageAllocation allocation = uut.reserve();
 
-        assertThat(page.pageNumber).isEqualTo(1L);
-        assertThat(uut.at(1L)).isSameAs(page);
+        assertThat(allocation.pageNumber).isEqualTo(1L);
+        assertThat(uut.at(1L)).isSameAs(allocation.page);
     }
 
     @Test

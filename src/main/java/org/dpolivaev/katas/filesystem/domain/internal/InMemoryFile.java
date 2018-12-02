@@ -24,7 +24,7 @@ class InMemoryFile implements File {
 
     @Override
     public long size() {
-        return filePage.size();
+        return filePage.fileSize();
     }
 
     @Override

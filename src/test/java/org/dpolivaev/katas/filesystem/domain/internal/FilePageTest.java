@@ -117,4 +117,17 @@ public class FilePageTest {
         Assertions.assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
         Assertions.assertThat(uut.fileSize()).isEqualTo(24L);
     }
+
+    @Test
+    public void useLastLevelPages() {
+        createFilePage(0, 100, 2 * Long.BYTES);
+
+        final long position = uut.size() - Long.BYTES;
+        editor.setPosition(position);
+        editor.write(0x1234567887654321L);
+
+        editor.setPosition(position);
+        Assertions.assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
+        Assertions.assertThat(uut.fileSize()).isEqualTo(uut.size());
+    }
 }
