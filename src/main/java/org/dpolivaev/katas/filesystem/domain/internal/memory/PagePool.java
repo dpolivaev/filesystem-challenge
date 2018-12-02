@@ -44,4 +44,8 @@ public class PagePool {
     public boolean containsPage(final long pageNumber) {
         return reservations.isReserved(pageNumber - 1);
     }
+
+    public void close() {
+        pages.close();
+    }
 }

@@ -7,5 +7,8 @@ public interface Pages {
 
     Page at(long position);
 
+    default void close() {
+    }
+
 }
 
