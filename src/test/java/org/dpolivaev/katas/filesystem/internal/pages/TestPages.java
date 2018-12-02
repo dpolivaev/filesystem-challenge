@@ -1,7 +1,4 @@
-package org.dpolivaev.katas.filesystem.persistence;
-
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
-import org.dpolivaev.katas.filesystem.internal.pages.Pages;
+package org.dpolivaev.katas.filesystem.internal.pages;
 
 import java.util.Vector;
 

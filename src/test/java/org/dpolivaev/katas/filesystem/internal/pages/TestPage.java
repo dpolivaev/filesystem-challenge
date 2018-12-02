@@ -1,6 +1,4 @@
-package org.dpolivaev.katas.filesystem.persistence;
-
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
+package org.dpolivaev.katas.filesystem.internal.pages;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;

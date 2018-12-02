@@ -1,6 +1,6 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import org.dpolivaev.katas.filesystem.persistence.TestPage;
+import org.dpolivaev.katas.filesystem.internal.pages.TestPage;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,8 +1,8 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
 import org.dpolivaev.katas.filesystem.Directory;
+import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
-import org.dpolivaev.katas.filesystem.persistence.TestPages;
 import org.junit.Before;
 import org.junit.Test;
 

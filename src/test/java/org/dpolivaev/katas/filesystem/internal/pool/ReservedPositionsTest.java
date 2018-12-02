@@ -1,7 +1,7 @@
 package org.dpolivaev.katas.filesystem.internal.pool;
 
 import org.assertj.core.api.Assertions;
-import org.dpolivaev.katas.filesystem.persistence.TestPages;
+import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.junit.Test;
 import org.mockito.Mockito;
 
