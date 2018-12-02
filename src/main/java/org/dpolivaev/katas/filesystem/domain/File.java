@@ -2,9 +2,34 @@ package org.dpolivaev.katas.filesystem.domain;
 
 public interface File extends Element {
     long size();
-    void truncate(long newSize);
 
-    void write(long offset, int length, byte[] source, int sourceOffset);
+    void truncate();
 
-    void read(long offset, int length, byte[] destination, int destinationOffset);
+    void setPosition(long position);
+
+    long getPosition();
+
+    void write(byte source);
+
+    void write(byte[] source, int sourceOffset, int length);
+
+    byte readByte();
+
+    void read(byte[] destination, int destinationOffset, int length);
+
+    void write(long source);
+
+    void write(int source);
+
+    void write(byte[] source);
+
+    void write(String source);
+
+    int readInt();
+
+    long readLong();
+
+    String readString();
+
+    void read(byte[] destination);
 }
