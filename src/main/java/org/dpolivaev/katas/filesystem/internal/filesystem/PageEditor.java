@@ -1,14 +1,14 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
-
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
+import org.dpolivaev.katas.filesystem.internal.pages.Page;
+
 class PageEditor {
     private Page page = null;
-
     private long position = 0;
 
     void setPage(final Page page) {
@@ -17,8 +17,9 @@ class PageEditor {
     }
 
     void setPosition(final long position) {
-        if (position < 0)
+        if (position < 0) {
             throw new IllegalArgumentException("Invalid position " + position);
+        }
         this.position = position;
     }
 
@@ -66,11 +67,13 @@ class PageEditor {
     }
 
     private void ensureValidPosition() {
-        if (position >= page.size())
+        if (position >= page.size()) {
             throw new IllegalArgumentException("Invalid position " + position + " should be less than " + page.size());
+        }
     }
 
-    private void ensureValidArrayRange(final byte[] source, final long offset, final long length) {
+    private static void ensureValidArrayRange(final byte[] source, final long offset,
+            final long length) {
         if (offset < 0) {
             throw new IllegalArgumentException("Invalid position " + offset);
         } else if (offset + length > source.length) {
@@ -79,8 +82,9 @@ class PageEditor {
     }
 
     private void ensureValidLength(final long length) {
-        if (length < 0 || position + length > page.size())
+        if (length < 0 || position + length > page.size()) {
             throw new IllegalArgumentException("Invalid length " + length);
+        }
     }
 
     void write(final byte source) {
@@ -121,8 +125,9 @@ class PageEditor {
     }
 
     private void writeNumber(final long source, final int byteCount) {
-        if (byteCount > 1)
+        if (byteCount > 1) {
             writeNumber(source >> 8, byteCount - 1);
+        }
         write((byte) (source & 0xFF));
     }
 
@@ -137,7 +142,7 @@ class PageEditor {
     }
 
 
-    int requiredLength(final String value) {
+    static int requiredLength(final String value) {
         return value.getBytes(StandardCharsets.UTF_8).length + Integer.BYTES;
     }
 
@@ -167,5 +172,16 @@ class PageEditor {
 
     void read(final byte[] destination) {
         read(destination, 0, destination.length);
+    }
+
+    UUID readUUID() {
+        final long mostSignificantBits = readLong();
+        final long leastSignificantBits = readLong();
+        return new UUID(mostSignificantBits, leastSignificantBits);
+    }
+
+    void write(final UUID uuid) {
+        write(uuid.getMostSignificantBits());
+        write(uuid.getLeastSignificantBits());
     }
 }

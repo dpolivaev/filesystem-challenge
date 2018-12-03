@@ -6,15 +6,22 @@ import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 class FilePage implements Page {
-    static final int SIZE_POSITION = 0;
+    static final int UUID_POSITION = 0;
+
+    static final int UUID_SIZE = 16 * Long.BYTES;
+
+    static final int SIZE_POSITION = UUID_POSITION + UUID_SIZE;
     static final int NAME_POSITION = SIZE_POSITION + Long.BYTES;
     static final int NAME_SIZE = 32;
     static final int PAGE_REFERENCE_POSITION = NAME_POSITION + NAME_SIZE;
     public static final int PAGE_LEVEL_COUNT = 5;
     static final int DATA_POSITION = PAGE_REFERENCE_POSITION + PAGE_LEVEL_COUNT * Long.BYTES;
+
+    private final UUID uuid;
     private final PagePool pagePool;
     private final Page descriptorAndDataPage;
     private final Page dataDescriptor;
@@ -27,9 +34,25 @@ class FilePage implements Page {
         final Pair<Page, Page> pagePair = descriptorAndDataPage.split(DATA_POSITION);
         this.dataDescriptor = pagePair.first;
         this.editor = new PageEditor();
-        this.editor.setPage(descriptorAndDataPage);
+        UUID uuid = readUUID();
+        if (uuid.getMostSignificantBits() == 0 && uuid.getLeastSignificantBits() == 0) {
+            uuid = UUID.randomUUID();
+            editor.setPage(dataDescriptor);
+            editor.setPosition(UUID_POSITION);
+            editor.write(uuid);
+        }
+        this.uuid = uuid;
         final List<Page> pages = createPages(pagePair.second);
         data = new ArbitraryCompositePage(pages::get, pages.size());
+    }
+
+    private UUID readUUID() {
+        return editor.on(dataDescriptor, UUID_POSITION, editor::readUUID);
+    }
+
+    void validateUuid() {
+        if (!uuid.equals(readUUID()))
+            throw new IllegalArgumentException("File UUID changed");
     }
 
     private List<Page> createPages(final Page data) {
@@ -52,17 +75,18 @@ class FilePage implements Page {
     private Page referencedPage(final Page referencePage, final int index, final int referenceLevel, final long levelPageSize) {
         final long pageNumber = editor.on(referencePage, index * Long.BYTES, editor::readLong);
         if (referenceLevel == 0) {
-            if (pageNumber != 0)
+            if (pageNumber != 0) {
                 return pagePool.at(pageNumber);
-            else {
+            } else {
                 return new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
             }
         } else {
             final Page nextLevelReferencePage;
-            if (pageNumber != 0)
+            if (pageNumber != 0) {
                 nextLevelReferencePage = pagePool.at(pageNumber);
-            else
+            } else {
                 nextLevelReferencePage = new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
+            }
             final int poolPageSize = pagePool.pageSize();
             final int pageCount = poolPageSize / Long.BYTES;
             final long nextLevelPageSize = levelPageSize / pageCount;
@@ -141,8 +165,9 @@ class FilePage implements Page {
     }
 
     private void increaseSize(final long requiredSize) {
-        if (fileSize() < requiredSize)
+        if (fileSize() < requiredSize) {
             setFileSize(requiredSize);
+        }
     }
 
     @Override
@@ -154,15 +179,17 @@ class FilePage implements Page {
 
     @Override
     public byte readByte(final long offset) {
-        if (offset >= size())
+        if (offset >= size()) {
             throw new EndOfFileException();
+        }
         return data.readByte(offset);
     }
 
     @Override
     public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
-        if (offset > size() + length)
+        if (offset > size() + length) {
             throw new EndOfFileException();
+        }
         data.read(offset, length, destination, destinationOffset);
     }
 

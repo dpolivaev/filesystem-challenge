@@ -1,16 +1,16 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import org.dpolivaev.katas.filesystem.Directory;
-import org.dpolivaev.katas.filesystem.File;
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
-import org.dpolivaev.katas.filesystem.internal.pool.PageAllocation;
-import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
+import org.dpolivaev.katas.filesystem.Directory;
+import org.dpolivaev.katas.filesystem.File;
+import org.dpolivaev.katas.filesystem.internal.pages.Page;
+import org.dpolivaev.katas.filesystem.internal.pool.PageAllocation;
+import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 class InMemoryDirectory implements Directory {
     enum DirectoryElements {FREE_SPACE, FILE, DIRECTORY}
@@ -62,10 +62,12 @@ class InMemoryDirectory implements Directory {
     }
 
     private PageAllocation allocateFirstPage(final String name, final DirectoryElements elementType) {
-        if (editor.requiredLength(name) > FilePage.NAME_SIZE)
+        if (PageEditor.requiredLength(name) > FilePage.NAME_SIZE) {
             throw new IllegalArgumentException("Name too long");
-        if (elementNames(elementType).contains(name))
+        }
+        if (elementNames(elementType).contains(name)) {
             throw new IllegalArgumentException("File already exists");
+        }
         final PageAllocation allocation = pagePool.allocate();
         setName(allocation.page, name);
         register(elementType, allocation.pageNumber);

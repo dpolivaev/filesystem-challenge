@@ -1,15 +1,15 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory.mockRandomWithSequence_0toN;
+
+import java.util.Random;
+
 import org.dpolivaev.katas.filesystem.internal.pages.TestPage;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Random;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory.mockRandomWithSequence_0toN;
 
 public class FilePageTest {
 
@@ -56,6 +56,7 @@ public class FilePageTest {
     public void readsFileSizeAndNameFromDescriptor() {
         createFilePage(0, 2, Long.BYTES);
         editor.setPage(firstPage);
+        editor.setPosition(FilePage.SIZE_POSITION);
         editor.write(4L);
         editor.write("name");
 
