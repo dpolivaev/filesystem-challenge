@@ -3,12 +3,12 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 
-class InMemoryFile implements File {
+class PagedFile implements File {
     private final FilePage filePage;
     private final Directory parentDirectory;
     private final PageEditor editor;
 
-    InMemoryFile(final FilePage filePage, final Directory parentDirectory) {
+    PagedFile(final FilePage filePage, final Directory parentDirectory) {
         this.filePage = filePage;
         this.parentDirectory = parentDirectory;
         this.editor = new PageEditor();

@@ -1,15 +1,16 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory.mockRandomWithSequence_0toN;
-
-import java.util.Random;
-
 import org.dpolivaev.katas.filesystem.internal.pages.TestPage;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Random;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.*;
+import static org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory.mockRandomWithSequence_0toN;
 
 public class FilePageTest {
 
@@ -29,7 +30,7 @@ public class FilePageTest {
         final Random random = mockRandomWithSequence_0toN();
         testPages = new TestPages(pagesInPool, poolPageSize);
         pagePool = new PagePool(testPages, random);
-        firstPage = new TestPage(FilePage.DATA_POSITION + firstPageDataSize);
+        firstPage = new TestPage(DATA_POSITION + firstPageDataSize);
         editor.setPage(firstPage);
         editor.write(0L);
         editor.write("name");
@@ -41,7 +42,7 @@ public class FilePageTest {
     @Test
     public void calculatesMaximumSize_for16BytePages() {
         createFilePage(Long.BYTES, 1024, 2 * Long.BYTES);
-        assertThat(uut.size() / Long.BYTES).isEqualTo((2 << FilePage.PAGE_LEVEL_COUNT) - 1);
+        assertThat(uut.size() / Long.BYTES).isEqualTo((2 << PAGE_LEVEL_COUNT) - 1);
     }
 
     @Test
@@ -56,7 +57,7 @@ public class FilePageTest {
     public void readsFileSizeAndNameFromDescriptor() {
         createFilePage(0, 2, Long.BYTES);
         editor.setPage(firstPage);
-        editor.setPosition(FilePage.SIZE_POSITION);
+        editor.setPosition(SIZE_POSITION);
         editor.write(4L);
         editor.write("name");
 
@@ -138,7 +139,7 @@ public class FilePageTest {
         assertThat(uut.fileSize()).isEqualTo(0L);
         assertThat(testPages.areEmpty()).isTrue();
 
-        firstPage.erase(0, FilePage.DATA_POSITION);
+        firstPage.erase(0, DATA_POSITION);
         assertThat(firstPage.isEmpty()).isTrue();
 
     }

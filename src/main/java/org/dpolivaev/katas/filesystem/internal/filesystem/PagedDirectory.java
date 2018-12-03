@@ -1,29 +1,31 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pool.PageAllocation;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
-class InMemoryDirectory implements Directory {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
+import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.NAME_POSITION;
+import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.NAME_SIZE;
+
+class PagedDirectory implements Directory {
     enum DirectoryElements {FREE_SPACE, FILE, DIRECTORY}
 
     private final PageEditor editor;
     private final PagePool pagePool;
-    private final InMemoryFile directoryData;
+    private final PagedFile directoryData;
     private final Directory parentDirectory;
 
 
-    InMemoryDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory) {
+    PagedDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory) {
         this.pagePool = pagePool;
-        this.directoryData = new InMemoryFile(new FilePage(pagePool, directoryData), this);
+        this.directoryData = new PagedFile(new FilePage(pagePool, directoryData), this);
         this.parentDirectory = parentDirectory != null ? parentDirectory : this;
         editor = new PageEditor();
     }
@@ -44,11 +46,11 @@ class InMemoryDirectory implements Directory {
     }
 
     private File toFile(final Page page) {
-        return new InMemoryFile(new FilePage(pagePool, page), this);
+        return new PagedFile(new FilePage(pagePool, page), this);
     }
 
     private Directory toDirectory(final Page page) {
-        return new InMemoryDirectory(pagePool, page, this);
+        return new PagedDirectory(pagePool, page, this);
     }
 
     public Optional<Page> findByName(final String name, final DirectoryElements elementType) {
@@ -62,7 +64,7 @@ class InMemoryDirectory implements Directory {
     }
 
     private PageAllocation allocateFirstPage(final String name, final DirectoryElements elementType) {
-        if (PageEditor.requiredLength(name) > FilePage.NAME_SIZE) {
+        if (PageEditor.requiredLength(name) > NAME_SIZE) {
             throw new IllegalArgumentException("Name too long");
         }
         if (elementNames(elementType).contains(name)) {
@@ -135,11 +137,11 @@ class InMemoryDirectory implements Directory {
     }
 
     private String toName(final Page descriptor) {
-        return editor.on(descriptor, FilePage.NAME_POSITION, editor::readString);
+        return editor.on(descriptor, NAME_POSITION, editor::readString);
     }
 
     private void setName(final Page descriptor, final String name) {
-        editor.on(descriptor, FilePage.NAME_POSITION, () -> editor.write(name));
+        editor.on(descriptor, NAME_POSITION, () -> editor.write(name));
     }
 
     @Override

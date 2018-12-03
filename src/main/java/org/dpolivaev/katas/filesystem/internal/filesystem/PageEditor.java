@@ -1,29 +1,29 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
+import org.dpolivaev.katas.filesystem.internal.pages.Page;
+
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
-
-class PageEditor {
+public class PageEditor {
     private Page page = null;
     private long position = 0;
 
-    void setPage(final Page page) {
+    public void setPage(final Page page) {
         this.page = page;
         this.position = 0;
     }
 
-    void setPosition(final long position) {
+    public void setPosition(final long position) {
         if (position < 0) {
             throw new IllegalArgumentException("Invalid position " + position);
         }
         this.position = position;
     }
 
-    void on(final Page page, final long position, final Runnable runnable) {
+    public void on(final Page page, final long position, final Runnable runnable) {
         final Page oldPage = this.page;
         final long oldPosition = this.position;
         this.page = page;
@@ -36,7 +36,7 @@ class PageEditor {
         }
     }
 
-    long on(final Page page, final long position, final LongSupplier supplier) {
+    public long on(final Page page, final long position, final LongSupplier supplier) {
         final Page oldPage = this.page;
         final long oldPosition = this.position;
         this.page = page;
@@ -49,7 +49,7 @@ class PageEditor {
         }
     }
 
-    <T> T on(final Page page, final long position, final Supplier<T> supplier) {
+    public <T> T on(final Page page, final long position, final Supplier<T> supplier) {
         final Page oldPage = this.page;
         final long oldPosition = this.position;
         this.page = page;
@@ -62,7 +62,7 @@ class PageEditor {
         }
     }
 
-    long getPosition() {
+    public long getPosition() {
         return position;
     }
 
@@ -87,13 +87,13 @@ class PageEditor {
         }
     }
 
-    void write(final byte source) {
+    public void write(final byte source) {
         ensureValidPosition();
         page.write(position, source);
         position++;
     }
 
-    void write(final byte[] source, final int sourceOffset, final int length) {
+    public void write(final byte[] source, final int sourceOffset, final int length) {
         ensureValidPosition();
         ensureValidLength(length);
         ensureValidArrayRange(source, sourceOffset, length);
@@ -101,14 +101,14 @@ class PageEditor {
         position += length;
     }
 
-    byte readByte() {
+    public byte readByte() {
         ensureValidPosition();
         final byte value = page.readByte(position);
         position++;
         return value;
     }
 
-    void read(final byte[] destination, final int destinationOffset, final int length) {
+    public void read(final byte[] destination, final int destinationOffset, final int length) {
         ensureValidPosition();
         ensureValidLength(length);
         ensureValidArrayRange(destination, destinationOffset, length);
@@ -116,11 +116,11 @@ class PageEditor {
         position += length;
     }
 
-    void write(final long source) {
+    public void write(final long source) {
         writeNumber(source, Long.BYTES);
     }
 
-    void write(final int source) {
+    public void write(final int source) {
         writeNumber(Integer.toUnsignedLong(source), Integer.BYTES);
     }
 
@@ -131,26 +131,26 @@ class PageEditor {
         write((byte) (source & 0xFF));
     }
 
-    void write(final byte[] source) {
+    public void write(final byte[] source) {
         write(source, 0, source.length);
     }
 
-    void write(final String value) {
+    public void write(final String value) {
         final byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
         write(bytes.length);
         write(bytes);
     }
 
 
-    static int requiredLength(final String value) {
+    public static int requiredLength(final String value) {
         return value.getBytes(StandardCharsets.UTF_8).length + Integer.BYTES;
     }
 
-    int readInt() {
+    public int readInt() {
         return (int) readNumber(Integer.BYTES);
     }
 
-    long readLong() {
+    public long readLong() {
         return readNumber(Long.BYTES);
     }
 
@@ -163,24 +163,24 @@ class PageEditor {
         return result;
     }
 
-    String readString() {
+    public String readString() {
         final int length = readInt();
         final byte[] buffer = new byte[length];
         read(buffer);
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
-    void read(final byte[] destination) {
+    public void read(final byte[] destination) {
         read(destination, 0, destination.length);
     }
 
-    UUID readUUID() {
+    public UUID readUUID() {
         final long mostSignificantBits = readLong();
         final long leastSignificantBits = readLong();
         return new UUID(mostSignificantBits, leastSignificantBits);
     }
 
-    void write(final UUID uuid) {
+    public void write(final UUID uuid) {
         write(uuid.getMostSignificantBits());
         write(uuid.getLeastSignificantBits());
     }

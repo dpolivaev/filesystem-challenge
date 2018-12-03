@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-class FilePage implements Page {
+class PersistentPage implements Page {
     static final int PAGE_SIZE = 1024;
     private static final byte[] ZEROS = new byte[PAGE_SIZE];
     private final MappedByteBuffer byteBuffer;
 
-    public FilePage(final FileChannel fileChannel, final long position) throws IOException {
+    public PersistentPage(final FileChannel fileChannel, final long position) throws IOException {
         byteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, position, PAGE_SIZE);
     }
 

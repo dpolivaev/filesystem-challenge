@@ -9,17 +9,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
+import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.*;
+
 class FilePage implements Page {
-    static final int UUID_POSITION = 0;
-
-    static final int UUID_SIZE = 16 * Long.BYTES;
-
-    static final int SIZE_POSITION = UUID_POSITION + UUID_SIZE;
-    static final int NAME_POSITION = SIZE_POSITION + Long.BYTES;
-    static final int NAME_SIZE = 32;
-    static final int PAGE_REFERENCE_POSITION = NAME_POSITION + NAME_SIZE;
-    public static final int PAGE_LEVEL_COUNT = 5;
-    static final int DATA_POSITION = PAGE_REFERENCE_POSITION + PAGE_LEVEL_COUNT * Long.BYTES;
 
     private final UUID uuid;
     private final PagePool pagePool;
@@ -52,7 +44,7 @@ class FilePage implements Page {
 
     void validateUuid() {
         if (!uuid.equals(readUUID()))
-            throw new IllegalArgumentException("File UUID changed");
+            throw new IllegalStateException("File UUID changed");
     }
 
     private List<Page> createPages(final Page data) {
