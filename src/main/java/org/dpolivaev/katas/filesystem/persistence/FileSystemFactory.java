@@ -26,7 +26,7 @@ public class FileSystemFactory {
 
         final PersistentPages pages = new PersistentPages(file, size);
         final PagePool pagePool = new PagePool(pages, new Random());
-        final Page rootDescriptor = fileSystemExists ? pagePool.at(ROOT_PAGE_NUMBER)
+        final Page rootDescriptor = fileSystemExists ? pagePool.pageUnsafe(ROOT_PAGE_NUMBER)
                 : pagePool.allocate(ROOT_PAGE_NUMBER);
         final PageEditor editor = new PageEditor();
         editor.setPage(rootDescriptor);

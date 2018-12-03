@@ -9,7 +9,6 @@ import java.util.Random;
 import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 public class PagePoolTest {
@@ -28,7 +27,7 @@ public class PagePoolTest {
         final PageAllocation allocation = uut.allocate();
 
         assertThat(allocation.pageNumber).isEqualTo(1L);
-        assertThat(uut.at(1L)).isSameAs(allocation.page);
+        assertThat(uut.pageUnsafe(1L)).isSameAs(allocation.page);
     }
 
     @Test
@@ -59,7 +58,9 @@ public class PagePoolTest {
         final PagePool uut = new PagePool(memory, randomReturningConstant(8, 9));
 
         assertThat(uut.allocate().pageNumber).isEqualTo(9L);
+        assertThat(uut.isAllocated(9L)).isTrue();
         assertThat(uut.allocate().pageNumber).isEqualTo(1L);
+        assertThat(uut.isAllocated(1L)).isTrue();
     }
 
     @Test
@@ -70,7 +71,7 @@ public class PagePoolTest {
         final long pageNumber = uut.allocate().pageNumber;
         uut.release(pageNumber);
 
-        assertThatThrownBy(() -> uut.at(pageNumber)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(uut.isAllocated(pageNumber)).isFalse();
         assertThat(uut.allocate().pageNumber).isEqualTo(9L);
     }
 
@@ -83,7 +84,7 @@ public class PagePoolTest {
 
         final Page page = uut.allocate(5);
         assertThat(uut.containsPage(5)).isTrue();
-        assertThat(uut.at(5)).isSameAs(page);
+        assertThat(uut.pageUnsafe(5)).isSameAs(page);
 
     }
 }

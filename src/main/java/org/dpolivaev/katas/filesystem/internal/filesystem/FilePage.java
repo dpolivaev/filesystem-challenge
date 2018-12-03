@@ -68,14 +68,14 @@ class FilePage implements Page {
         final long pageNumber = editor.on(referencePage, index * Long.BYTES, editor::readLong);
         if (referenceLevel == 0) {
             if (pageNumber != 0) {
-                return pagePool.at(pageNumber);
+                return pagePool.pageUnsafe(pageNumber);
             } else {
                 return new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
             }
         } else {
             final Page nextLevelReferencePage;
             if (pageNumber != 0) {
-                nextLevelReferencePage = pagePool.at(pageNumber);
+                nextLevelReferencePage = pagePool.pageUnsafe(pageNumber);
             } else {
                 nextLevelReferencePage = new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
             }
@@ -105,7 +105,7 @@ class FilePage implements Page {
     private void destroyReferencedPages(final Page page, final int index, final int level) {
         final long pageNumber = editor.on(page, index * Long.BYTES, editor::readLong);
         if (pageNumber != 0) {
-            final Page referencedPage = pagePool.at(pageNumber);
+            final Page referencedPage = pagePool.pageUnsafe(pageNumber);
             pagePool.release(pageNumber);
             editor.on(page, index * Long.BYTES, () -> editor.write(0L));
             if (level > 0) {
