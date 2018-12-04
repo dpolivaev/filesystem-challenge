@@ -35,13 +35,15 @@ abstract public class CompositePage implements Page {
     @Override
     public void write(long offset, int length, final byte[] source, int sourceOffset) {
         findPage(offset);
-        final long availableLengthOnPage = currentPage().size() - offset - currentPageOffset;
+        long availableLengthOnPage = currentPage().size() - offset;
         while (availableLengthOnPage < length) {
             currentPage().write(offset, (int) availableLengthOnPage, source, sourceOffset);
-            offset = 0;
             sourceOffset += availableLengthOnPage;
             length -= availableLengthOnPage;
             currentPageIndex++;
+            currentPageOffset += availableLengthOnPage + offset;
+            availableLengthOnPage = currentPage().size();
+            offset = 0;
         }
         currentPage().write(offset, length, source, sourceOffset);
     }
@@ -55,15 +57,17 @@ abstract public class CompositePage implements Page {
     @Override
     public void read(long offset, int length, final byte[] destination, int destinationOffset) {
         findPage(offset);
-        final long availableLengthOnPage = currentPage().size() - offset - currentPageOffset;
+        long availableLengthOnPage = currentPage().size() - offset;
         while (availableLengthOnPage < length) {
-            currentPage().write(offset, (int) availableLengthOnPage, destination, destinationOffset);
-            offset = 0;
+            currentPage().read(offset, (int) availableLengthOnPage, destination, destinationOffset);
             destinationOffset += availableLengthOnPage;
             length -= availableLengthOnPage;
             currentPageIndex++;
+            currentPageOffset += availableLengthOnPage + offset;
+            availableLengthOnPage = currentPage().size();
+            offset = 0;
         }
-        currentPage().write(offset, length, destination, destinationOffset);
+        currentPage().read(offset, length, destination, destinationOffset);
     }
 
     @Override

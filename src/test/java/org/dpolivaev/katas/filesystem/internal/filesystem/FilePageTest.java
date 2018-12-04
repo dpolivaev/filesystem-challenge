@@ -32,6 +32,7 @@ public class FilePageTest {
         pagePool = new PagePool(testPages, random);
         firstPage = new TestPage(DATA_POSITION + firstPageDataSize);
         editor.setPage(firstPage);
+        editor.setPosition(SIZE_POSITION);
         editor.write(0L);
         editor.write("name");
         uut = new FilePage(pagePool, firstPage);
