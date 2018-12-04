@@ -90,7 +90,7 @@ class PagedDirectory implements Directory {
             final byte element = directoryData.readByte();
             final long pageNumber = directoryData.readLong();
             if (element == elementType.ordinal()) {
-                pages.add(pagePool.pageUnsafe(pageNumber));
+                pages.add(pagePool.pageAt(pageNumber));
             }
         }
         return pages;
@@ -117,7 +117,7 @@ class PagedDirectory implements Directory {
             final byte element = directoryData.readByte();
             final long pageNumber = directoryData.readLong();
             if (elementType == DirectoryElements.ANY && element != 0 || element == elementType.ordinal()) {
-                final Page page = pagePool.pageUnsafe(pageNumber);
+                final Page page = pagePool.pageAt(pageNumber);
                 if (name.equals(ANY) || name.equals(toName(page))) {
                     destroyElement(elementType, pageNumber, page);
                     if (!name.equals(ANY))

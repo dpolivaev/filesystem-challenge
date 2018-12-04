@@ -20,10 +20,10 @@ public class ReservedPositionsTest {
         final Random random = Mockito.mock(Random.class);
         Assertions.assertThatThrownBy(() -> new ReservedPositions(
                 new TestPages(memorySize, pageSize), -1, random)
-        ).isInstanceOf(IllegalArgumentException.class);
+        ).isInstanceOf(AssertionError.class);
         Assertions.assertThatThrownBy(() -> new ReservedPositions(
                 new TestPages(memorySize, pageSize), memorySize * pageSize * Byte.SIZE + 1, random)
-        ).isInstanceOf(IllegalArgumentException.class);
+        ).isInstanceOf(AssertionError.class);
     }
 
     @Test

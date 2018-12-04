@@ -2,8 +2,8 @@ package org.dpolivaev.katas.filesystem.persistence;
 
 import org.dpolivaev.katas.filesystem.FileSystem;
 import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure;
-import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
 import org.dpolivaev.katas.filesystem.internal.filesystem.PageEditor;
+import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
@@ -26,7 +26,7 @@ public class FileSystemFactory {
 
         final PersistentPages pages = new PersistentPages(file, size);
         final PagePool pagePool = new PagePool(pages, new Random());
-        final Page rootDescriptor = fileSystemExists ? pagePool.pageUnsafe(ROOT_PAGE_NUMBER)
+        final Page rootDescriptor = fileSystemExists ? pagePool.pageAt(ROOT_PAGE_NUMBER)
                 : pagePool.allocate(ROOT_PAGE_NUMBER);
         final PageEditor editor = new PageEditor();
         editor.setPage(rootDescriptor);

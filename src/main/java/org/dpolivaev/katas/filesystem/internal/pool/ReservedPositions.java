@@ -16,8 +16,7 @@ class ReservedPositions {
     private byte bits;
 
     ReservedPositions(final Pages pages, final long availablePositions, final Random random) {
-        if (availablePositions < 0 || availablePositions > pages.size() * pages.pageSize() * Byte.SIZE)
-            throw new IllegalArgumentException("Invalid availablePositions");
+        assert availablePositions >= 0 && availablePositions <= pages.size() * pages.pageSize() * Byte.SIZE;
         this.pages = pages;
         this.availablePositions = availablePositions;
         this.randomBitOffsets = random.longs(0, availablePositions).iterator();

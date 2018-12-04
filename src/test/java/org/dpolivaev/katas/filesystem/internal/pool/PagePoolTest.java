@@ -27,7 +27,7 @@ public class PagePoolTest {
         final PageAllocation allocation = uut.allocate();
 
         assertThat(allocation.pageNumber).isEqualTo(1L);
-        assertThat(uut.pageUnsafe(1L)).isSameAs(allocation.page);
+        assertThat(uut.pageAt(1L)).isSameAs(allocation.page);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class PagePoolTest {
 
         final Page page = uut.allocate(5);
         assertThat(uut.containsPage(5)).isTrue();
-        assertThat(uut.pageUnsafe(5)).isSameAs(page);
+        assertThat(uut.pageAt(5)).isSameAs(page);
 
     }
 }

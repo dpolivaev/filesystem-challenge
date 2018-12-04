@@ -30,21 +30,15 @@ public class PagePool {
 
     public Page allocate(final long pageNumber) {
         reservations.reservePosition(pageNumber - 1);
-        return pageUnsafe(pageNumber);
+        return pageAt(pageNumber);
     }
 
-    public Page pageSafe(final long pageNumber) {
-        if (isAllocated(pageNumber)) {
-            return pageUnsafe(pageNumber);
-        } else
-            throw new IllegalArgumentException("Page not reserved");
-    }
-
-    public boolean isAllocated(long pageNumber) {
+    public boolean isAllocated(final long pageNumber) {
         return reservations.isReserved(pageNumber - 1);
     }
 
-    public Page pageUnsafe(long pageNumber) {
+    public Page pageAt(final long pageNumber) {
+        assert isAllocated(pageNumber);
         return pages.at(reservationPages + pageNumber - 1);
     }
 
