@@ -124,11 +124,14 @@ public class PageEditor {
         writeNumber(Integer.toUnsignedLong(source), Integer.BYTES);
     }
 
-    private void writeNumber(final long source, final int byteCount) {
-        if (byteCount > 1) {
-            writeNumber(source >> 8, byteCount - 1);
+    private void writeNumber(long value, final int byteCount) {
+        final byte[] buffer = {0, 0, 0, 0, 0, 0, 0, 0};
+        assert byteCount <= buffer.length;
+        for (int i = byteCount - 1; i >= 0; i--) {
+            buffer[i] = (byte) (value & 0xFF);
+            value >>= Byte.SIZE;
         }
-        write((byte) (source & 0xFF));
+        write(buffer, 0, byteCount);
     }
 
     public void write(final byte[] source) {
@@ -155,10 +158,13 @@ public class PageEditor {
     }
 
     private long readNumber(final int byteCount) {
+        final byte[] buffer = {0, 0, 0, 0, 0, 0, 0, 0};
+        assert byteCount <= buffer.length;
+        read(buffer, 0, byteCount);
         long result = 0;
         for (int i = 0; i < byteCount; i++) {
-            result <<= Long.BYTES;
-            result |= (readByte() & 0xFF);
+            result <<= Byte.SIZE;
+            result |= (buffer[i] & 0xFF);
         }
         return result;
     }
