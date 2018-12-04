@@ -15,7 +15,10 @@ import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorS
 import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.NAME_SIZE;
 
 class PagedDirectory implements Directory {
-    enum DirectoryElements {FREE_SPACE, FILE, DIRECTORY}
+    enum DirectoryElements {FREE_SPACE, FILE, DIRECTORY, ANY}
+
+    private static final String ANY = "*";
+
 
     private final PageEditor editor;
     private final PagePool pagePool;
@@ -64,16 +67,20 @@ class PagedDirectory implements Directory {
     }
 
     private PageAllocation allocateFirstPage(final String name, final DirectoryElements elementType) {
-        if (PageEditor.requiredLength(name) > NAME_SIZE) {
-            throw new IllegalArgumentException("Name too long");
-        }
-        if (elementNames(elementType).contains(name)) {
-            throw new IllegalArgumentException("File already exists");
-        }
+        checkNewElementName(name, elementType);
         final PageAllocation allocation = pagePool.allocate();
         setName(allocation.page, name);
         register(elementType, allocation.pageNumber);
         return allocation;
+    }
+
+    private void checkNewElementName(final String name, final DirectoryElements elementType) {
+        if (PageEditor.requiredLength(name) > NAME_SIZE)
+            throw new IllegalArgumentException("Name too long");
+        if (name.equals(ANY))
+            throw new IllegalArgumentException("Name " + ANY + " is reserved");
+        if (elementNames(elementType).contains(name))
+            throw new IllegalArgumentException("File already exists");
     }
 
     private List<Page> descriptors(final DirectoryElements elementType) {
@@ -104,27 +111,42 @@ class PagedDirectory implements Directory {
         directoryData.write(pageNumber);
     }
 
-    private void deleteElement(final String name, final DirectoryElements elementType) {
+    private void deleteElement(final String name, final DirectoryElements elementType, final PagedFile directoryData) {
         directoryData.setPosition(0);
         for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
             final byte element = directoryData.readByte();
             final long pageNumber = directoryData.readLong();
-            if (element == elementType.ordinal()) {
+            if (elementType == DirectoryElements.ANY && element != 0 || element == elementType.ordinal()) {
                 final Page page = pagePool.pageUnsafe(pageNumber);
-                if (name.equals(toName(page))) {
-                    new FilePage(pagePool, page).destroy();
-                    pagePool.release(pageNumber);
-                    directoryData.setPosition(directoryData.getPosition() - Byte.BYTES - Long.BYTES);
-                    directoryData.write((byte) 0);
-                    return;
+                if (name.equals(ANY) || name.equals(toName(page))) {
+                    destroyElement(elementType, pageNumber, page);
+                    if (!name.equals(ANY))
+                        return;
                 }
             }
         }
     }
 
+    private void destroyElement(final DirectoryElements elementType, final long pageNumber, final Page page) {
+        if (elementType == DirectoryElements.DIRECTORY) {
+            destroyAllChildren(page);
+        }
+        new FilePage(pagePool, page).destroy();
+        pagePool.release(pageNumber);
+        directoryData.setPosition(directoryData.getPosition() - Byte.BYTES - Long.BYTES);
+        directoryData.write((byte) 0);
+    }
+
+    private void destroyAllChildren(final Page page) {
+        final FilePage filePage = new FilePage(pagePool, page);
+        final PagedFile data = new PagedFile(filePage, this);
+        deleteElement(ANY, DirectoryElements.ANY, data);
+
+    }
+
     @Override
     public void deleteFile(final String name) {
-        deleteElement(name, DirectoryElements.FILE);
+        deleteElement(name, DirectoryElements.FILE, directoryData);
     }
 
     @Override
@@ -162,7 +184,7 @@ class PagedDirectory implements Directory {
 
     @Override
     public void deleteDirectory(final String name) {
-        deleteElement(name, DirectoryElements.DIRECTORY);
+        deleteElement(name, DirectoryElements.DIRECTORY, directoryData);
     }
 
 }
