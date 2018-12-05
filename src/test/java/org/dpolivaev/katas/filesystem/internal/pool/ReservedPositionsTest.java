@@ -1,6 +1,7 @@
 package org.dpolivaev.katas.filesystem.internal.pool;
 
 import org.assertj.core.api.Assertions;
+import org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -9,9 +10,12 @@ import java.util.Random;
 import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 public class ReservedPositionsTest {
+
+    private static final int MEMORY_SIZE = 2;
+    private static final int PAGE_SIZE = 3 * Long.BYTES;
+    private static final long AVAILABLE_POSITIONS = MEMORY_SIZE * PAGE_SIZE * Byte.SIZE;
 
     @Test
     public void constructorThrowsException_ifAvailablePositionsAreNotInValidRange() {
@@ -29,32 +33,47 @@ public class ReservedPositionsTest {
     @Test
     public void throwsOutOfMemoryException_ifAllAvailablePositionsAreReserved() {
         final Random random = new Random();
-        final ReservedPositions uut = new ReservedPositions(new TestPages(1, 1), 1, random);
+        final ReservedPositions uut = new ReservedPositions(new TestPages(1, Long.BYTES), 1, random);
         uut.reservePosition();
         Assertions.assertThatThrownBy(() -> uut.reservePosition()).isInstanceOf(OutOfMemoryException.class);
     }
 
     @Test
-    public void reservesGivenPosition() {
-        final Random random = new Random();
-        final ReservedPositions uut = new ReservedPositions(new TestPages(100, 100), 1000, random);
+    public void reservesPosition_5() {
+        final int memorySize = 2;
+        final int pageSize = 3 * Long.BYTES;
+        final long availablePositions = memorySize * pageSize * Byte.SIZE;
+
+        final long bitOffset = 0;
+        final Random random = TestRandomFactory.mockRandomWithConstantValue(availablePositions, bitOffset);
+        final ReservedPositions uut = new ReservedPositions(new TestPages(memorySize, pageSize), availablePositions, random);
+
         uut.reservePosition(5);
         assertThat(uut.isReserved(5)).isTrue();
     }
 
     @Test
-    public void reservesRandomPositions() {
-        final int memorySize = 2;
-        final int pageSize = 3;
-        final long availablePositions = memorySize * pageSize * Byte.SIZE;
+    public void reservesPosition_34() {
+        final int availablePositions = 1000;
+        final Random random = TestRandomFactory.mockRandomWithConstantValue(availablePositions, 34);
+        final ReservedPositions uut = new ReservedPositions(new TestPages(100, 100), availablePositions, random);
+        uut.reservePosition();
+        assertThat(uut.isReserved(34)).isTrue();
+    }
 
+    @Test
+    public void reservesPosition_1025() {
+        final Random random = TestRandomFactory.mockRandomWithSequenceFrom0();
+        final ReservedPositions uut = new ReservedPositions(new TestPages(100, 100), 1000, random);
+        uut.reservePosition(1025);
+        assertThat(uut.isReserved(1025)).isTrue();
+    }
+    @Test
+    public void reservesAllPositions() {
         final long bitOffset = 2;
-        final Random random = Mockito.mock(Random.class);
-        when(random.longs(0L, availablePositions)).thenReturn(LongStream.iterate(bitOffset, x -> bitOffset));
+        final ReservedPositions uut = createDeterministicTestTarget(bitOffset);
 
-        final ReservedPositions uut = new ReservedPositions(new TestPages(memorySize, pageSize), availablePositions, random);
-
-        LongStream.range(bitOffset, availablePositions).forEach(
+        LongStream.range(bitOffset, AVAILABLE_POSITIONS).forEach(
                 expected -> assertThatReservedPositionIsExpected(uut, expected)
         );
 
@@ -71,21 +90,22 @@ public class ReservedPositionsTest {
     }
 
     @Test
-    public void releasesPositions() {
-        final int memorySize = 2;
-        final int pageSize = 3;
-        final long availablePositions = memorySize * pageSize * Byte.SIZE - 3;
-
+    public void releasesAllPositions() {
         final long bitOffset = 2;
-        final Random random = Mockito.mock(Random.class);
-        when(random.longs(0L, availablePositions)).thenReturn(LongStream.iterate(bitOffset, x -> bitOffset));
+        final ReservedPositions uut = createDeterministicTestTarget(bitOffset);
 
-        final ReservedPositions uut = new ReservedPositions(new TestPages(memorySize, pageSize), availablePositions, random);
-
-        uut.reservePosition();
+        final long reservedPosition = uut.reservePosition();
+        assertThat(reservedPosition).isEqualTo(bitOffset);
         uut.releasePosition(bitOffset);
         assertThat(uut.isReserved(bitOffset)).isFalse();
         assertThatReservedPositionIsExpected(uut, bitOffset);
+    }
+
+    private ReservedPositions createDeterministicTestTarget(final long bitOffset) {
+
+        final Random random = TestRandomFactory.mockRandomWithConstantValue(AVAILABLE_POSITIONS, bitOffset);
+
+        return new ReservedPositions(new TestPages(MEMORY_SIZE, PAGE_SIZE), AVAILABLE_POSITIONS, random);
     }
 
 
