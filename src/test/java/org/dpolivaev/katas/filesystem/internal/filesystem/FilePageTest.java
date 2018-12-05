@@ -40,6 +40,7 @@ public class FilePageTest {
         editor.setPage(firstPage);
         editor.setPosition(SIZE_POSITION);
         editor.write(0L);
+        editor.setPosition(NAME_POSITION);
         editor.write("name");
         uut = new FilePage(pagePool, firstPage);
         editor.setPage(uut);
@@ -66,6 +67,7 @@ public class FilePageTest {
         editor.setPage(firstPage);
         editor.setPosition(SIZE_POSITION);
         editor.write(4L);
+        editor.setPosition(NAME_POSITION);
         editor.write("name");
 
         assertThat(uut.name()).isEqualTo("name");
