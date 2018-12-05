@@ -1,5 +1,7 @@
 package org.dpolivaev.katas.filesystem;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -7,13 +9,12 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IntegrationTest {
-    java.io.File fsFile = createFileSystemFile();
+    java.io.File fsFile;
 
     private static java.io.File createFileSystemFile() {
         try {
             final java.io.File tempFile = java.io.File.createTempFile("filesystem", ".kata");
             tempFile.delete();
-            tempFile.deleteOnExit();
             return tempFile;
         } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -29,6 +30,16 @@ public class IntegrationTest {
         return FileSystem.create(fsFile, 1024 * 1024);
     }
 
+
+    @Before
+    public void setUp() {
+        fsFile = createFileSystemFile();
+    }
+
+    @After
+    void tearDown() {
+        fsFile.delete();
+    }
 
     @Test
     public void createAndUseFile() {
