@@ -79,7 +79,7 @@ public class PagePoolTest {
         final PagePool uut = new PagePool(memory, randomReturningConstant(8, 9));
 
         final Page page = uut.allocate(5);
-        assertThat(uut.containsPage(5)).isTrue();
+        assertThat(uut.isAllocated((long) 5)).isTrue();
         assertThat(uut.pageAt(5)).isSameAs(page);
 
     }

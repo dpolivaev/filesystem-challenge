@@ -22,13 +22,13 @@ class PagedDirectory implements Directory {
 
     private final PageEditor editor;
     private final PagePool pagePool;
-    private final PagedFile directoryData;
+    private final File directoryData;
     private final Directory parentDirectory;
 
 
     PagedDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory) {
         this.pagePool = pagePool;
-        this.directoryData = new PagedFile(new FilePage(pagePool, directoryData), this);
+        this.directoryData = toFile(new FilePage(pagePool, directoryData));
         this.parentDirectory = parentDirectory != null ? parentDirectory : this;
         editor = new PageEditor();
     }
@@ -53,11 +53,11 @@ class PagedDirectory implements Directory {
         return findByName(name, DirectoryElements.FILE).map(this::toFile);
     }
 
-    private File toFile(final Page page) {
+    protected File toFile(final Page page) {
         return new PagedFile(new FilePage(pagePool, page), this);
     }
 
-    private Directory toDirectory(final Page page) {
+    protected Directory toDirectory(final Page page) {
         return new PagedDirectory(pagePool, page, this);
     }
 
@@ -120,7 +120,7 @@ class PagedDirectory implements Directory {
         directoryData.write(pageNumber);
     }
 
-    private void deleteElement(final String name, final DirectoryElements elementType, final PagedFile directoryData) {
+    private void deleteElement(final String name, final DirectoryElements elementType, final File directoryData) {
         directoryData.setPosition(0);
         for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
             final byte element = directoryData.readByte();
@@ -153,7 +153,7 @@ class PagedDirectory implements Directory {
 
     private void destroyAllChildren(final Page page) {
         final FilePage filePage = new FilePage(pagePool, page);
-        final PagedFile data = new PagedFile(filePage, this);
+        final File data = toFile(filePage);
         deleteElement(ANY, DirectoryElements.ANY, data);
 
     }

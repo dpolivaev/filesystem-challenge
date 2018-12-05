@@ -48,10 +48,6 @@ public class PagePool {
         reservations.releasePosition(pageNumber - 1);
     }
 
-    public boolean containsPage(final long pageNumber) {
-        return isAllocated(pageNumber);
-    }
-
     public void close() {
         pages.close();
     }

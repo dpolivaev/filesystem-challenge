@@ -13,7 +13,7 @@ public class PagedFileSystem implements FileSystem {
 
     public PagedFileSystem(final PagePool pagePool) {
         this.pagePool = pagePool;
-        final Page rootDescriptor = pagePool.containsPage(ROOT_PAGE_NUMBER) ? pagePool.pageAt(1) : pagePool.allocate(1);
+        final Page rootDescriptor = pagePool.isAllocated((long) ROOT_PAGE_NUMBER) ? pagePool.pageAt(1) : pagePool.allocate(1);
         rootDirectory = new PagedDirectory(pagePool, rootDescriptor, null);
 
     }

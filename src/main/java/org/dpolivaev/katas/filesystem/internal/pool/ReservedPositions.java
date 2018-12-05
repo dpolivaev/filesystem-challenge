@@ -88,7 +88,7 @@ class ReservedPositions {
         return bits & ~(1L << bitIndex);
     }
 
-    public boolean isReserved(final long position) {
+    boolean isReserved(final long position) {
         findBit(position);
         final long newBits = unsetBit(bits, bitIndex);
         return newBits != bits;
