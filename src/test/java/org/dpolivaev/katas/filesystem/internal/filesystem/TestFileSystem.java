@@ -17,10 +17,6 @@ public class TestFileSystem {
 
     final public Directory secondRoot;
 
-    public TestFileSystem() {
-        this(1024, 1024);
-    }
-
     public TestFileSystem(final int pagesInPool, final int poolPageSize) {
         final Random random = mockRandomWithSequenceFrom0();
         testPages = new TestPages(pagesInPool, poolPageSize);

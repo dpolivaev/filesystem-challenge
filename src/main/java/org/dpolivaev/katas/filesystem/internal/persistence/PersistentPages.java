@@ -1,4 +1,4 @@
-package org.dpolivaev.katas.filesystem.persistence;
+package org.dpolivaev.katas.filesystem.internal.persistence;
 
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.Pages;

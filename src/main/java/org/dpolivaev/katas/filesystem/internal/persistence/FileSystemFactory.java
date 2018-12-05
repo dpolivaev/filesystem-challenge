@@ -1,4 +1,4 @@
-package org.dpolivaev.katas.filesystem.persistence;
+package org.dpolivaev.katas.filesystem.internal.persistence;
 
 import org.dpolivaev.katas.filesystem.FileSystem;
 import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure;
@@ -22,6 +22,11 @@ public class FileSystemFactory {
             + VERSION;
 
     public static final UUID ROOT_UUID = UUID.fromString(UUID_STRING);
+
+    public static final FileSystemFactory INSTANCE = new FileSystemFactory();
+
+    private FileSystemFactory() {
+    }
 
     public FileSystem create(final File file, final long size) {
         final PersistentPages pages = new PersistentPages(file, size, StandardOpenOption.SPARSE, StandardOpenOption.CREATE_NEW);

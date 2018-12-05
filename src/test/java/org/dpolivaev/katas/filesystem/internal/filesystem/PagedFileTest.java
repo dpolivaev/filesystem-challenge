@@ -4,11 +4,13 @@ import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.junit.Test;
 
+import java.util.Random;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PagedFileTest {
-    private final TestFileSystem fileSystem = new TestFileSystem();
+    private final TestFileSystem fileSystem = new TestFileSystem(32, 256);
     private final Directory root = fileSystem.root;
     private final File uut = root.createFile("file");
     private final Directory secondRoot = fileSystem.secondRoot;
@@ -44,8 +46,11 @@ public class PagedFileTest {
         assertThatThrownBy(() -> uut.read(buffer16, 1, 1)).isInstanceOf(IllegalStateException.class);
 
         assertThatThrownBy(() -> uut.truncate()).isInstanceOf(IllegalStateException.class);
-
     }
 
-
+    @Test
+    public void name() {
+        final Random pseudoRandomForRead = new Random(0L);
+        final Random pseudoRandomForWrite = new Random(0L);
+    }
 }

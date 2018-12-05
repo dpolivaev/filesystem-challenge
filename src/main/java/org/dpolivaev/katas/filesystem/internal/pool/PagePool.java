@@ -12,6 +12,8 @@ public class PagePool {
 
     public PagePool(final Pages pages, final Random random) {
         final int pageSize = pages.pageSize();
+        assert pageSize % Long.BYTES == 0;
+
         final long availablePages = pages.size() * (pageSize * Byte.SIZE - 1) / (pageSize * Byte.SIZE);
         final long bytesForReservations = (availablePages + Byte.SIZE - 1) / Byte.SIZE;
         this.reservationPages = (bytesForReservations + pageSize - 1) / pageSize;
