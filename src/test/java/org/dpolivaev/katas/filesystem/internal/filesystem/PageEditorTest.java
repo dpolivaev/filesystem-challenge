@@ -1,5 +1,6 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
+import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPage;
 import org.junit.Test;
 

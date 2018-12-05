@@ -2,9 +2,9 @@ package org.dpolivaev.katas.filesystem.persistence;
 
 import org.dpolivaev.katas.filesystem.FileSystem;
 import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure;
-import org.dpolivaev.katas.filesystem.internal.filesystem.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
+import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.io.File;

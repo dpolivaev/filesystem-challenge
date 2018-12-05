@@ -1,7 +1,7 @@
 package org.dpolivaev.katas.filesystem.internal.pool;
 
-import org.dpolivaev.katas.filesystem.internal.filesystem.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
+import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.Pages;
 
 import java.util.PrimitiveIterator;

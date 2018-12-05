@@ -1,5 +1,6 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
+import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPage;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
@@ -45,7 +46,7 @@ public class FilePageTest {
         createFilePage(Long.BYTES, 1024, 2 * Long.BYTES);
         assertThat(uut.size() / Long.BYTES).isEqualTo((2 << PAGE_LEVEL_COUNT) - 1);
     }
-    
+
     @Test
     public void calculatesMaximumSize_for1024BytePages() {
         createFilePage(1024, 1024, 1024);

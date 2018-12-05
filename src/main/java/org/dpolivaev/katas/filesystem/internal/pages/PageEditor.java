@@ -1,6 +1,4 @@
-package org.dpolivaev.katas.filesystem.internal.filesystem;
-
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
+package org.dpolivaev.katas.filesystem.internal.pages;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;

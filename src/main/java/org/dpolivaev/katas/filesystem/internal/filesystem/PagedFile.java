@@ -2,6 +2,7 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
+import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 
 class PagedFile implements File {
     private final FilePage filePage;

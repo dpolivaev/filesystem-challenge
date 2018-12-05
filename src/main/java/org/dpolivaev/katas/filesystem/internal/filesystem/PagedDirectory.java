@@ -3,6 +3,7 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
+import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pool.PageAllocation;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
