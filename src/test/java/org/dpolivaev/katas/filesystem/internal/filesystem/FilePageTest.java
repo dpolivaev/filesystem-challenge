@@ -7,6 +7,7 @@ import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +30,10 @@ public class FilePageTest {
 
     private void createFilePage(final int firstPageDataSize, final int pagesInPool, final int poolPageSize) {
         final Random random = mockRandomWithSequenceFrom0();
+        createFilePage(firstPageDataSize, pagesInPool, poolPageSize, random);
+    }
+
+    private void createFilePage(final int firstPageDataSize, final int pagesInPool, final int poolPageSize, final Random random) {
         testPages = new TestPages(pagesInPool, poolPageSize);
         pagePool = new PagePool(testPages, random);
         firstPage = new TestPage(DATA_POSITION + firstPageDataSize);
@@ -167,6 +172,23 @@ public class FilePageTest {
         final long position = uut.size() - Long.BYTES;
         editor.setPosition(position);
         editor.write(0x1234567887654321L);
+
+        uut.destroy();
+
+        assertThat(testPages.areEmpty()).isTrue();
+        assertThat(firstPage.isEmpty()).isTrue();
+    }
+
+
+    @Test
+    public void destroy_releasesRandomlyCreatedPagesToPoolAndDeletesDataAndDescriptor() {
+        createFilePage(0, 100, 2 * Long.BYTES, new Random());
+
+        final int size = (int) uut.size();
+        Arrays.asList(size / 2, size / 4).forEach(position -> {
+            editor.setPosition(position);
+            editor.write(0x1234567887654321L);
+        });
 
         uut.destroy();
 
