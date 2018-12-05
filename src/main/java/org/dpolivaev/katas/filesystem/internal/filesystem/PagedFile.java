@@ -23,6 +23,11 @@ class PagedFile implements File {
     }
 
     @Override
+    public boolean exists() {
+        return filePage.exists();
+    }
+
+    @Override
     public String name() {
         filePage.validateUuid();
         return filePage.name();

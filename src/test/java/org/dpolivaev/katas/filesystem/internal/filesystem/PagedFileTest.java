@@ -4,6 +4,7 @@ import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PagedFileTest {
@@ -18,6 +19,8 @@ public class PagedFileTest {
     public void anyOperationOnDeletedFile_throwsIllegalStateException() {
 
         root.deleteFile(uut.name());
+
+        assertThat(uut.exists()).isFalse();
 
         assertThatThrownBy(() -> uut.name()).isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> uut.size()).isInstanceOf(IllegalStateException.class);

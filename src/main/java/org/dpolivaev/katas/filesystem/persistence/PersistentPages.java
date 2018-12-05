@@ -6,16 +6,16 @@ import org.dpolivaev.katas.filesystem.internal.pages.Pages;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.OpenOption;
 
 class PersistentPages implements Pages {
 
     private final FileChannel fileChannel;
     private final long size;
 
-    PersistentPages(final File file, final long maximalFileSize) {
+    PersistentPages(final File file, final long maximalFileSize, final OpenOption... options) {
         try {
-            this.fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.SPARSE, StandardOpenOption.CREATE);
+            this.fileChannel = FileChannel.open(file.toPath(), options);
             fileChannel.tryLock();
             this.size = maximalFileSize / pageSize();
         } catch (final IOException e) {

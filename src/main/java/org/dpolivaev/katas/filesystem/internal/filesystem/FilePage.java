@@ -43,8 +43,12 @@ class FilePage implements Page {
     }
 
     void validateUuid() {
-        if (!uuid.equals(readUUID()))
+        if (!exists())
             throw new IllegalStateException("File UUID changed");
+    }
+
+    boolean exists() {
+        return uuid.equals(readUUID());
     }
 
     private List<Page> createPages(final Page data) {

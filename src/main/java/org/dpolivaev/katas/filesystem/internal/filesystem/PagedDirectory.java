@@ -16,10 +16,9 @@ import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorS
 import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.NAME_SIZE;
 
 class PagedDirectory implements Directory {
+    private static final String ANY = "";
+
     enum DirectoryElements {FREE_SPACE, FILE, DIRECTORY, ANY}
-
-    private static final String ANY = "*";
-
 
     private final PageEditor editor;
     private final PagePool pagePool;
@@ -42,6 +41,11 @@ class PagedDirectory implements Directory {
     @Override
     public String name() {
         return directoryData.name();
+    }
+
+    @Override
+    public boolean exists() {
+        return directoryData.exists();
     }
 
     @Override
@@ -76,9 +80,13 @@ class PagedDirectory implements Directory {
     }
 
     private void checkNewElementName(final String name, final DirectoryElements elementType) {
+        if (name == null)
+            throw new IllegalArgumentException("Name must not be null");
         if (PageEditor.requiredLength(name) > NAME_SIZE)
             throw new IllegalArgumentException("Name too long");
-        if (name.equals(ANY))
+        if (name.isEmpty())
+            throw new IllegalArgumentException("Empty name is not allowed");
+        if (matchesAnyElement(name))
             throw new IllegalArgumentException("Name " + ANY + " is reserved");
         if (elementNames(elementType).contains(name))
             throw new IllegalArgumentException("File already exists");
@@ -119,13 +127,17 @@ class PagedDirectory implements Directory {
             final long pageNumber = directoryData.readLong();
             if (elementType == DirectoryElements.ANY && element != 0 || element == elementType.ordinal()) {
                 final Page page = pagePool.pageAt(pageNumber);
-                if (name.equals(ANY) || name.equals(toName(page))) {
-                    destroyElement(elementType, pageNumber, page);
-                    if (!name.equals(ANY))
+                if (matchesAnyElement(name) || name.equals(toName(page))) {
+                    destroyElement(DirectoryElements.values()[element], pageNumber, page);
+                    if (!matchesAnyElement(name))
                         return;
                 }
             }
         }
+    }
+
+    private boolean matchesAnyElement(final String name) {
+        return ANY.equals(name);
     }
 
     private void destroyElement(final DirectoryElements elementType, final long pageNumber, final Page page) {
@@ -136,6 +148,7 @@ class PagedDirectory implements Directory {
         pagePool.release(pageNumber);
         directoryData.setPosition(directoryData.getPosition() - Byte.BYTES - Long.BYTES);
         directoryData.write((byte) 0);
+        directoryData.write(0L);
     }
 
     private void destroyAllChildren(final Page page) {
@@ -179,7 +192,7 @@ class PagedDirectory implements Directory {
 
     @Override
     public Directory createDirectory(final String name) {
-        final PageAllocation allocation = allocateFirstPage(name, DirectoryElements.FILE);
+        final PageAllocation allocation = allocateFirstPage(name, DirectoryElements.DIRECTORY);
         return toDirectory(allocation.page);
     }
 
@@ -187,5 +200,4 @@ class PagedDirectory implements Directory {
     public void deleteDirectory(final String name) {
         deleteElement(name, DirectoryElements.DIRECTORY, directoryData);
     }
-
 }
