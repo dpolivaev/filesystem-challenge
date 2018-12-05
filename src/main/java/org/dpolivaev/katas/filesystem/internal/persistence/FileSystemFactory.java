@@ -9,10 +9,12 @@ import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
 import java.util.Random;
 import java.util.UUID;
 
+import static java.nio.file.StandardOpenOption.*;
 import static org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem.ROOT_PAGE_NUMBER;
 
 public class FileSystemFactory {
@@ -21,7 +23,7 @@ public class FileSystemFactory {
     private static final String UUID_STRING = FileSystemFactory.class.getName() + " version "
             + VERSION;
 
-    public static final UUID ROOT_UUID = UUID.fromString(UUID_STRING);
+    public static final UUID ROOT_UUID = UUID.nameUUIDFromBytes(UUID_STRING.getBytes(StandardCharsets.UTF_8));
 
     public static final FileSystemFactory INSTANCE = new FileSystemFactory();
 
@@ -29,7 +31,7 @@ public class FileSystemFactory {
     }
 
     public FileSystem create(final File file, final long size) {
-        final PersistentPages pages = new PersistentPages(file, size, StandardOpenOption.SPARSE, StandardOpenOption.CREATE_NEW);
+        final PersistentPages pages = new PersistentPages(file, size, READ, WRITE, SPARSE, CREATE_NEW);
         final PagePool pagePool = new PagePool(pages, new Random());
         final Page rootDescriptor = pagePool.allocate(ROOT_PAGE_NUMBER);
         final PageEditor editor = uuidEditor(rootDescriptor);
@@ -40,14 +42,22 @@ public class FileSystemFactory {
     public FileSystem open(final File file, final long size) {
         if (!file.exists())
             throw new IORuntimeException(new FileNotFoundException());
-        final PersistentPages pages = new PersistentPages(file, size);
+        final PersistentPages pages = new PersistentPages(file, size, READ, StandardOpenOption.WRITE);
         final PagePool pagePool = new PagePool(pages, new Random());
         final Page rootDescriptor = pagePool.pageAt(ROOT_PAGE_NUMBER);
         final PageEditor editor = uuidEditor(rootDescriptor);
-        final UUID existingUuid = editor.readUUID();
-        if (!existingUuid.equals(ROOT_UUID))
-            throw new IllegalArgumentException("Unexpected file system version");
+        checkUuid(editor);
         return new PagedFileSystem(pagePool);
+    }
+
+    private void checkUuid(final PageEditor editor) {
+        final UUID existingUuid = editor.readUUID();
+        checkUuid(existingUuid);
+    }
+
+    private void checkUuid(final UUID existingUuid) {
+        if (!existingUuid.equals(ROOT_UUID))
+            throw new IllegalArgumentException("Unexpected file system version " + existingUuid);
     }
 
     private PageEditor uuidEditor(final Page rootDescriptor) {

@@ -12,7 +12,7 @@ class PersistentPage implements Page {
     private final MappedByteBuffer byteBuffer;
 
     public PersistentPage(final FileChannel fileChannel, final long position) throws IOException {
-        byteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, position, PAGE_SIZE);
+        byteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, position * PAGE_SIZE, PAGE_SIZE);
     }
 
     @Override
