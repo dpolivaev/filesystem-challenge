@@ -35,14 +35,15 @@ abstract public class CompositePage implements Page {
     @Override
     public void write(long offset, int length, final byte[] source, int sourceOffset) {
         findPage(offset);
-        long availableLengthOnPage = currentPage().size() - offset;
-        while (availableLengthOnPage < length) {
-            currentPage().write(offset, (int) availableLengthOnPage, source, sourceOffset);
-            sourceOffset += availableLengthOnPage;
-            length -= availableLengthOnPage;
+        offset -= currentPageOffset;
+        long availableLengthOnCurrentPage = currentPage().size() - offset;
+        while (availableLengthOnCurrentPage < length) {
+            currentPage().write(offset, (int) availableLengthOnCurrentPage, source, sourceOffset);
+            sourceOffset += availableLengthOnCurrentPage;
+            length -= availableLengthOnCurrentPage;
             currentPageIndex++;
-            currentPageOffset += availableLengthOnPage + offset;
-            availableLengthOnPage = currentPage().size();
+            currentPageOffset += availableLengthOnCurrentPage + offset;
+            availableLengthOnCurrentPage = currentPage().size();
             offset = 0;
         }
         currentPage().write(offset, length, source, sourceOffset);
@@ -57,14 +58,15 @@ abstract public class CompositePage implements Page {
     @Override
     public void read(long offset, int length, final byte[] destination, int destinationOffset) {
         findPage(offset);
-        long availableLengthOnPage = currentPage().size() - offset;
-        while (availableLengthOnPage < length) {
-            currentPage().read(offset, (int) availableLengthOnPage, destination, destinationOffset);
-            destinationOffset += availableLengthOnPage;
-            length -= availableLengthOnPage;
+        offset -= currentPageOffset;
+        long availableLengthOnCurrentPage = currentPage().size() - offset;
+        while (availableLengthOnCurrentPage < length) {
+            currentPage().read(offset, (int) availableLengthOnCurrentPage, destination, destinationOffset);
+            destinationOffset += availableLengthOnCurrentPage;
+            length -= availableLengthOnCurrentPage;
             currentPageIndex++;
-            currentPageOffset += availableLengthOnPage + offset;
-            availableLengthOnPage = currentPage().size();
+            currentPageOffset += availableLengthOnCurrentPage + offset;
+            availableLengthOnCurrentPage = currentPage().size();
             offset = 0;
         }
         currentPage().read(offset, length, destination, destinationOffset);

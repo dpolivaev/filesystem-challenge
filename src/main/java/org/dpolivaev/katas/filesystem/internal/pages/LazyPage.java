@@ -14,8 +14,10 @@ public class LazyPage implements Page {
     }
 
     private Page writingPage() {
-        if (suppliedPage == null)
+        if (suppliedPage == null) {
             suppliedPage = pageSupplier.get();
+            assert suppliedPage.size() == size();
+        }
         return suppliedPage;
     }
 

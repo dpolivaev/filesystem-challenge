@@ -57,33 +57,28 @@ class FilePage implements Page {
             final int level = i;
             final long finalLevelPageSize = levelPageSize;
             pages.add(new SameSizeCompositePage(
-                    index -> referencedPage(referencesPage, level, level, finalLevelPageSize),
+                    index -> referencedPage(referencesPage, level, finalLevelPageSize),
                     1, finalLevelPageSize));
             levelPageSize *= poolPageSize / Long.BYTES;
         }
         return pages;
     }
 
-    private Page referencedPage(final Page referencePage, final int index, final int referenceLevel, final long levelPageSize) {
+    private Page referencedPage(final Page referencePage, final int index, final long levelPageSize) {
         final long pageNumber = editor.on(referencePage, index * Long.BYTES, editor::readLong);
-        if (referenceLevel == 0) {
-            if (pageNumber != 0) {
-                return pagePool.pageAt(pageNumber);
-            } else {
-                return new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
-            }
+        final int poolPageSize = pagePool.pageSize();
+        final Page poolPage;
+        if (pageNumber != 0) {
+            poolPage = pagePool.pageAt(pageNumber);
         } else {
-            final Page nextLevelReferencePage;
-            if (pageNumber != 0) {
-                nextLevelReferencePage = pagePool.pageAt(pageNumber);
-            } else {
-                nextLevelReferencePage = new LazyPage(() -> allocatePoolPage(referencePage, index), levelPageSize);
-            }
-            final int poolPageSize = pagePool.pageSize();
-            final int pageCount = poolPageSize / Long.BYTES;
-            final long nextLevelPageSize = levelPageSize / pageCount;
-            return new SameSizeCompositePage(i -> referencedPage(nextLevelReferencePage, i, referenceLevel - 1, nextLevelPageSize),
-                    pageCount, nextLevelPageSize);
+            poolPage = new LazyPage(() -> allocatePoolPage(referencePage, index), poolPageSize);
+        }
+        if (levelPageSize == poolPageSize) {
+            return poolPage;
+        } else {
+            final int compositePageCount = poolPageSize / Long.BYTES;
+            final long nextLevelPageSize = levelPageSize / compositePageCount;
+            return new SameSizeCompositePage(i -> referencedPage(poolPage, i, nextLevelPageSize), compositePageCount, nextLevelPageSize);
         }
     }
 

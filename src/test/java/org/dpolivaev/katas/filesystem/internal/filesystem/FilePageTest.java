@@ -10,7 +10,7 @@ import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.*;
-import static org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory.mockRandomWithSequence_0toN;
+import static org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory.mockRandomWithSequenceFrom0;
 
 public class FilePageTest {
 
@@ -27,7 +27,7 @@ public class FilePageTest {
     }
 
     private void createFilePage(final int firstPageDataSize, final int pagesInPool, final int poolPageSize) {
-        final Random random = mockRandomWithSequence_0toN();
+        final Random random = mockRandomWithSequenceFrom0();
         testPages = new TestPages(pagesInPool, poolPageSize);
         pagePool = new PagePool(testPages, random);
         firstPage = new TestPage(DATA_POSITION + firstPageDataSize);
@@ -45,7 +45,7 @@ public class FilePageTest {
         createFilePage(Long.BYTES, 1024, 2 * Long.BYTES);
         assertThat(uut.size() / Long.BYTES).isEqualTo((2 << PAGE_LEVEL_COUNT) - 1);
     }
-
+    
     @Test
     public void calculatesMaximumSize_for1024BytePages() {
         createFilePage(1024, 1024, 1024);
@@ -75,7 +75,6 @@ public class FilePageTest {
         assertThat(editor.readByte()).isEqualTo((byte) -1);
         assertThat(uut.fileSize()).isEqualTo(1L);
     }
-
     @Test
     public void savesLongUsingPoolPage() {
         createFilePage(1, 2, Long.BYTES);
@@ -89,7 +88,21 @@ public class FilePageTest {
 
 
     @Test
-    public void useLevel_1_pages() {
+    public void savesByteOnLevel_1_pages() {
+        createFilePage(0, 100, 2 * Long.BYTES);
+
+        editor.setPosition(16);
+        editor.write((byte) 0x77);
+
+        editor.setPosition(16);
+        final byte readByte = editor.readByte();
+        assertThat(readByte).isEqualTo((byte) 0x77);
+        assertThat(uut.fileSize()).isEqualTo(17L);
+    }
+
+
+    @Test
+    public void savesLongOnLevel_1_pages() {
         createFilePage(0, 100, 2 * Long.BYTES);
 
         editor.setPosition(10);
@@ -102,7 +115,7 @@ public class FilePageTest {
 
 
     @Test
-    public void useLevel_2_pages() {
+    public void savesLongOnLevel_2_pages() {
         createFilePage(0, 100, 2 * Long.BYTES);
 
         editor.setPosition(16);

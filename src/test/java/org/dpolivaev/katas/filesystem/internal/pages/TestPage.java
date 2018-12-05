@@ -52,7 +52,8 @@ public class TestPage implements Page {
     @Override
     public String toString() {
         return "TestPage{"
-                + Arrays.toString(data) +
+                + Arrays.toString(IntStream.range(0, data.length).map(idx -> data[idx] & 0xff)
+                .mapToObj(x -> String.format("%02x", x)).toArray()) +
                 '}';
     }
 
