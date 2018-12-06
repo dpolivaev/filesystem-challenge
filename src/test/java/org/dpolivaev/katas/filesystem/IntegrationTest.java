@@ -25,19 +25,19 @@ public class IntegrationTest {
 
 
     private FileSystem createFilesystem() {
-        return FileSystem.create(fsFile, FILE_SYSTEM_SIZE);
+        return FileSystem.create(fsFile.getPath(), FILE_SYSTEM_SIZE);
     }
 
     private FileSystem openFilesystem() {
-        return FileSystem.open(fsFile, FILE_SYSTEM_SIZE);
+        return FileSystem.open(fsFile.getPath(), FILE_SYSTEM_SIZE);
     }
 
     private FileSystem createConcurrentFilesystem() {
-        return FileSystem.create(fsFile, FILE_SYSTEM_SIZE);
+        return FileSystem.create(fsFile.getPath(), FILE_SYSTEM_SIZE);
     }
 
     private FileSystem openConcurrentFilesystem() {
-        return FileSystem.open(fsFile, FILE_SYSTEM_SIZE);
+        return FileSystem.open(fsFile.getPath(), FILE_SYSTEM_SIZE);
     }
 
     @Before

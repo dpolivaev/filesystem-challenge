@@ -31,12 +31,34 @@ public class FileSystemFactory {
     private FileSystemFactory() {
     }
 
+    public FileSystem create(final String fileName, final long size) {
+        return create(new File(fileName), size);
+    }
     public FileSystem create(final File file, final long size) {
         return create(file, size, false);
     }
 
+    public FileSystem createConcurrent(final String fileName, final long size) {
+        return createConcurrent(new File(fileName), size);
+    }
     public FileSystem createConcurrent(final File file, final long size) {
         return create(file, size, true);
+    }
+
+    public FileSystem open(final File file, final long size) {
+        return open(file, size, false);
+    }
+
+    public FileSystem open(final String fileName, final long size) {
+        return open(new File(fileName), size);
+    }
+
+    public FileSystem openConcurrent(final File file, final long size) {
+        return open(file, size, true);
+    }
+
+    public FileSystem openConcurrent(final String fileName, final long size) {
+        return openConcurrent(new File(fileName), size);
     }
 
     private FileSystem create(final File file, final long size, final boolean concurrent) {
@@ -51,14 +73,6 @@ public class FileSystemFactory {
     private PagePool createPagePool(final PersistentPages pages, final boolean concurrent) {
         final Random random = new Random(0);
         return concurrent ? new ConcurrentPagePool(pages, random) : new PagePool(pages, random);
-    }
-
-    public FileSystem open(final File file, final long size) {
-        return open(file, size, false);
-    }
-
-    public FileSystem openConcurrent(final File file, final long size) {
-        return open(file, size, true);
     }
 
     private FileSystem open(final File file, final long size, final boolean concurrent) {
