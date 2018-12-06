@@ -64,7 +64,7 @@ class PagedDirectory implements Directory {
         return toFile(filePage);
     }
 
-    protected File toFile(FilePage filePage) {
+    protected File toFile(final FilePage filePage) {
         return new PagedFile(filePage, this);
     }
 
@@ -128,6 +128,7 @@ class PagedDirectory implements Directory {
                 directoryData.write(pageNumber);
                 return;
             }
+            directoryData.setPosition(directoryData.getPosition() + Long.BYTES);
         }
         directoryData.write((byte) elementType.ordinal());
         directoryData.write(pageNumber);
@@ -137,15 +138,16 @@ class PagedDirectory implements Directory {
         directoryData.setPosition(0);
         for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
             final byte element = directoryData.readByte();
-            final long pageNumber = directoryData.readLong();
             if (elementType == DirectoryElements.ANY && element != 0 || element == elementType.ordinal()) {
+                final long pageNumber = directoryData.readLong();
                 final Page page = pagePool.pageAt(pageNumber);
                 if (matchesAnyElement(name) || name.equals(toName(page))) {
                     destroyElement(DirectoryElements.values()[element], pageNumber, page);
                     if (!matchesAnyElement(name))
                         return;
                 }
-            }
+            } else
+                directoryData.setPosition(directoryData.getPosition() + Long.BYTES);
         }
     }
 

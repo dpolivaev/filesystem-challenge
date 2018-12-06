@@ -25,6 +25,12 @@ class LockFactory {
                     System.out.println("unlocked " + uuid + " in " + getOwner().getName());
                 super.unlock();
             }
+
+            @Override
+            public String toString() {
+                return "uuid" + uuid +
+                        super.toString();
+            }
         });
     }
 }

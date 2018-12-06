@@ -121,7 +121,7 @@ public class IntegrationTest {
                 } catch (final Throwable e) {
                     System.out.println(Thread.currentThread().getName() + ": mismatch" + ":" + e
                             .getMessage());
-                    e.printStackTrace();
+                    e.printStackTrace(System.out);
                     try {
                         testResults.put(Optional.of(e));
                     } catch (final InterruptedException ie) {
