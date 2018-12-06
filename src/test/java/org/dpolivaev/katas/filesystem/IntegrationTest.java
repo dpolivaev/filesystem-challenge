@@ -9,7 +9,9 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IntegrationTest {
+    public static final int FILE_SYSTEM_SIZE = 1024 * 1024;
     java.io.File fsFile;
+    public static final int POSITION_NEAR_THE_END = FILE_SYSTEM_SIZE * 99 / 100;
 
     private static java.io.File createFileSystemFile() {
         try {
@@ -22,14 +24,21 @@ public class IntegrationTest {
     }
 
 
-    private FileSystem openFilesystem() {
-        return FileSystem.open(fsFile, 1024 * 1024);
-    }
-
     private FileSystem createFilesystem() {
-        return FileSystem.create(fsFile, 1024 * 1024);
+        return FileSystem.create(fsFile, FILE_SYSTEM_SIZE);
     }
 
+    private FileSystem openFilesystem() {
+        return FileSystem.open(fsFile, FILE_SYSTEM_SIZE);
+    }
+
+    private FileSystem createConcurrentFilesystem() {
+        return FileSystem.create(fsFile, FILE_SYSTEM_SIZE);
+    }
+
+    private FileSystem openConcurrentFilesystem() {
+        return FileSystem.open(fsFile, FILE_SYSTEM_SIZE);
+    }
 
     @Before
     public void setUp() {
@@ -37,27 +46,39 @@ public class IntegrationTest {
     }
 
     @After
-    void tearDown() {
+    public void tearDown() {
         fsFile.delete();
     }
 
+    private void checkHugeFileContent(final File hugeFile, final String expectedString) {
+        hugeFile.setPosition(POSITION_NEAR_THE_END);
+        final String string = hugeFile.readString();
+        assertThat(string).isEqualTo(expectedString);
+    }
+
+    private File createHugeFile(final FileSystem fileSystem, final String fileName, final String string) {
+        final File hugeFile = fileSystem.root().createFile(fileName);
+        assertThat(hugeFile.size()).isEqualTo(0L);
+        hugeFile.setPosition(POSITION_NEAR_THE_END);
+        hugeFile.write(string);
+        return hugeFile;
+    }
+
     @Test
-    public void createAndUseFile() {
+    public void createAndUseHugeFile() {
         try (final FileSystem fileSystem = createFilesystem()) {
-            final File ababa = fileSystem.root().createFile("ababa");
-            assertThat(ababa.size()).isEqualTo(0L);
-            ababa.setPosition(678 * 1024);
-            ababa.write("Hello world");
-            ababa.setPosition(678 * 1024);
-            final String string = ababa.readString();
-            assertThat(string).isEqualTo("Hello world");
+            final File hugeFile = createHugeFile(fileSystem, "hugeFile", "Hello world");
+            checkHugeFileContent(hugeFile, "Hello world");
         }
 
         try (final FileSystem fileSystem = openFilesystem()) {
-            final File ababa = fileSystem.root().file("ababa").get();
-            ababa.setPosition(678 * 1024);
-            final String string = ababa.readString();
-            assertThat(string).isEqualTo("Hello world");
+            final File hugeFile = fileSystem.root().file("hugeFile").get();
+            checkHugeFileContent(hugeFile, "Hello world");
+            fileSystem.root().deleteFile(hugeFile.name());
+            final File otherFile = createHugeFile(fileSystem, "otherFile", "Other");
+            checkHugeFileContent(otherFile, "Other");
+            fileSystem.root().deleteFile(otherFile.name());
         }
     }
+
 }
