@@ -124,4 +124,7 @@ class FilePage implements Page {
         data.erase(offset, length);
     }
 
+    public UUID uuid() {
+        return uuid;
+    }
 }

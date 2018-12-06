@@ -10,6 +10,7 @@ import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
 import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.NAME_POSITION;
@@ -44,6 +45,11 @@ class PagedDirectory implements Directory {
     }
 
     @Override
+    public UUID uuid() {
+        return directoryData.uuid();
+    }
+
+    @Override
     public boolean exists() {
         return directoryData.exists();
     }
@@ -61,7 +67,7 @@ class PagedDirectory implements Directory {
         return new PagedDirectory(pagePool, page, this);
     }
 
-    public Optional<Page> findByName(final String name, final DirectoryElements elementType) {
+    private Optional<Page> findByName(final String name, final DirectoryElements elementType) {
         return descriptors(elementType).stream().filter(page -> name.equals(toName(page))).findFirst();
     }
 
@@ -168,8 +174,8 @@ class PagedDirectory implements Directory {
         return elementNames(DirectoryElements.FILE);
     }
 
-    public List<String> elementNames(final DirectoryElements file) {
-        return descriptors(file).stream().map(this::toName).collect(toList());
+    private List<String> elementNames(final DirectoryElements elementType) {
+        return descriptors(elementType).stream().map(this::toName).collect(toList());
     }
 
     private String toName(final Page descriptor) {

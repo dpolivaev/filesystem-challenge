@@ -8,10 +8,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ConcurrentPagePool extends PagePool {
-    ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock readWriteLock;
 
     public ConcurrentPagePool(final Pages pages, final Random random) {
         super(pages, random);
+        readWriteLock = new ReentrantReadWriteLock();
     }
 
     @Override

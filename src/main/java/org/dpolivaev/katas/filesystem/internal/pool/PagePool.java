@@ -6,6 +6,7 @@ import org.dpolivaev.katas.filesystem.internal.pages.Pages;
 import java.util.Random;
 
 public class PagePool {
+
     private final ReservedPositions reservations;
     private final Pages pages;
     private final long reservationPages;

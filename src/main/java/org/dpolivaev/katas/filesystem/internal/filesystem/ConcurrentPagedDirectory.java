@@ -7,79 +7,125 @@ import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class ConcurrentPagedDirectory extends PagedDirectory {
+    private final ReadWriteLock readWriteLock;
+    private final ConcurrentPagePool pagePool;
+
     ConcurrentPagedDirectory(final ConcurrentPagePool pagePool, final Page directoryData, final Directory parentDirectory) {
         super(pagePool, directoryData, parentDirectory);
+        this.pagePool = pagePool;
+        readWriteLock = LockFactory.lock(uuid());
     }
 
     @Override
     public String name() {
-        return super.name();
+        readWriteLock.readLock().lock();
+        try {
+            return super.name();
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 
     @Override
     public boolean exists() {
-        return super.exists();
+        readWriteLock.readLock().lock();
+        try {
+            return super.exists();
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 
     @Override
     public Optional<File> file(final String name) {
-        return super.file(name);
+        readWriteLock.readLock().lock();
+        try {
+            return super.file(name);
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 
     @Override
     protected File toFile(final Page page) {
-        return super.toFile(page);
+        return new ConcurrentPagedFile(new FilePage(pagePool, page), this);
     }
 
     @Override
     protected Directory toDirectory(final Page page) {
-        return super.toDirectory(page);
-    }
-
-    @Override
-    public Optional<Page> findByName(final String name, final DirectoryElements elementType) {
-        return super.findByName(name, elementType);
+        return new ConcurrentPagedDirectory(pagePool, page, this);
     }
 
     @Override
     public File createFile(final String name) {
-        return super.createFile(name);
+        readWriteLock.writeLock().lock();
+        try {
+            return super.createFile(name);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
     @Override
     public void deleteFile(final String name) {
-        super.deleteFile(name);
+        readWriteLock.writeLock().lock();
+        try {
+            super.deleteFile(name);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
     @Override
     public List<String> files() {
-        return super.files();
-    }
-
-    @Override
-    public List<String> elementNames(final DirectoryElements file) {
-        return super.elementNames(file);
+        readWriteLock.readLock().lock();
+        try {
+            return super.files();
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 
     @Override
     public List<String> directories() {
-        return super.directories();
+        readWriteLock.readLock().lock();
+        try {
+            return super.directories();
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 
     @Override
     public Optional<Directory> directory(final String name) {
-        return super.directory(name);
+        readWriteLock.readLock().lock();
+        try {
+            return super.directory(name);
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 
     @Override
     public Directory createDirectory(final String name) {
-        return super.createDirectory(name);
+        readWriteLock.writeLock().lock();
+        try {
+            return super.createDirectory(name);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
     @Override
     public void deleteDirectory(final String name) {
-        super.deleteDirectory(name);
+        readWriteLock.writeLock().lock();
+        try {
+            super.deleteDirectory(name);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 }

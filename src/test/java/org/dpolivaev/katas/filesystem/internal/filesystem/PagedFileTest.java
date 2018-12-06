@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PagedFileTest {
-    private final TestFileSystem fileSystem = new TestFileSystem(32, 256);
+    private final TestFileSystem fileSystem = TestFileSystem.create(32, 256);
     private final Directory root = fileSystem.root;
     private final File uut = root.createFile("file");
     private final Directory secondRoot = fileSystem.secondRoot;

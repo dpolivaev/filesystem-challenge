@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class PagedDirectoryTest {
-    private final TestFileSystem fileSystem = new TestFileSystem(1024, 1024);
+    private final TestFileSystem fileSystem = TestFileSystem.create(1024, 1024);
     private final Directory uut = fileSystem.root;
     private final Directory another = fileSystem.secondRoot;
     @Test

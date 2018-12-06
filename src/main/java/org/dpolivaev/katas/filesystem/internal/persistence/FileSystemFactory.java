@@ -5,6 +5,7 @@ import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructur
 import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
+import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.io.File;
@@ -31,19 +32,40 @@ public class FileSystemFactory {
     }
 
     public FileSystem create(final File file, final long size) {
+        return create(file, size, false);
+    }
+
+    public FileSystem createConcurrent(final File file, final long size) {
+        return create(file, size, true);
+    }
+
+    private FileSystem create(final File file, final long size, final boolean concurrent) {
         final PersistentPages pages = new PersistentPages(file, size, READ, WRITE, SPARSE, CREATE_NEW);
-        final PagePool pagePool = new PagePool(pages, new Random());
+        final PagePool pagePool = createPagePool(pages, concurrent);
         final Page rootDescriptor = pagePool.allocate(ROOT_PAGE_NUMBER);
         final PageEditor editor = uuidEditor(rootDescriptor);
         editor.write(ROOT_UUID);
         return new PagedFileSystem(pagePool);
     }
 
+    private PagePool createPagePool(final PersistentPages pages, final boolean concurrent) {
+        final Random random = new Random(0);
+        return concurrent ? new ConcurrentPagePool(pages, random) : new PagePool(pages, random);
+    }
+
     public FileSystem open(final File file, final long size) {
+        return open(file, size, false);
+    }
+
+    public FileSystem openConcurrent(final File file, final long size) {
+        return open(file, size, true);
+    }
+
+    private FileSystem open(final File file, final long size, final boolean concurrent) {
         if (!file.exists())
             throw new IORuntimeException(new FileNotFoundException());
         final PersistentPages pages = new PersistentPages(file, size, READ, StandardOpenOption.WRITE);
-        final PagePool pagePool = new PagePool(pages, new Random());
+        final PagePool pagePool = createPagePool(pages, concurrent);
         final Page rootDescriptor = pagePool.pageAt(ROOT_PAGE_NUMBER);
         final PageEditor editor = uuidEditor(rootDescriptor);
         checkUuid(editor);

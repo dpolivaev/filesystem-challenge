@@ -4,10 +4,13 @@ import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 
+import java.util.UUID;
+
 class PagedFile implements File {
     private final FilePage filePage;
     private final Directory parentDirectory;
     private final PageEditor editor;
+
 
     PagedFile(final FilePage filePage, final Directory parentDirectory) {
         this.filePage = filePage;
@@ -31,6 +34,11 @@ class PagedFile implements File {
     public String name() {
         filePage.validateUuid();
         return filePage.name();
+    }
+
+    @Override
+    public UUID uuid() {
+        return filePage.uuid();
     }
 
     @Override
