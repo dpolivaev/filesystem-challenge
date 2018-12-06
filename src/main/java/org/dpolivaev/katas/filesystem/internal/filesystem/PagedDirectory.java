@@ -29,7 +29,7 @@ class PagedDirectory implements Directory {
 
     PagedDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory) {
         this.pagePool = pagePool;
-        this.directoryData = toFile((Page) new FilePage(pagePool, directoryData));
+        this.directoryData = toFile(new FilePage(pagePool, directoryData));
         this.parentDirectory = parentDirectory != null ? parentDirectory : this;
         editor = new PageEditor();
     }
