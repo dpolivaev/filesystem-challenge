@@ -29,7 +29,7 @@ class PagedDirectory implements Directory {
 
     PagedDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory) {
         this.pagePool = pagePool;
-        this.directoryData = toFile(new FilePage(pagePool, directoryData));
+        this.directoryData = toFile((Page) new FilePage(pagePool, directoryData));
         this.parentDirectory = parentDirectory != null ? parentDirectory : this;
         editor = new PageEditor();
     }
@@ -59,8 +59,13 @@ class PagedDirectory implements Directory {
         return findByName(name, DirectoryElements.FILE).map(this::toFile);
     }
 
-    protected File toFile(final Page page) {
-        return new PagedFile(new FilePage(pagePool, page), this);
+    private File toFile(final Page page) {
+        final FilePage filePage = new FilePage(pagePool, page);
+        return toFile(filePage);
+    }
+
+    protected File toFile(FilePage filePage) {
+        return new PagedFile(filePage, this);
     }
 
     protected Directory toDirectory(final Page page) {
@@ -159,7 +164,7 @@ class PagedDirectory implements Directory {
 
     private void destroyAllChildren(final Page page) {
         final FilePage filePage = new FilePage(pagePool, page);
-        final File data = toFile(filePage);
+        final File data = toFile((Page) filePage);
         deleteElement(ANY, DirectoryElements.ANY, data);
 
     }

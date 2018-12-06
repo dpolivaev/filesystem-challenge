@@ -4,6 +4,7 @@ import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.Pages;
 
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -37,21 +38,24 @@ public class ConcurrentPagePool extends PagePool {
 
     @Override
     public boolean isAllocated(final long pageNumber) {
-        readWriteLock.readLock().lock();
+        readWriteLock.writeLock().lock();
         try {
             return super.isAllocated(pageNumber);
         } finally {
-            readWriteLock.readLock().unlock();
+            readWriteLock.writeLock().unlock();
         }
     }
 
     @Override
     public Page pageAt(final long pageNumber) {
-        readWriteLock.readLock().lock();
+        boolean assertionsEnabled = false;
+        assert (assertionsEnabled = true);
+        final Lock lock = assertionsEnabled ? readWriteLock.writeLock() : readWriteLock.readLock();
+        lock.lock();
         try {
             return super.pageAt(pageNumber);
         } finally {
-            readWriteLock.readLock().unlock();
+            lock.unlock();
         }
     }
 

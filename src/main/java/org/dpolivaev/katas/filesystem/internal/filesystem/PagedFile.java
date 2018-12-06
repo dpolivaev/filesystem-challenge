@@ -51,6 +51,7 @@ class PagedFile implements File {
     public void truncate() {
         filePage.validateUuid();
         filePage.truncate();
+        editor.setPosition(0);
     }
 
     @Override

@@ -67,7 +67,7 @@ public class FileSystemFactory {
         final Page rootDescriptor = pagePool.allocate(ROOT_PAGE_NUMBER);
         final PageEditor editor = uuidEditor(rootDescriptor);
         editor.write(ROOT_UUID);
-        return new PagedFileSystem(pagePool);
+        return concurrent ? new PagedFileSystem((ConcurrentPagePool) pagePool) : new PagedFileSystem(pagePool);
     }
 
     private PagePool createPagePool(final PersistentPages pages, final boolean concurrent) {
@@ -83,7 +83,7 @@ public class FileSystemFactory {
         final Page rootDescriptor = pagePool.pageAt(ROOT_PAGE_NUMBER);
         final PageEditor editor = uuidEditor(rootDescriptor);
         checkUuid(editor);
-        return new PagedFileSystem(pagePool);
+        return concurrent ? new PagedFileSystem((ConcurrentPagePool) pagePool) : new PagedFileSystem(pagePool);
     }
 
     private void checkUuid(final PageEditor editor) {

@@ -50,8 +50,8 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
     }
 
     @Override
-    protected File toFile(final Page page) {
-        return new ConcurrentPagedFile(new FilePage(pagePool, page), this);
+    protected File toFile(final FilePage page) {
+        return new ConcurrentPagedFile(page, this);
     }
 
     @Override
