@@ -7,45 +7,45 @@ import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.Lock;
 
 public class ConcurrentPagedDirectory extends PagedDirectory {
-    private final ReadWriteLock readWriteLock;
+    private final Lock lock;
     private final ConcurrentPagePool pagePool;
 
     ConcurrentPagedDirectory(final ConcurrentPagePool pagePool, final Page directoryData, final Directory parentDirectory) {
         super(pagePool, directoryData, parentDirectory);
         this.pagePool = pagePool;
-        readWriteLock = LockFactory.lock(uuid());
+        lock = LockFactory.lock(uuid());
     }
 
     @Override
     public String name() {
-        readWriteLock.readLock().lock();
+        lock.lock();
         try {
             return super.name();
         } finally {
-            readWriteLock.readLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public boolean exists() {
-        readWriteLock.readLock().lock();
+        lock.lock();
         try {
             return super.exists();
         } finally {
-            readWriteLock.readLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public Optional<File> file(final String name) {
-        readWriteLock.readLock().lock();
+        lock.lock();
         try {
             return super.file(name);
         } finally {
-            readWriteLock.readLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -61,71 +61,71 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
 
     @Override
     public File createFile(final String name) {
-        readWriteLock.writeLock().lock();
+        lock.lock();
         try {
             return super.createFile(name);
         } finally {
-            readWriteLock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public void deleteFile(final String name) {
-        readWriteLock.writeLock().lock();
+        lock.lock();
         try {
             super.deleteFile(name);
         } finally {
-            readWriteLock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public List<String> files() {
-        readWriteLock.readLock().lock();
+        lock.lock();
         try {
             return super.files();
         } finally {
-            readWriteLock.readLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public List<String> directories() {
-        readWriteLock.readLock().lock();
+        lock.lock();
         try {
             return super.directories();
         } finally {
-            readWriteLock.readLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public Optional<Directory> directory(final String name) {
-        readWriteLock.readLock().lock();
+        lock.lock();
         try {
             return super.directory(name);
         } finally {
-            readWriteLock.readLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public Directory createDirectory(final String name) {
-        readWriteLock.writeLock().lock();
+        lock.lock();
         try {
             return super.createDirectory(name);
         } finally {
-            readWriteLock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public void deleteDirectory(final String name) {
-        readWriteLock.writeLock().lock();
+        lock.lock();
         try {
             super.deleteDirectory(name);
         } finally {
-            readWriteLock.writeLock().unlock();
+            lock.unlock();
         }
     }
 }

@@ -109,6 +109,7 @@ class PagedDirectory implements Directory {
         for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
             final byte element = directoryData.readByte();
             final long pageNumber = directoryData.readLong();
+            System.out.println("Read page " + pageNumber + " at position " + (directoryData.getPosition() - 8) + "  in " + Thread.currentThread().getName());
             if (element == elementType.ordinal()) {
                 pages.add(pagePool.pageAt(pageNumber));
             }
@@ -123,6 +124,7 @@ class PagedDirectory implements Directory {
             if (element == DirectoryElements.FREE_SPACE.ordinal()) {
                 directoryData.setPosition(directoryData.getPosition() - Byte.BYTES);
                 directoryData.write(element);
+                System.out.println("Written page " + pageNumber + " at position " + directoryData.getPosition() + "  in " + Thread.currentThread().getName());
                 directoryData.write(pageNumber);
                 return;
             }

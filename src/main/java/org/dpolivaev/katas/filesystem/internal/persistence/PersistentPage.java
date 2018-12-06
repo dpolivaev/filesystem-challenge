@@ -5,6 +5,7 @@ import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 
 class PersistentPage implements Page {
     static final int PAGE_SIZE = 1024;
@@ -30,6 +31,7 @@ class PersistentPage implements Page {
     public void write(final long offset, final int length, final byte[] source, final int sourceOffset) {
         byteBuffer.position((int) offset);
         byteBuffer.put(source, sourceOffset, length);
+        System.out.println(Arrays.toString(Arrays.copyOfRange(source, sourceOffset, sourceOffset + length)));
     }
 
     @Override

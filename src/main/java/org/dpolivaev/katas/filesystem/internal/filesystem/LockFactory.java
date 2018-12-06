@@ -4,13 +4,27 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 class LockFactory {
-    static private final Map<UUID, ReadWriteLock> locks = Collections.synchronizedMap(new WeakHashMap<>());
+    static private final Map<UUID, Lock> locks = Collections.synchronizedMap(new WeakHashMap<>());
 
-    static ReadWriteLock lock(final UUID uuid) {
-        return locks.computeIfAbsent(uuid, ignore -> new ReentrantReadWriteLock());
+    static Lock lock(final UUID uuid) {
+        return locks.computeIfAbsent(uuid, key -> new ReentrantLock(){
+            @Override
+            public void lock() {
+                super.lock();
+                if(getHoldCount() == 1)
+                    System.out.println("locked " + uuid + " in " + getOwner().getName());
+            }
+
+            @Override
+            public void unlock() {
+                if(getHoldCount() == 1)
+                    System.out.println("unlocked " + uuid + " in " + getOwner().getName());
+                super.unlock();
+            }
+        });
     }
 }

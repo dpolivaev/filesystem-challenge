@@ -28,6 +28,8 @@ public class PagePool {
 
     public PageAllocation allocate() {
         final long pageNumber = reservations.reservePosition();
+        System.out.println("allocated page " + (pageNumber + 1) + " in " + Thread.currentThread()
+                .getName());
         return new PageAllocation(pages.at(reservationPages + pageNumber), pageNumber + 1);
     }
 
@@ -47,6 +49,8 @@ public class PagePool {
 
     public void release(final long pageNumber) {
         reservations.releasePosition(pageNumber - 1);
+        System.out.println("released page " + pageNumber + " in " + Thread.currentThread()
+                .getName());
     }
 
     public void close() {
