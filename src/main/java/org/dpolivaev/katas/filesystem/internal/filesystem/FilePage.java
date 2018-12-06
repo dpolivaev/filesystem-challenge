@@ -15,7 +15,7 @@ class FilePage implements Page {
     private final Page startPage;
     private final Page dataDescriptor;
     private final PageEditor editor;
-    private final VariableSizePage data;
+    private final HugePage data;
 
     FilePage(final PagePool pagePool, final Page startPage) {
         this.startPage = startPage;
@@ -30,7 +30,7 @@ class FilePage implements Page {
             editor.write(uuid);
         }
         this.uuid = uuid;
-        this.data = new VariableSizePage(pagePool, editor, startPage);
+        this.data = new HugePage(pagePool, editor, startPage);
     }
 
     private UUID readUUID() {

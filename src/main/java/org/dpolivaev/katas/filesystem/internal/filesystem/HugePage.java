@@ -10,14 +10,14 @@ import java.util.stream.IntStream;
 
 import static org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure.*;
 
-class VariableSizePage implements Page {
+class HugePage implements Page {
     private final PagePool pagePool;
     private final PageEditor editor;
     private final Page startPage;
     private final Page dataDescriptor;
     private final ArbitraryCompositePage data;
 
-    VariableSizePage(final PagePool pagePool, final PageEditor editor, final Page startPage) {
+    HugePage(final PagePool pagePool, final PageEditor editor, final Page startPage) {
         this.pagePool = pagePool;
         this.editor = editor;
         this.startPage = startPage;
