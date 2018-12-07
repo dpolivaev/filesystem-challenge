@@ -131,7 +131,7 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
 
     @Override
     protected void destroyFilePage(final long pageNumber, final FilePage page) {
-        final Lock lock = LockFactory.readWriteLock(page.uuid()).writeLock();
+        final Lock lock = LockFactory.lock(page.uuid());
         lock.lock();
         try {
             super.destroyFilePage(pageNumber, page);

@@ -92,6 +92,8 @@ class ReservedPositions {
     }
 
     boolean isReserved(final long position) {
+        assert position >= 0;
+        assert position < availablePositions;
         findBit(position);
         final long newBits = unsetBit(bits, bitIndex);
         return newBits != bits;

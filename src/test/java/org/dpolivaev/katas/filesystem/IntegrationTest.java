@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
@@ -57,7 +58,7 @@ public class IntegrationTest {
     }
 
     private FileSystem createConcurrentFilesystem() {
-        return FileSystemFactory.INSTANCE.createConcurrent(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
+        return FileSystem.createConcurrent(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
     }
 
     private FileSystem createConcurrentFilesystemInMemory() {
@@ -65,7 +66,7 @@ public class IntegrationTest {
     }
 
     private FileSystem openConcurrentFilesystem() {
-        return FileSystemFactory.INSTANCE.openConcurrent(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
+        return FileSystem.openConcurrent(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
     }
 
     @Before
@@ -124,7 +125,7 @@ public class IntegrationTest {
     public void writesAndReadsNumbersConcurrentlyInMemory() throws Throwable {
         final Semaphore availableThreads = new Semaphore(10, true);
         final LinkedBlockingQueue<Optional<Throwable>> testResults = new LinkedBlockingQueue<>();
-        final int testThreadCounter = 1000;
+        final int testThreadCounter = 200;
         try (final FileSystem fileSystem = createConcurrentFilesystemInMemory()) {
             for (int i = 0; i < testThreadCounter; i++) {
                 checkWritingAndReadingNumbersAsync(fileSystem, i, availableThreads, testResults);
@@ -137,7 +138,7 @@ public class IntegrationTest {
     public void writesAndReadsNumbersConcurrently() throws Throwable {
         final Semaphore availableThreads = new Semaphore(10, true);
         final LinkedBlockingQueue<Optional<Throwable>> testResults = new LinkedBlockingQueue<>();
-        final int testThreadCounter = 100;
+        final int testThreadCounter = 200;
         try (final FileSystem fileSystem = createConcurrentFilesystem()) {
             for (int i = 0; i < testThreadCounter; i++) {
                 checkWritingAndReadingNumbersAsync(fileSystem, i, availableThreads, testResults);
@@ -146,6 +147,7 @@ public class IntegrationTest {
         }
     }
 
+    private final AtomicBoolean canceled = new AtomicBoolean(false);
     private void checkWritingAndReadingNumbersAsync(final FileSystem fileSystem, final int testThreadCounter, final Semaphore availableThreads,
                                                     final LinkedBlockingQueue<Optional<Throwable>> testResults) throws InterruptedException {
         availableThreads.acquire();
@@ -153,13 +155,14 @@ public class IntegrationTest {
             @Override
             public void run() {
                 try {
-                    System.out.println(Thread.currentThread().getName() + ": start");
+                    if (canceled.get())
+                        return;
                     final String fileName = "file" + testThreadCounter;
                     checkWritingAndReadingNumbers(fileSystem, fileName);
                     fileSystem.root().deleteFile(fileName);
                     testResults.put(Optional.empty());
-                    System.out.println(Thread.currentThread().getName() + ": done");
                 } catch (final Throwable e) {
+                    canceled.set(true);
                     System.out.println(Thread.currentThread().getName() + ": mismatch" + ":" + e
                             .getMessage());
                     e.printStackTrace(System.out);

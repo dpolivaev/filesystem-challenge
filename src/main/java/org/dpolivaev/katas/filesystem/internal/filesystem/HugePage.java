@@ -86,8 +86,8 @@ class HugePage implements Page {
         if (pageNumber != 0) {
             assert pageNumber > 0;
             final Page referencedPage = pagePool.pageAt(pageNumber);
-            pagePool.release(pageNumber);
             editor.on(page, index * Long.BYTES, () -> editor.write(0L));
+            pagePool.release(pageNumber);
             if (level > 0) {
                 IntStream.range(0, (int) referencedPage.size() / Long.BYTES).forEach(i -> destroy(referencedPage, i, level - 1));
             } else {
