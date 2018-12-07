@@ -1,12 +1,6 @@
 package org.dpolivaev.katas.filesystem;
 
-import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure;
-import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
-import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
-import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
-import org.dpolivaev.katas.filesystem.internal.persistence.FileSystemFactory;
-import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
+import org.dpolivaev.katas.filesystem.internal.filesystem.TestFileSystem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +12,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem.ROOT_PAGE_NUMBER;
 
 public class IntegrationTest {
     public static final int FILE_SYSTEM_SIZE = 1024 * 1024;
@@ -51,13 +44,7 @@ public class IntegrationTest {
     }
 
     private FileSystem createConcurrentFilesystemInMemory() {
-        final TestPages pages = new TestPages(FILE_SYSTEM_SIZE / 1024, FILE_SYSTEM_SIZE);
-        final ConcurrentPagePool pagePool = new ConcurrentPagePool(pages, new Random(0));
-        final Page rootDescriptor = pagePool.allocate(ROOT_PAGE_NUMBER);
-        final PageEditor editor = new PageEditor(rootDescriptor);
-        editor.setPosition(FileDescriptorStructure.UUID_POSITION);
-        editor.write(FileSystemFactory.ROOT_UUID);
-        return new PagedFileSystem(pagePool);
+        return TestFileSystem.createConcurrent(FILE_SYSTEM_SIZE / 1024, 1024).fileSystem;
     }
 
     private FileSystem openConcurrentFilesystem() {

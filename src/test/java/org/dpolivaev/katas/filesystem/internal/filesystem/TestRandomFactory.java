@@ -19,6 +19,12 @@ public class TestRandomFactory {
         return random;
     }
 
+    public static Random mockRandomWithSequenceTo(final long end) {
+        final Random random = Mockito.mock(Random.class);
+        final int start = 0;
+        Mockito.when(random.longs(ArgumentMatchers.eq(0L), ArgumentMatchers.anyLong())).thenReturn(LongStream.iterate(start, x -> x < end ? x + 1 : start));
+        return random;
+    }
     public static Random mockRandomWithConstantValue(final long availablePositions, final long constantValue) {
         final Random random = Mockito.mock(Random.class);
         when(random.longs(0L, availablePositions)).thenReturn(LongStream.iterate(constantValue, x -> constantValue));

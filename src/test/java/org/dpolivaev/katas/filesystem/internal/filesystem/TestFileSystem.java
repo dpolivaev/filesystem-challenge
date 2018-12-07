@@ -1,37 +1,53 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
 import org.dpolivaev.katas.filesystem.Directory;
+import org.dpolivaev.katas.filesystem.internal.pages.Page;
+import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
+import org.dpolivaev.katas.filesystem.internal.persistence.FileSystemFactory;
 import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.util.Random;
 
-import static org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory.mockRandomWithSequenceFrom0;
+import static org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory.mockRandomWithSequenceTo;
 
 public class TestFileSystem {
-    final public TestPages testPages;
+    public final TestPages testPages;
 
-    final public PagePool pagePool;
+    public final PagePool pagePool;
 
-    final public Directory root;
+    public final PagedFileSystem fileSystem;
 
-    final public Directory secondRoot;
+    public final Directory root;
+
+    public final Directory alternativeRoot;
 
     public static TestFileSystem create(final int pagesInPool, final int poolPageSize) {
-        return new TestFileSystem(pagesInPool, poolPageSize, false);
+        return new TestFileSystem(pagesInPool, poolPageSize, false, mockRandomWithSequenceTo(pagesInPool * 98 / 100));
     }
 
     public static TestFileSystem createConcurrent(final int pagesInPool, final int poolPageSize) {
-        return new TestFileSystem(pagesInPool, poolPageSize, false);
+        return new TestFileSystem(pagesInPool, poolPageSize, true, new Random());
     }
 
-    private TestFileSystem(final int pagesInPool, final int poolPageSize, final boolean concurrent) {
-        final Random random = mockRandomWithSequenceFrom0();
+    private TestFileSystem(final int pagesInPool, final int poolPageSize, final boolean concurrent, final Random random) {
         this.testPages = new TestPages(pagesInPool, poolPageSize);
         this.pagePool = concurrent ? new ConcurrentPagePool(testPages, random)
                 : new PagePool(testPages, random);
-        this.root = new PagedFileSystem(pagePool).root();
-        this.secondRoot = new PagedFileSystem(pagePool).root();
+        final Page rootDescriptor = pagePool.allocate(1);
+        final PageEditor editor = new PageEditor(rootDescriptor);
+        editor.setPosition(FileDescriptorStructure.UUID_POSITION);
+        editor.write(FileSystemFactory.ROOT_UUID);
+        final PagedFileSystem alternativeFileSystem;
+        if (concurrent) {
+            this.fileSystem = new PagedFileSystem((ConcurrentPagePool) pagePool);
+            alternativeFileSystem = new PagedFileSystem((ConcurrentPagePool) pagePool);
+        } else {
+            this.fileSystem = new PagedFileSystem(pagePool);
+            alternativeFileSystem = new PagedFileSystem(pagePool);
+        }
+        this.root = fileSystem.root();
+        this.alternativeRoot = alternativeFileSystem.root();
     }
 }

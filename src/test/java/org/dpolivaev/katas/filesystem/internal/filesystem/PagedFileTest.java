@@ -13,7 +13,7 @@ public class PagedFileTest {
     private final TestFileSystem fileSystem = TestFileSystem.create(32, 256);
     private final Directory root = fileSystem.root;
     private final File uut = root.createFile("file");
-    private final Directory secondRoot = fileSystem.secondRoot;
+    private final Directory secondRoot = fileSystem.alternativeRoot;
     private final File another = secondRoot.file("file").get();
 
 
