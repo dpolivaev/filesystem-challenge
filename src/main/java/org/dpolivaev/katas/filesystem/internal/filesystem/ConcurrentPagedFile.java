@@ -5,9 +5,9 @@ import java.util.concurrent.locks.Lock;
 public class ConcurrentPagedFile extends PagedFile {
     private final Lock lock;
 
-    ConcurrentPagedFile(final FilePage filePage, final ConcurrentPagedDirectory parentDirectory) {
+    ConcurrentPagedFile(final FilePage filePage, final ConcurrentPagedDirectory parentDirectory, final Lock lock) {
         super(filePage, parentDirectory);
-        lock = LockFactory.lock(uuid());
+        this.lock = lock;
     }
 
     @Override

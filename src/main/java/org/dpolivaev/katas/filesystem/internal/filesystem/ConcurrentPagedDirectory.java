@@ -13,10 +13,10 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
     private final Lock lock;
     private final ConcurrentPagePool pagePool;
 
-    ConcurrentPagedDirectory(final ConcurrentPagePool pagePool, final Page directoryData, final Directory parentDirectory) {
+    ConcurrentPagedDirectory(final ConcurrentPagePool pagePool, final Page directoryData, final Directory parentDirectory, final Lock lock) {
         super(pagePool, directoryData, parentDirectory);
         this.pagePool = pagePool;
-        lock = LockFactory.lock(uuid());
+        this.lock = lock;
     }
 
     @Override
@@ -51,12 +51,12 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
 
     @Override
     protected File toFile(final FilePage page) {
-        return new ConcurrentPagedFile(page, this);
+        return new ConcurrentPagedFile(page, this, lock);
     }
 
     @Override
     protected Directory toDirectory(final Page page) {
-        return new ConcurrentPagedDirectory(pagePool, page, this);
+        return new ConcurrentPagedDirectory(pagePool, page, this, lock);
     }
 
     @Override
@@ -131,7 +131,6 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
 
     @Override
     protected void destroyFilePage(final long pageNumber, final FilePage page) {
-        final Lock lock = LockFactory.lock(page.uuid());
         lock.lock();
         try {
             super.destroyFilePage(pageNumber, page);

@@ -5,6 +5,8 @@ import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class PagedFileSystem implements FileSystem {
 
     public static final int ROOT_PAGE_NUMBER = 1;
@@ -22,7 +24,7 @@ public class PagedFileSystem implements FileSystem {
     public PagedFileSystem(final ConcurrentPagePool pagePool) {
         this.pagePool = pagePool;
         final Page rootDescriptor = pagePool.isAllocated((long) ROOT_PAGE_NUMBER) ? pagePool.pageAt(1) : pagePool.allocate(1);
-        rootDirectory = new ConcurrentPagedDirectory(pagePool, rootDescriptor, null);
+        rootDirectory = new ConcurrentPagedDirectory(pagePool, rootDescriptor, null, new ReentrantLock());
         maximumSupportedFileSize = new FilePage(pagePool, rootDescriptor).size();
     }
 
