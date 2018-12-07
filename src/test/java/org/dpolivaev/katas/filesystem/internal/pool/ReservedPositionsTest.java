@@ -65,7 +65,7 @@ public class ReservedPositionsTest {
     @Test
     public void reservesPosition_1025() {
         final Random random = TestRandomFactory.mockRandomWithSequenceFrom0();
-        final ReservedPositions uut = new ReservedPositions(new TestPages(100, 100), 1000, random);
+        final ReservedPositions uut = new ReservedPositions(new TestPages(100, 100), 1026, random);
         uut.reservePosition(1025);
         assertThat(uut.isReserved(1025)).isTrue();
     }
