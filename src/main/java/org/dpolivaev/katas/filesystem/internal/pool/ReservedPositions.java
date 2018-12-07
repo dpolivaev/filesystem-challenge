@@ -1,5 +1,6 @@
 package org.dpolivaev.katas.filesystem.internal.pool;
 
+import org.dpolivaev.katas.filesystem.OutOfMemoryException;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.Pages;

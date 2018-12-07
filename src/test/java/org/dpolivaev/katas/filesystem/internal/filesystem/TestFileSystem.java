@@ -1,6 +1,5 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
@@ -19,9 +18,9 @@ public class TestFileSystem {
 
     public final PagedFileSystem fileSystem;
 
-    public final Directory root;
+    public final PagedDirectory root;
 
-    public final Directory alternativeRoot;
+    public final PagedDirectory alternativeRoot;
 
     public static TestFileSystem create(final int pagesInPool, final int poolPageSize) {
         return new TestFileSystem(pagesInPool, poolPageSize, false, mockRandomWithSequenceTo(pagesInPool * 98 / 100));
@@ -49,5 +48,9 @@ public class TestFileSystem {
         }
         this.root = fileSystem.root();
         this.alternativeRoot = alternativeFileSystem.root();
+    }
+
+    public long maximumSupportedFileSize() {
+        return fileSystem.maximumSupportedFileSize();
     }
 }

@@ -17,7 +17,7 @@ public class PageEditor {
         this.page = page;
         this.position = 0;
     }
-
+    
     public void setPosition(final long position) {
         if (position < 0) {
             throw new IllegalArgumentException("Invalid position " + position);

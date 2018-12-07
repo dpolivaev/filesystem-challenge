@@ -56,6 +56,7 @@ class PagedDirectory implements Directory {
 
     @Override
     public Optional<File> file(final String name) {
+        checkElementName(name);
         return findByName(name, DirectoryElements.FILE).map(this::toFile);
     }
 
@@ -91,16 +92,20 @@ class PagedDirectory implements Directory {
     }
 
     private void checkNewElementName(final String name, final DirectoryElements elementType) {
+        checkElementName(name);
+        if (elementNames(elementType).contains(name))
+            throw new IllegalArgumentException("File '" + name + "' already exists");
+    }
+
+    private void checkElementName(final String name) {
         if (name == null)
             throw new IllegalArgumentException("Name must not be null");
         if (PageEditor.requiredLength(name) > NAME_SIZE)
-            throw new IllegalArgumentException("Name too long");
+            throw new IllegalArgumentException("Name is too long");
         if (name.isEmpty())
             throw new IllegalArgumentException("Empty name is not allowed");
         if (matchesAnyElement(name))
             throw new IllegalArgumentException("Name " + ANY + " is reserved");
-        if (elementNames(elementType).contains(name))
-            throw new IllegalArgumentException("File '" + name + "' already exists");
     }
 
     private List<Page> descriptors(final DirectoryElements elementType) {
@@ -179,6 +184,7 @@ class PagedDirectory implements Directory {
 
     @Override
     public void deleteFile(final String name) {
+        checkElementName(name);
         deleteElement(name, DirectoryElements.FILE, directoryData);
     }
 
@@ -206,6 +212,7 @@ class PagedDirectory implements Directory {
 
     @Override
     public Optional<Directory> directory(final String name) {
+        checkElementName(name);
         return findByName(name, DirectoryElements.DIRECTORY).map(this::toDirectory);
     }
 
@@ -217,6 +224,7 @@ class PagedDirectory implements Directory {
 
     @Override
     public void deleteDirectory(final String name) {
+        checkElementName(name);
         deleteElement(name, DirectoryElements.DIRECTORY, directoryData);
     }
 
@@ -224,5 +232,9 @@ class PagedDirectory implements Directory {
     public String toString() {
         return "PagedDirectory{" +
                 directoryData.toString() + '(' + directories().size() + ", " + files().size() + ')' + '}';
+    }
+
+    long directoryInternalFileSize() {
+        return directoryData.size();
     }
 }

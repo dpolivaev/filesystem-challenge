@@ -73,7 +73,6 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
     public void deleteFile(final String name) {
         lock.lock();
         try {
-
             super.deleteFile(name);
         } finally {
             lock.unlock();

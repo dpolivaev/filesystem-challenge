@@ -14,7 +14,12 @@ class LockFactory {
     static private final Map<UUID, ReadWriteLock> readWriteLocks = Collections.synchronizedMap(new WeakHashMap<>());
 
     static Lock lock(final UUID uuid) {
-        return locks.computeIfAbsent(uuid, key -> new ReentrantLock());
+        return locks.computeIfAbsent(uuid, key -> new ReentrantLock() {
+            @Override
+            public String toString() {
+                return uuid.toString() + " -> " + super.toString();
+            }
+        });
     }
 
 

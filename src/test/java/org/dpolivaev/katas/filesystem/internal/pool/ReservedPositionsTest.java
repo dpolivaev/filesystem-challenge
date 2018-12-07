@@ -1,6 +1,7 @@
 package org.dpolivaev.katas.filesystem.internal.pool;
 
 import org.assertj.core.api.Assertions;
+import org.dpolivaev.katas.filesystem.OutOfMemoryException;
 import org.dpolivaev.katas.filesystem.internal.filesystem.TestRandomFactory;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.junit.Test;

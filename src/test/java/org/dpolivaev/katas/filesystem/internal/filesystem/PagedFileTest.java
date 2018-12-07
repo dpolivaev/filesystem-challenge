@@ -4,8 +4,6 @@ import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.junit.Test;
 
-import java.util.Random;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -49,8 +47,10 @@ public class PagedFileTest {
     }
 
     @Test
-    public void name() {
-        final Random pseudoRandomForRead = new Random(0L);
-        final Random pseudoRandomForWrite = new Random(0L);
+    public void throwsIllegalArgumentException_ifFileSizeIsTooHigh() {
+        final long maximumSupportedFileSize = fileSystem.maximumSupportedFileSize();
+        uut.setPosition(maximumSupportedFileSize - 1);
+        uut.write((byte) 1);
+        assertThatThrownBy(() -> uut.write((byte) 1)).isInstanceOf(IllegalArgumentException.class);
     }
 }

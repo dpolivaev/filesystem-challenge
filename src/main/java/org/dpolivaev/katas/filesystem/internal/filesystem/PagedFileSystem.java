@@ -1,6 +1,5 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.FileSystem;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
@@ -28,7 +27,7 @@ public class PagedFileSystem implements FileSystem {
     }
 
     @Override
-    public Directory root() {
+    public PagedDirectory root() {
         return rootDirectory;
     }
 
