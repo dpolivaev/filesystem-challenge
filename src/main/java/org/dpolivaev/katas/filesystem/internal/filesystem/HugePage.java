@@ -84,6 +84,7 @@ class HugePage implements Page {
     private void destroy(final Page page, final int index, final int level) {
         final long pageNumber = editor.on(page, index * Long.BYTES, editor::readLong);
         if (pageNumber != 0) {
+            assert pageNumber > 0;
             final Page referencedPage = pagePool.pageAt(pageNumber);
             pagePool.release(pageNumber);
             editor.on(page, index * Long.BYTES, () -> editor.write(0L));

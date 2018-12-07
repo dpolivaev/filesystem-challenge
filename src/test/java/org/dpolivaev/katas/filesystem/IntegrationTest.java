@@ -90,10 +90,12 @@ public class IntegrationTest {
     }
 
     @Test
-    public void writesAndReadsNumbers() {
-
+    public void writesAndReadsNumbers() throws IOException {
         try (final FileSystem fileSystem = createFilesystem()) {
-            checkWritingAndReadingNumbers(fileSystem, "file");
+            for (int i = 0; i < 100; i++) {
+                checkWritingAndReadingNumbers(fileSystem, "file");
+                fileSystem.root().deleteFile("file");
+            }
         }
     }
 

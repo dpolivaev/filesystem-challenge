@@ -1,192 +1,172 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class ConcurrentPagedFile extends PagedFile {
-    private final Lock lock;
+    private final ReadWriteLock lock;
 
     ConcurrentPagedFile(final FilePage filePage, final ConcurrentPagedDirectory parentDirectory) {
         super(filePage, parentDirectory);
-        lock = LockFactory.lock(uuid());
+        lock = LockFactory.readWriteLock(uuid());
     }
 
     @Override
     public boolean exists() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return super.exists();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public String name() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return super.name();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public long size() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return super.size();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void truncate() {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             super.truncate();
         } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void setPosition(final long position) {
-        lock.lock();
-        try {
-            super.setPosition(position);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public long getPosition() {
-        lock.lock();
-        try {
-            return super.getPosition();
-        } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public void write(final byte source) {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             super.write(source);
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public void write(final byte[] source, final int sourceOffset, final int length) {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             super.write(source, sourceOffset, length);
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public byte readByte() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return super.readByte();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void read(final byte[] destination, final int destinationOffset, final int length) {
-        lock.lock();
+        lock.readLock().lock();
         try {
             super.read(destination, destinationOffset, length);
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void write(final long source) {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             super.write(source);
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public void write(final int source) {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             super.write(source);
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public void write(final byte[] source) {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             super.write(source);
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public void write(final String source) {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             super.write(source);
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public int readInt() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return super.readInt();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public long readLong() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return super.readLong();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public String readString() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return super.readString();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void read(final byte[] destination) {
-        lock.lock();
+        lock.readLock().lock();
         try {
             super.read(destination);
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 }
