@@ -73,6 +73,7 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
     public void deleteFile(final String name) {
         lock.lock();
         try {
+
             super.deleteFile(name);
         } finally {
             lock.unlock();
@@ -124,6 +125,17 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
         lock.lock();
         try {
             super.deleteDirectory(name);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    protected void destroyFilePage(final long pageNumber, final FilePage page) {
+        final Lock lock = LockFactory.readWriteLock(page.uuid()).writeLock();
+        lock.lock();
+        try {
+            super.destroyFilePage(pageNumber, page);
         } finally {
             lock.unlock();
         }

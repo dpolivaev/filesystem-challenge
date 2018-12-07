@@ -157,11 +157,15 @@ class PagedDirectory implements Directory {
         if (elementType == DirectoryElements.DIRECTORY) {
             destroyAllChildren(page);
         }
-        new FilePage(pagePool, page).destroy();
-        pagePool.release(pageNumber);
+        destroyFilePage(pageNumber, new FilePage(pagePool, page));
         directoryData.setPosition(directoryData.getPosition() - Byte.BYTES - Long.BYTES);
         directoryData.write((byte) 0);
         directoryData.write(0L);
+    }
+
+    protected void destroyFilePage(final long pageNumber, final FilePage page) {
+        page.destroy();
+        pagePool.release(pageNumber);
     }
 
     private void destroyAllChildren(final Page page) {
