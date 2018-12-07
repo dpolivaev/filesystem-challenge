@@ -1,5 +1,6 @@
 package org.dpolivaev.katas.filesystem.internal.persistence;
 
+import org.dpolivaev.katas.filesystem.IORuntimeException;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.Pages;
 

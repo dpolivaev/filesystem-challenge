@@ -7,12 +7,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IntegrationTest {
     public static final int FILE_SYSTEM_SIZE = 1024 * 1024;
@@ -30,7 +36,6 @@ public class IntegrationTest {
             throw new RuntimeException(e);
         }
     }
-
 
     private FileSystem createFilesystem() {
         return FileSystem.create(fsFile.getPath(), FILE_SYSTEM_SIZE);
@@ -214,4 +219,33 @@ public class IntegrationTest {
             assertThat(file.getPosition()).isEqualTo(0);
         }
     }
+
+    @Test
+    public void recognizesCorruptedFiles() throws IOException {
+        try (final FileSystem fileSystem = createFilesystem()) {
+            //
+        }
+
+        try (final FileChannel channel = FileChannel.open(fsFile.toPath(), StandardOpenOption.WRITE)) {
+            channel.position(FileSystemFactory.PAGE_SIZE);
+            channel.write(ByteBuffer.allocate(8));
+        }
+
+        assertThatThrownBy(() -> openFilesystem()).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Unexpected file system version");
+    }
+
+
+    @Test
+    public void recognizesTooShortFiles() throws IOException {
+        try (final FileChannel channel = FileChannel.open(fsFile.toPath(), CREATE_NEW, WRITE)) {
+            channel.position(2 * FileSystemFactory.PAGE_SIZE - 2);
+            channel.write(ByteBuffer.allocate(1));
+        }
+
+        assertThatThrownBy(() -> openFilesystem()).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("File is too short");
+    }
+
+
 }

@@ -104,8 +104,6 @@ class PagedDirectory implements Directory {
             throw new IllegalArgumentException("Name is too long");
         if (name.isEmpty())
             throw new IllegalArgumentException("Empty name is not allowed");
-        if (matchesAnyElement(name))
-            throw new IllegalArgumentException("Name " + ANY + " is reserved");
     }
 
     private List<Page> descriptors(final DirectoryElements elementType) {

@@ -1,6 +1,7 @@
 package org.dpolivaev.katas.filesystem.internal.persistence;
 
 import org.dpolivaev.katas.filesystem.FileSystem;
+import org.dpolivaev.katas.filesystem.IORuntimeException;
 import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure;
 import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
@@ -27,6 +28,8 @@ public class FileSystemFactory {
     public static final UUID ROOT_UUID = UUID.nameUUIDFromBytes(UUID_STRING.getBytes(StandardCharsets.UTF_8));
 
     public static final FileSystemFactory INSTANCE = new FileSystemFactory();
+
+    public static final long PAGE_SIZE = PersistentPage.PAGE_SIZE;
 
     private FileSystemFactory() {
     }
@@ -65,7 +68,8 @@ public class FileSystemFactory {
         final PersistentPages pages = new PersistentPages(file, size, READ, WRITE, SPARSE, CREATE_NEW);
         final PagePool pagePool = createPagePool(pages, concurrent);
         final Page rootDescriptor = pagePool.allocate(ROOT_PAGE_NUMBER);
-        final PageEditor editor = uuidEditor(rootDescriptor);
+        final PageEditor editor = new PageEditor(rootDescriptor);
+        editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         editor.write(ROOT_UUID);
         return concurrent ? new PagedFileSystem((ConcurrentPagePool) pagePool) : new PagedFileSystem(pagePool);
     }
@@ -78,27 +82,21 @@ public class FileSystemFactory {
     private FileSystem open(final File file, final long size, final boolean concurrent) {
         if (!file.exists())
             throw new IORuntimeException(new FileNotFoundException());
+        if (file.length() < 2 * PersistentPage.PAGE_SIZE)
+            throw new IllegalArgumentException("File is too short");
         final PersistentPages pages = new PersistentPages(file, size, READ, StandardOpenOption.WRITE);
         final PagePool pagePool = createPagePool(pages, concurrent);
-        final Page rootDescriptor = pagePool.pageAt(ROOT_PAGE_NUMBER);
-        final PageEditor editor = uuidEditor(rootDescriptor);
-        checkUuid(editor);
+        validateFileContent(pagePool);
         return concurrent ? new PagedFileSystem((ConcurrentPagePool) pagePool) : new PagedFileSystem(pagePool);
     }
 
-    private void checkUuid(final PageEditor editor) {
+    private void validateFileContent(final PagePool pagePool) {
+        final Page rootDescriptor = pagePool.pageAt(ROOT_PAGE_NUMBER);
+        final PageEditor editor = new PageEditor(rootDescriptor);
+        editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         final UUID existingUuid = editor.readUUID();
-        checkUuid(existingUuid);
-    }
-
-    private void checkUuid(final UUID existingUuid) {
         if (!existingUuid.equals(ROOT_UUID))
             throw new IllegalArgumentException("Unexpected file system version " + existingUuid);
     }
 
-    private PageEditor uuidEditor(final Page rootDescriptor) {
-        final PageEditor editor = new PageEditor(rootDescriptor);
-        editor.setPosition(FileDescriptorStructure.UUID_POSITION);
-        return editor;
-    }
 }

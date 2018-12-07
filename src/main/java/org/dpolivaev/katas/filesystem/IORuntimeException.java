@@ -1,4 +1,4 @@
-package org.dpolivaev.katas.filesystem.internal.persistence;
+package org.dpolivaev.katas.filesystem;
 
 import java.io.IOException;
 
