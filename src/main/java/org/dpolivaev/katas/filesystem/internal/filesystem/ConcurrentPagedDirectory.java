@@ -3,17 +3,17 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
-import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
+import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
 public class ConcurrentPagedDirectory extends PagedDirectory {
+    private final PagePool pagePool;
     private final Lock lock;
-    private final ConcurrentPagePool pagePool;
 
-    ConcurrentPagedDirectory(final ConcurrentPagePool pagePool, final Page directoryData, final Directory parentDirectory, final Lock lock) {
+    ConcurrentPagedDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory, final Lock lock) {
         super(pagePool, directoryData, parentDirectory);
         this.pagePool = pagePool;
         this.lock = lock;

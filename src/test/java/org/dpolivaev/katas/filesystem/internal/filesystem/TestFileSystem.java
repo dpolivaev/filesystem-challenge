@@ -4,7 +4,6 @@ import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.dpolivaev.katas.filesystem.internal.persistence.FileSystemFactory;
-import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.util.Random;
@@ -30,21 +29,20 @@ public class TestFileSystem {
         return new TestFileSystem(pagesInPool, poolPageSize, true, new Random());
     }
 
-    private TestFileSystem(final int pagesInPool, final int poolPageSize, final boolean concurrent, final Random random) {
+    private TestFileSystem(final int pagesInPool, final int poolPageSize, final boolean threadSafe, final Random random) {
         this.testPages = new TestPages(pagesInPool, poolPageSize);
-        this.pagePool = concurrent ? new ConcurrentPagePool(testPages, random)
-                : new PagePool(testPages, random);
+        this.pagePool = new PagePool(testPages, random);
         final Page rootDescriptor = pagePool.allocate(1);
         final PageEditor editor = new PageEditor(rootDescriptor);
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         editor.write(FileSystemFactory.ROOT_UUID);
         final PagedFileSystem alternativeFileSystem;
-        if (concurrent) {
-            this.fileSystem = new PagedFileSystem((ConcurrentPagePool) pagePool);
-            alternativeFileSystem = new PagedFileSystem((ConcurrentPagePool) pagePool);
+        if (threadSafe) {
+            this.fileSystem = PagedFileSystem.threadSafe(pagePool);
+            alternativeFileSystem = PagedFileSystem.threadSafe(pagePool);
         } else {
-            this.fileSystem = new PagedFileSystem(pagePool);
-            alternativeFileSystem = new PagedFileSystem(pagePool);
+            this.fileSystem = PagedFileSystem.singleThreaded(pagePool);
+            alternativeFileSystem = PagedFileSystem.singleThreaded(pagePool);
         }
         this.root = fileSystem.root();
         this.alternativeRoot = alternativeFileSystem.root();

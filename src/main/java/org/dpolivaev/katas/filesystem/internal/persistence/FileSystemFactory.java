@@ -6,7 +6,6 @@ import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructur
 import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
-import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.io.File;
@@ -64,30 +63,30 @@ public class FileSystemFactory {
         return openConcurrent(new File(fileName), size);
     }
 
-    private FileSystem create(final File file, final long size, final boolean concurrent) {
+    private FileSystem create(final File file, final long size, final boolean threadSafe) {
         final PersistentPages pages = new PersistentPages(file, size, READ, WRITE, SPARSE, CREATE_NEW);
-        final PagePool pagePool = createPagePool(pages, concurrent);
+        final PagePool pagePool = createPagePool(pages);
         final Page rootDescriptor = pagePool.allocate(ROOT_PAGE_NUMBER);
         final PageEditor editor = new PageEditor(rootDescriptor);
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         editor.write(ROOT_UUID);
-        return concurrent ? new PagedFileSystem((ConcurrentPagePool) pagePool) : new PagedFileSystem(pagePool);
+        return threadSafe ? PagedFileSystem.threadSafe(pagePool) : PagedFileSystem.singleThreaded(pagePool);
     }
 
-    private PagePool createPagePool(final PersistentPages pages, final boolean concurrent) {
+    private PagePool createPagePool(final PersistentPages pages) {
         final Random random = new Random(0);
-        return concurrent ? new ConcurrentPagePool(pages, random) : new PagePool(pages, random);
+        return new PagePool(pages, random);
     }
 
-    private FileSystem open(final File file, final long size, final boolean concurrent) {
+    private FileSystem open(final File file, final long size, final boolean threadSafe) {
         if (!file.exists())
             throw new IORuntimeException(new FileNotFoundException());
         if (file.length() < 2 * PersistentPage.PAGE_SIZE)
             throw new IllegalArgumentException("File is too short");
         final PersistentPages pages = new PersistentPages(file, size, READ, StandardOpenOption.WRITE);
-        final PagePool pagePool = createPagePool(pages, concurrent);
+        final PagePool pagePool = createPagePool(pages);
         validateFileContent(pagePool);
-        return concurrent ? new PagedFileSystem((ConcurrentPagePool) pagePool) : new PagedFileSystem(pagePool);
+        return threadSafe ? PagedFileSystem.threadSafe(pagePool) : PagedFileSystem.singleThreaded(pagePool);
     }
 
     private void validateFileContent(final PagePool pagePool) {
