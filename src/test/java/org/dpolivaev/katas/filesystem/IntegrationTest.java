@@ -2,9 +2,7 @@ package org.dpolivaev.katas.filesystem;
 
 import org.dpolivaev.katas.filesystem.internal.filesystem.TestFileSystem;
 import org.dpolivaev.katas.filesystem.internal.persistence.FileSystemFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,6 +12,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Stream;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.WRITE;
@@ -26,10 +25,22 @@ public class IntegrationTest {
     public static final int POSITION_NEAR_THE_END = FILE_SYSTEM_SIZE * 99 / 100;
 
     private final static Random random = new Random(0);
+    final private static java.io.File tempDirectory = new java.io.File("temp");
+
+    @BeforeClass
+    public static void prepateTestFileDirectory() {
+        tempDirectory.mkdirs();
+        cleanTestFileDirectory();
+    }
+
+    @AfterClass
+    public static void cleanTestFileDirectory() {
+        Stream.of(tempDirectory.listFiles()).forEach(java.io.File::delete);
+    }
 
     private static java.io.File createFileSystemFile() {
         try {
-            final java.io.File tempFile = java.io.File.createTempFile("filesystem", ".kata");
+            final java.io.File tempFile = java.io.File.createTempFile("filesystem", ".kata", tempDirectory);
             tempFile.delete();
             return tempFile;
         } catch (final IOException e) {
@@ -68,7 +79,7 @@ public class IntegrationTest {
     }
 
     private File createHugeFile(final FileSystem fileSystem, final String fileName,
-            final String string) {
+                                final String string) {
         final File hugeFile = fileSystem.root().createFile(fileName);
         assertThat(hugeFile.size()).isEqualTo(0L);
         hugeFile.setPosition(POSITION_NEAR_THE_END);
