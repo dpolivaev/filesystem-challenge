@@ -15,14 +15,6 @@ public interface FileSystem extends Closeable {
         return FileSystemFactory.INSTANCE.create(fileName, size);
     }
 
-    static FileSystem createConcurrent(final File file, final long size) {
-        return FileSystemFactory.INSTANCE.createConcurrent(file, size);
-    }
-
-    static FileSystem createConcurrent(final String fileName, final long size) {
-        return FileSystemFactory.INSTANCE.createConcurrent(fileName, size);
-    }
-
     static FileSystem open(final File file, final long size) {
         return FileSystemFactory.INSTANCE.open(file, size);
     }
@@ -31,15 +23,9 @@ public interface FileSystem extends Closeable {
         return FileSystemFactory.INSTANCE.open(fileName, size);
     }
 
-    static FileSystem openConcurrent(final File file, final long size) {
-        return FileSystemFactory.INSTANCE.openConcurrent(file, size);
-    }
-
-    static FileSystem openConcurrent(final String fileName, final long size) {
-        return FileSystemFactory.INSTANCE.openConcurrent(fileName, size);
-    }
-
     Directory root();
+
+    long maximumSupportedFileSize();
 
     @Override
     default void close() {

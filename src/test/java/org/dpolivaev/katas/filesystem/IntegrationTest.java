@@ -1,6 +1,7 @@
 package org.dpolivaev.katas.filesystem;
 
 import org.dpolivaev.katas.filesystem.internal.filesystem.TestFileSystem;
+import org.dpolivaev.katas.filesystem.internal.persistence.FileSystemFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class IntegrationTest {
     }
 
     private FileSystem createConcurrentFilesystem() {
-        return FileSystem.createConcurrent(fsFile.getPath(), FILE_SYSTEM_SIZE);
+        return FileSystemFactory.INSTANCE.createConcurrent(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
     }
 
     private FileSystem createConcurrentFilesystemInMemory() {
@@ -48,7 +49,7 @@ public class IntegrationTest {
     }
 
     private FileSystem openConcurrentFilesystem() {
-        return FileSystem.openConcurrent(fsFile.getPath(), FILE_SYSTEM_SIZE);
+        return FileSystemFactory.INSTANCE.openConcurrent(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
     }
 
     @Before

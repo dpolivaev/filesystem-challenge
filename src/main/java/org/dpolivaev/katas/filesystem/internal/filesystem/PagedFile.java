@@ -56,9 +56,10 @@ class PagedFile implements File {
     }
 
     @Override
-    public void setPosition(final long position) {
+    public File setPosition(final long position) {
         filePage.validateUuid();
         editor.setPosition(position);
+        return this;
     }
 
     @Override

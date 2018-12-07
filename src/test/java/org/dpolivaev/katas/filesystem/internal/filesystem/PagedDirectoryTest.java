@@ -97,11 +97,15 @@ public class PagedDirectoryTest {
     @Test
     public void deletesDirectoriesRecursively() {
         final PagedDirectory dir1 = (PagedDirectory) uut.createDirectory("dir1");
+        final PagedDirectory dir2 = (PagedDirectory) uut.createDirectory("dir2");
         final PagedDirectory dir11 = (PagedDirectory) another.directory("dir1").get().createDirectory("dir11");
-        final PagedFile file1 = (PagedFile) dir1.directory("dir11").get().createFile("file1");
+        final PagedFile file11_1 = (PagedFile) dir1.directory("dir11").get().createFile("file1");
+        file11_1.setPosition(100).write(80);
+        final PagedFile file11_2 = (PagedFile) dir1.directory("dir11").get().createFile("file2");
         uut.deleteDirectory("dir1");
         Assertions.assertThat(dir1.exists()).isFalse();
         Assertions.assertThat(dir11.exists()).isFalse();
-        Assertions.assertThat(file1.exists()).isFalse();
+        Assertions.assertThat(file11_1.exists()).isFalse();
+        Assertions.assertThat(file11_2.exists()).isFalse();
     }
 }

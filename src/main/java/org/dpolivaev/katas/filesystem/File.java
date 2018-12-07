@@ -8,7 +8,7 @@ public interface File extends Element {
 
     void truncate();
 
-    void setPosition(long position);
+    File setPosition(long position);
 
     void on(long position, Runnable runnable);
 
