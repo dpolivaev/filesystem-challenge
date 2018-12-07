@@ -116,7 +116,10 @@ public class IntegrationTest {
             @Override
             public void run() {
                 try {
-                    checkWritingAndReadingNumbers(fileSystem, "file" + testThreadCounter);
+                    System.out.println(Thread.currentThread().getName() + ": start");
+                    final String fileName = "file" + testThreadCounter;
+                    checkWritingAndReadingNumbers(fileSystem, fileName);
+                    fileSystem.root().deleteFile(fileName);
                     System.out.println(Thread.currentThread().getName() + ": done");
                 } catch (final Throwable e) {
                     System.out.println(Thread.currentThread().getName() + ": mismatch" + ":" + e

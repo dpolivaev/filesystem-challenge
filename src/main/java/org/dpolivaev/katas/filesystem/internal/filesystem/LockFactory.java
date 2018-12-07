@@ -11,26 +11,6 @@ class LockFactory {
     static private final Map<UUID, Lock> locks = Collections.synchronizedMap(new WeakHashMap<>());
 
     static Lock lock(final UUID uuid) {
-        return locks.computeIfAbsent(uuid, key -> new ReentrantLock(){
-            @Override
-            public void lock() {
-                super.lock();
-                if(getHoldCount() == 1)
-                    System.out.println("locked " + uuid + " in " + getOwner().getName());
-            }
-
-            @Override
-            public void unlock() {
-                if(getHoldCount() == 1)
-                    System.out.println("unlocked " + uuid + " in " + getOwner().getName());
-                super.unlock();
-            }
-
-            @Override
-            public String toString() {
-                return "uuid" + uuid +
-                        super.toString();
-            }
-        });
+        return locks.computeIfAbsent(uuid, key -> new ReentrantLock());
     }
 }
