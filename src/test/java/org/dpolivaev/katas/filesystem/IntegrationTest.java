@@ -73,6 +73,7 @@ public class IntegrationTest {
 
     @Test
     public void createAndUseHugeFile() {
+        final long availableMemory;
         try (final FileSystem fileSystem = createFilesystem()) {
             final File hugeFile = createHugeFile(fileSystem, "hugeFile", "Hello world");
             checkHugeFileContent(hugeFile, "Hello world");
@@ -105,8 +106,8 @@ public class IntegrationTest {
             for (int i = 0; i < testThreadCounter; i++) {
                 checkWritingAndReadingNumbersAsync(fileSystem, i, availableThreads, testResults);
             }
+            checkAsyncTestResults(testResults, testThreadCounter);
         }
-        checkAsyncTestResults(testResults, testThreadCounter);
     }
 
     private void checkWritingAndReadingNumbersAsync(final FileSystem fileSystem, final int testThreadCounter, final Semaphore availableThreads,

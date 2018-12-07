@@ -122,7 +122,7 @@ class PagedDirectory implements Directory {
             final byte element = directoryData.readByte();
             if (element == DirectoryElements.FREE_SPACE.ordinal()) {
                 directoryData.setPosition(directoryData.getPosition() - Byte.BYTES);
-                directoryData.write(element);
+                directoryData.write((byte) elementType.ordinal());
                 directoryData.write(pageNumber);
                 return;
             }

@@ -31,12 +31,8 @@ class ReservedPositions {
             long position = positionOffset + counter;
             if (position >= availablePositions)
                 position -= availablePositions;
-            findBit(position);
-            final long newBits = setBit(bits, bitIndex);
-            if (bits != newBits) {
-                updateReservedBitMap(newBits);
+            if (tryReservePosition(position))
                 return position;
-            }
         }
         throw new OutOfMemoryException("No pages available");
     }
@@ -46,12 +42,18 @@ class ReservedPositions {
     }
 
     void reservePosition(final long position) {
+        if (!tryReservePosition(position))
+            throw new IllegalArgumentException("Position already reserved");
+    }
+
+    private boolean tryReservePosition(final long position) {
         findBit(position);
         final long newBits = setBit(bits, bitIndex);
         if (bits != newBits) {
             updateReservedBitMap(newBits);
+            return true;
         } else
-            throw new IllegalArgumentException("Position already reserved");
+            return false;
     }
 
 
