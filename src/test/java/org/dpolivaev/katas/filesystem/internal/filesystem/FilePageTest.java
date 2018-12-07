@@ -25,7 +25,7 @@ public class FilePageTest {
 
     @Before
     public void setUp() {
-        editor = new PageEditor();
+        editor = new PageEditor(null);
     }
 
     private void createFilePage(final int firstPageDataSize, final int pagesInPool, final int poolPageSize) {
@@ -132,6 +132,28 @@ public class FilePageTest {
         editor.setPosition(16);
         assertThat(editor.readLong()).isEqualTo(0x1234567887654321L);
         assertThat(uut.fileSize()).isEqualTo(24L);
+    }
+
+
+    @Test
+    public void savesBufferLongerThanSinglePageSize() {
+        createFilePage(2 * Long.BYTES, 100, 2 * Long.BYTES);
+        final byte[] sourceArray = new byte[20 * Long.BYTES];
+        final byte[] destinationArray = new byte[20 * Long.BYTES];
+        final Random random = new Random(0);
+        random.nextBytes(sourceArray);
+
+        editor.setPosition(11);
+        editor.write(sourceArray);
+        editor.write(sourceArray, 15, 79);
+
+        editor.setPosition(11);
+        editor.read(destinationArray);
+        assertThat(destinationArray).containsExactly(sourceArray);
+
+        editor.read(destinationArray, 15, 79);
+        assertThat(destinationArray).containsExactly(sourceArray);
+
     }
 
     @Test

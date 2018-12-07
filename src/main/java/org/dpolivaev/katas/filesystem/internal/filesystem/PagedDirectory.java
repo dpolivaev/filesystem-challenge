@@ -31,7 +31,7 @@ class PagedDirectory implements Directory {
         this.pagePool = pagePool;
         this.directoryData = new PagedFile(new FilePage(pagePool, directoryData), this);
         this.parentDirectory = parentDirectory != null ? parentDirectory : this;
-        editor = new PageEditor();
+        editor = new PageEditor(null);
     }
 
     @Override
@@ -100,53 +100,56 @@ class PagedDirectory implements Directory {
         if (matchesAnyElement(name))
             throw new IllegalArgumentException("Name " + ANY + " is reserved");
         if (elementNames(elementType).contains(name))
-            throw new IllegalArgumentException("File already exists");
+            throw new IllegalArgumentException("File '" + name + "' already exists");
     }
 
     private List<Page> descriptors(final DirectoryElements elementType) {
         final List<Page> pages = new ArrayList<>();
-        directoryData.setPosition(0);
-        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
-            final byte element = directoryData.readByte();
-            final long pageNumber = directoryData.readLong();
-            if (element == elementType.ordinal()) {
-                pages.add(pagePool.pageAt(pageNumber));
+        directoryData.on(0, () -> {
+            for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
+                final byte element = directoryData.readByte();
+                final long pageNumber = directoryData.readLong();
+                if (element == elementType.ordinal()) {
+                    pages.add(pagePool.pageAt(pageNumber));
+                }
             }
-        }
+        });
         return pages;
     }
 
     private void register(final DirectoryElements elementType, final long pageNumber) {
-        directoryData.setPosition(0);
-        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
-            final byte element = directoryData.readByte();
-            if (element == DirectoryElements.FREE_SPACE.ordinal()) {
-                directoryData.setPosition(directoryData.getPosition() - Byte.BYTES);
-                directoryData.write((byte) elementType.ordinal());
-                directoryData.write(pageNumber);
-                return;
+        directoryData.on(0, () -> {
+            for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
+                final byte element = directoryData.readByte();
+                if (element == DirectoryElements.FREE_SPACE.ordinal()) {
+                    directoryData.setPosition(directoryData.getPosition() - Byte.BYTES);
+                    directoryData.write((byte) elementType.ordinal());
+                    directoryData.write(pageNumber);
+                    return;
+                }
+                directoryData.setPosition(directoryData.getPosition() + Long.BYTES);
             }
-            directoryData.setPosition(directoryData.getPosition() + Long.BYTES);
-        }
-        directoryData.write((byte) elementType.ordinal());
-        directoryData.write(pageNumber);
+            directoryData.write((byte) elementType.ordinal());
+            directoryData.write(pageNumber);
+        });
     }
 
     private void deleteElement(final String name, final DirectoryElements elementType, final File directoryData) {
-        directoryData.setPosition(0);
-        for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
-            final byte element = directoryData.readByte();
-            if (elementType == DirectoryElements.ANY && element != 0 || element == elementType.ordinal()) {
-                final long pageNumber = directoryData.readLong();
-                final Page page = pagePool.pageAt(pageNumber);
-                if (matchesAnyElement(name) || name.equals(toName(page))) {
-                    destroyElement(DirectoryElements.values()[element], pageNumber, page);
-                    if (!matchesAnyElement(name))
-                        return;
-                }
-            } else
-                directoryData.setPosition(directoryData.getPosition() + Long.BYTES);
-        }
+        directoryData.on(0, () -> {
+            for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
+                final byte element = directoryData.readByte();
+                if (elementType == DirectoryElements.ANY && element != 0 || element == elementType.ordinal()) {
+                    final long pageNumber = directoryData.readLong();
+                    final Page page = pagePool.pageAt(pageNumber);
+                    if (matchesAnyElement(name) || name.equals(toName(page))) {
+                        destroyElement(DirectoryElements.values()[element], pageNumber, page);
+                        if (!matchesAnyElement(name))
+                            return;
+                    }
+                } else
+                    directoryData.setPosition(directoryData.getPosition() + Long.BYTES);
+            }
+        });
     }
 
     private boolean matchesAnyElement(final String name) {
@@ -170,9 +173,8 @@ class PagedDirectory implements Directory {
 
     private void destroyAllChildren(final Page page) {
         final FilePage filePage = new FilePage(pagePool, page);
-        final File data = toFile((Page) filePage);
+        final File data = toFile(filePage);
         deleteElement(ANY, DirectoryElements.ANY, data);
-
     }
 
     @Override
@@ -216,5 +218,11 @@ class PagedDirectory implements Directory {
     @Override
     public void deleteDirectory(final String name) {
         deleteElement(name, DirectoryElements.DIRECTORY, directoryData);
+    }
+
+    @Override
+    public String toString() {
+        return "PagedDirectory{" +
+                directoryData.toString() + '(' + directories().size() + ", " + files().size() + ')' + '}';
     }
 }

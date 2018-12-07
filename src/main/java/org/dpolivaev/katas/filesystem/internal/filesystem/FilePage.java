@@ -21,11 +21,10 @@ class FilePage implements Page {
         this.startPage = startPage;
         final Pair<Page, Page> pagePair = startPage.split(DATA_POSITION);
         this.dataDescriptor = pagePair.first;
-        this.editor = new PageEditor();
+        this.editor = new PageEditor(dataDescriptor);
         UUID uuid = readUUID();
         if (uuid.getMostSignificantBits() == 0 && uuid.getLeastSignificantBits() == 0) {
             uuid = UUID.randomUUID();
-            editor.setPage(dataDescriptor);
             editor.setPosition(UUID_POSITION);
             editor.write(uuid);
         }
@@ -34,7 +33,7 @@ class FilePage implements Page {
     }
 
     private UUID readUUID() {
-        return editor.on(dataDescriptor, UUID_POSITION, editor::readUUID);
+        return editor.on(UUID_POSITION, editor::readUUID);
     }
 
     void validateUuid() {
@@ -61,27 +60,20 @@ class FilePage implements Page {
         return data.size();
     }
 
-
-    private PageEditor descriptor(final int position) {
-        editor.setPage(dataDescriptor);
-        editor.setPosition(position);
-        return editor;
-    }
-
     public long fileSize() {
-        return descriptor(SIZE_POSITION).readLong();
+        return editor.on(SIZE_POSITION, editor::readLong);
     }
 
     private void setFileSize(final long size) {
-        descriptor(SIZE_POSITION).write(size);
+        editor.on(SIZE_POSITION, () -> editor.write(size));
     }
 
     String name() {
-        return descriptor(NAME_POSITION).readString();
+        return editor.on(NAME_POSITION, editor::readString);
     }
 
     void setName(final String name) {
-        descriptor(NAME_POSITION).write(name);
+        editor.on(NAME_POSITION, () -> editor.write(name));
     }
 
     @Override
@@ -113,7 +105,7 @@ class FilePage implements Page {
 
     @Override
     public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
-        if (offset > size() + length) {
+        if (offset + length > size()) {
             throw new EndOfFileException();
         }
         data.read(offset, length, destination, destinationOffset);
@@ -126,5 +118,12 @@ class FilePage implements Page {
 
     public UUID uuid() {
         return uuid;
+    }
+
+
+    @Override
+    public String toString() {
+        final String name = name();
+        return "FilePage{" + (name.isEmpty() ? "<empty name>" : name) + '(' + fileSize() + '/' + size() + ')' + '}';
     }
 }

@@ -5,6 +5,8 @@ import org.dpolivaev.katas.filesystem.File;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 
 import java.util.UUID;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 class PagedFile implements File {
     private final FilePage filePage;
@@ -15,8 +17,7 @@ class PagedFile implements File {
     PagedFile(final FilePage filePage, final Directory parentDirectory) {
         this.filePage = filePage;
         this.parentDirectory = parentDirectory;
-        this.editor = new PageEditor();
-        editor.setPage(filePage);
+        this.editor = new PageEditor(filePage);
     }
 
     @Override
@@ -58,6 +59,21 @@ class PagedFile implements File {
     public void setPosition(final long position) {
         filePage.validateUuid();
         editor.setPosition(position);
+    }
+
+    @Override
+    public void on(final long position, final Runnable runnable) {
+        editor.on(position, runnable);
+    }
+
+    @Override
+    public long on(final long position, final LongSupplier supplier) {
+        return editor.on(position, supplier);
+    }
+
+    @Override
+    public <T> T on(final long position, final Supplier<T> supplier) {
+        return editor.on(position, supplier);
     }
 
     @Override
@@ -137,4 +153,12 @@ class PagedFile implements File {
         filePage.validateUuid();
         editor.read(destination);
     }
+
+
+    @Override
+    public String toString() {
+        final String name = name();
+        return "PagedFile{" + (name.isEmpty() ? "<empty name>" : name) + '(' + getPosition() + '/' + size() + ')' + '}';
+    }
+
 }

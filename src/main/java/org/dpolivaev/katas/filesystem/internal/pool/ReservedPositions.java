@@ -22,7 +22,7 @@ class ReservedPositions {
         this.pages = pages;
         this.availablePositions = availablePositions;
         this.randomBitOffsets = random.longs(0, availablePositions).iterator();
-        editor = new PageEditor();
+        editor = new PageEditor(null);
     }
 
     long reservePosition() {

@@ -97,8 +97,7 @@ public class FileSystemFactory {
     }
 
     private PageEditor uuidEditor(final Page rootDescriptor) {
-        final PageEditor editor = new PageEditor();
-        editor.setPage(rootDescriptor);
+        final PageEditor editor = new PageEditor(rootDescriptor);
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         return editor;
     }

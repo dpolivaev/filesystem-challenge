@@ -6,6 +6,7 @@ import org.dpolivaev.katas.filesystem.File;
 import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class PagedDirectoryTest {
     private final TestFileSystem fileSystem = TestFileSystem.create(1024, 1024);
@@ -22,18 +23,44 @@ public class PagedDirectoryTest {
     }
 
     @Test
-    public void createsFile() {
+    public void createsFiles() {
         final File file = uut.createFile("someTestFile");
+
         assertThat(file.exists()).isTrue();
+        assertThat(another.file("someTestFile").get().uuid()).isEqualTo(file.uuid());
         assertThat(another.file("someTestFile")).isNotEmpty();
     }
 
     @Test
+    public void createsMultipleFiles() {
+        uut.createFile("file1");
+        final File file2 = uut.createFile("file2");
+
+        assertThat(file2.exists()).isTrue();
+        assertThat(another.file("file2").get().uuid()).isEqualTo(file2.uuid());
+    }
+
+
+    @Test
+    public void createFile_throwsException_ifFileAlreadyExists() {
+        final File file1 = uut.createFile("file1");
+        assertThatThrownBy(() -> uut.createFile("file1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("File 'file1' already exists");
+
+        assertThat(file1.exists()).isTrue();
+    }
+
+    @Test
     public void deletesFile() {
-        final File file = uut.createFile("someTestFile");
-        another.deleteFile("someTestFile");
-        assertThat(file.exists()).isFalse();
-        assertThat(uut.file("someTestFile")).isEmpty();
+        final File file1 = uut.createFile("file1");
+        final File file2 = uut.createFile("file2");
+
+        uut.deleteFile("file1");
+
+        assertThat(file1.exists()).isFalse();
+        assertThat(uut.file("file1")).isEmpty();
+        assertThat(file2.exists()).isTrue();
+        assertThat(uut.file("file2").get().uuid()).isEqualTo(file2.uuid());
     }
 
     @Test

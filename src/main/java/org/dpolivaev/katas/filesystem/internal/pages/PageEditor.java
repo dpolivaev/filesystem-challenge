@@ -6,8 +6,12 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 public class PageEditor {
-    private Page page = null;
+    private Page page;
     private long position = 0;
+
+    public PageEditor(final Page page) {
+        this.page = page;
+    }
 
     public void setPage(final Page page) {
         this.page = page;
@@ -21,45 +25,65 @@ public class PageEditor {
         this.position = position;
     }
 
-    public void on(final Page page, final long position, final Runnable runnable) {
-        final Page oldPage = this.page;
+    public void on(final long position, final Runnable runnable) {
         final long oldPosition = this.position;
-        this.page = page;
         this.position = position;
         try {
             runnable.run();
         } finally {
-            this.page = oldPage;
             this.position = oldPosition;
+        }
+    }
+
+    public long on(final long position, final LongSupplier supplier) {
+        final long oldPosition = this.position;
+        this.position = position;
+        try {
+            return supplier.getAsLong();
+        } finally {
+            this.position = oldPosition;
+        }
+    }
+
+    public <T> T on(final long position, final Supplier<T> supplier) {
+        final long oldPosition = this.position;
+        this.position = position;
+        try {
+            return supplier.get();
+        } finally {
+            this.position = oldPosition;
+        }
+    }
+
+    public void on(final Page page, final long position, final Runnable runnable) {
+        final Page oldPage = this.page;
+        this.page = page;
+        try {
+            on(position, runnable);
+        } finally {
+            this.page = oldPage;
         }
     }
 
     public long on(final Page page, final long position, final LongSupplier supplier) {
         final Page oldPage = this.page;
-        final long oldPosition = this.position;
         this.page = page;
-        this.position = position;
         try {
-            return supplier.getAsLong();
+            return on(position, supplier);
         } finally {
             this.page = oldPage;
-            this.position = oldPosition;
         }
     }
 
     public <T> T on(final Page page, final long position, final Supplier<T> supplier) {
         final Page oldPage = this.page;
-        final long oldPosition = this.position;
         this.page = page;
-        this.position = position;
         try {
-            return supplier.get();
+            return on(position, supplier);
         } finally {
             this.page = oldPage;
-            this.position = oldPosition;
         }
     }
-
     public long getPosition() {
         return position;
     }

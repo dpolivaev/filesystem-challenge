@@ -7,7 +7,6 @@ import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.dpolivaev.katas.filesystem.internal.persistence.FileSystemFactory;
 import org.dpolivaev.katas.filesystem.internal.pool.ConcurrentPagePool;
-import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,13 +52,12 @@ public class IntegrationTest {
 
     private FileSystem createConcurrentFilesystemInMemory() {
         final TestPages pages = new TestPages(FILE_SYSTEM_SIZE / 1024, FILE_SYSTEM_SIZE);
-        final PagePool pagePool = new ConcurrentPagePool(pages, new Random(0));
+        final ConcurrentPagePool pagePool = new ConcurrentPagePool(pages, new Random(0));
         final Page rootDescriptor = pagePool.allocate(ROOT_PAGE_NUMBER);
-        final PageEditor editor = new PageEditor();
-        editor.setPage(rootDescriptor);
+        final PageEditor editor = new PageEditor(rootDescriptor);
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         editor.write(FileSystemFactory.ROOT_UUID);
-        return new PagedFileSystem((ConcurrentPagePool) pagePool);
+        return new PagedFileSystem(pagePool);
     }
 
     private FileSystem openConcurrentFilesystem() {
@@ -109,7 +107,7 @@ public class IntegrationTest {
     }
 
     @Test
-    public void writesAndReadsNumbers() throws IOException {
+    public void writesAndReadsNumbers() {
         try (final FileSystem fileSystem = createFilesystem()) {
             for (int i = 0; i < 100; i++) {
                 checkWritingAndReadingNumbers(fileSystem, "file");
@@ -117,7 +115,6 @@ public class IntegrationTest {
             }
         }
     }
-
 
     @Test
     public void writesAndReadsNumbersConcurrentlyInMemory() throws Throwable {
