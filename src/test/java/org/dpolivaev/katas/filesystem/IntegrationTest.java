@@ -121,6 +121,7 @@ public class IntegrationTest {
                     final String fileName = "file" + testThreadCounter;
                     checkWritingAndReadingNumbers(fileSystem, fileName);
                     fileSystem.root().deleteFile(fileName);
+                    testResults.put(Optional.empty());
                     System.out.println(Thread.currentThread().getName() + ": done");
                 } catch (final Throwable e) {
                     System.out.println(Thread.currentThread().getName() + ": mismatch" + ":" + e
