@@ -19,7 +19,7 @@ public class TestApp {
     }
 
     private static void useFileSystem(final String path) {
-        try (final FileSystem fileSystem = FileSystem.open(path, 3072)) {
+        try (final FileSystem fileSystem = FileSystem.open(path)) {
             System.out.println(fileSystem.root().file("hello").get().readString());
         }
     }

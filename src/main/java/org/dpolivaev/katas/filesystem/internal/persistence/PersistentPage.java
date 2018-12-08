@@ -10,11 +10,9 @@ class PersistentPage implements Page {
     static final int PAGE_SIZE = 1024;
     private static final byte[] ZEROS = new byte[PAGE_SIZE];
     private final MappedByteBuffer byteBuffer;
-    private final long page;
 
     public PersistentPage(final FileChannel fileChannel, final long position) throws IOException {
-        page = position;
-        byteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, position * PAGE_SIZE, PAGE_SIZE);
+        byteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, position, PAGE_SIZE);
     }
 
     @Override
@@ -36,8 +34,7 @@ class PersistentPage implements Page {
 
     @Override
     public byte readByte(final long offset) {
-        final byte b = byteBuffer.get((int) offset);
-        return b;
+        return byteBuffer.get((int) offset);
     }
 
     @Override

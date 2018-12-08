@@ -12,21 +12,27 @@ import java.nio.file.OpenOption;
 class PersistentPages implements Pages {
 
     private final FileChannel fileChannel;
-    private final long size;
+    private long pageCount;
+    private final Page descriptorPage;
 
     PersistentPages(final File file, final long maximalFileSize, final OpenOption... options) {
         try {
             this.fileChannel = FileChannel.open(file.toPath(), options);
             fileChannel.tryLock();
-            this.size = maximalFileSize / pageSize();
+            descriptorPage = new PersistentPage(fileChannel, 0).subpage(0, FileSystemFactory.DESCRIPTOR_SIZE);
+            this.pageCount = maximalFileSize / pageSize();
         } catch (final IOException e) {
             throw new IORuntimeException(e);
         }
     }
 
+    void setMaximalFileSize(final long maximalFileSize) {
+        this.pageCount = maximalFileSize / pageSize();
+    }
+
     @Override
-    public long size() {
-        return size;
+    public long pageCount() {
+        return pageCount;
     }
 
     @Override
@@ -35,9 +41,14 @@ class PersistentPages implements Pages {
     }
 
     @Override
+    public Page descriptorPage() {
+        return descriptorPage;
+    }
+
+    @Override
     public Page at(final long position) {
         try {
-            return new PersistentPage(fileChannel, position);
+            return new PersistentPage(fileChannel, FileSystemFactory.DESCRIPTOR_SIZE + PersistentPage.PAGE_SIZE * position);
         } catch (final IOException e) {
             throw new IORuntimeException(e);
         }

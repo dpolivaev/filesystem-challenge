@@ -15,12 +15,12 @@ public interface FileSystem extends Closeable {
         return FileSystemFactory.INSTANCE.create(fileName, size);
     }
 
-    static FileSystem open(final File file, final long size) {
-        return FileSystemFactory.INSTANCE.open(file, size);
+    static FileSystem open(final File file) {
+        return FileSystemFactory.INSTANCE.open(file);
     }
 
-    static FileSystem open(final String fileName, final long size) {
-        return FileSystemFactory.INSTANCE.open(fileName, size);
+    static FileSystem open(final String fileName) {
+        return FileSystemFactory.INSTANCE.open(fileName);
     }
 
     static FileSystem createConcurrent(final File file, final long size) {
@@ -31,12 +31,12 @@ public interface FileSystem extends Closeable {
         return FileSystemFactory.INSTANCE.createConcurrent(fileName, size);
     }
 
-    static FileSystem openConcurrent(final File file, final long size) {
-        return FileSystemFactory.INSTANCE.openConcurrent(file, size);
+    static FileSystem openConcurrent(final File file) {
+        return FileSystemFactory.INSTANCE.openConcurrent(file);
     }
 
-    static FileSystem openConcurrent(final String fileName, final long size) {
-        return FileSystemFactory.INSTANCE.openConcurrent(fileName, size);
+    static FileSystem openConcurrent(final String fileName) {
+        return FileSystemFactory.INSTANCE.openConcurrent(fileName);
     }
 
     Directory root();

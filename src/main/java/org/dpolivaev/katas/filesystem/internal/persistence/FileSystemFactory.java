@@ -3,7 +3,6 @@ package org.dpolivaev.katas.filesystem.internal.persistence;
 import org.dpolivaev.katas.filesystem.FileSystem;
 import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure;
 import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
@@ -14,7 +13,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import static java.nio.file.StandardOpenOption.*;
-import static org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem.ROOT_PAGE_NUMBER;
 
 public class FileSystemFactory {
     public static final String VERSION = "1.0";
@@ -27,6 +25,8 @@ public class FileSystemFactory {
     public static final FileSystemFactory INSTANCE = new FileSystemFactory();
 
     public static final long PAGE_SIZE = PersistentPage.PAGE_SIZE;
+
+    static final int DESCRIPTOR_SIZE = FileDescriptorStructure.DATA_POSITION;
 
     private FileSystemFactory() {
     }
@@ -45,29 +45,30 @@ public class FileSystemFactory {
         return create(file, size, true);
     }
 
-    public FileSystem open(final File file, final long size) {
-        return open(file, size, false);
+    public FileSystem open(final File file) {
+        return open(file, false);
     }
 
-    public FileSystem open(final String fileName, final long size) {
-        return open(new File(fileName), size);
+    public FileSystem open(final String fileName) {
+        return open(new File(fileName));
     }
 
-    public FileSystem openConcurrent(final File file, final long size) {
-        return open(file, size, true);
+    public FileSystem openConcurrent(final File file) {
+        return open(file, true);
     }
 
-    public FileSystem openConcurrent(final String fileName, final long size) {
-        return openConcurrent(new File(fileName), size);
+    public FileSystem openConcurrent(final String fileName) {
+        return openConcurrent(new File(fileName));
     }
 
     private FileSystem create(final File file, final long size, final boolean threadSafe) {
         final PersistentPages pages = new PersistentPages(file, size, READ, WRITE, SPARSE, CREATE_NEW);
-        final PagePool pagePool = createPagePool(pages);
-        final Page rootDescriptor = pagePool.allocate(ROOT_PAGE_NUMBER);
-        final PageEditor editor = new PageEditor(rootDescriptor);
+        final PageEditor editor = new PageEditor(pages.descriptorPage());
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         editor.write(ROOT_UUID);
+        editor.setPosition(FileDescriptorStructure.SIZE_POSITION);
+        editor.write(size);
+        final PagePool pagePool = createPagePool(pages);
         return threadSafe ? PagedFileSystem.threadSafe(pagePool) : PagedFileSystem.singleThreaded(pagePool);
     }
 
@@ -76,24 +77,22 @@ public class FileSystemFactory {
         return new PagePool(pages, random);
     }
 
-    private FileSystem open(final File file, final long size, final boolean threadSafe) {
+    private FileSystem open(final File file, final boolean threadSafe) {
         if (!file.exists())
             throw new IllegalArgumentException("File not found");
         if (file.length() < 2 * PersistentPage.PAGE_SIZE)
             throw new IllegalArgumentException("File is too short");
-        final PersistentPages pages = new PersistentPages(file, size, READ, StandardOpenOption.WRITE);
-        final PagePool pagePool = createPagePool(pages);
-        validateFileContent(pagePool);
-        return threadSafe ? PagedFileSystem.threadSafe(pagePool) : PagedFileSystem.singleThreaded(pagePool);
-    }
-
-    private void validateFileContent(final PagePool pagePool) {
-        final Page rootDescriptor = pagePool.pageAt(ROOT_PAGE_NUMBER);
-        final PageEditor editor = new PageEditor(rootDescriptor);
+        final PersistentPages pages = new PersistentPages(file, 0, READ, StandardOpenOption.WRITE);
+        final PageEditor editor = new PageEditor(pages.descriptorPage());
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         final UUID existingUuid = editor.readUUID();
         if (!existingUuid.equals(ROOT_UUID))
             throw new IllegalArgumentException("Unexpected file system version " + existingUuid);
+        editor.setPosition(FileDescriptorStructure.SIZE_POSITION);
+        final long maximalFileSize = editor.readLong();
+        pages.setMaximalFileSize(maximalFileSize);
+        final PagePool pagePool = createPagePool(pages);
+        return threadSafe ? PagedFileSystem.threadSafe(pagePool) : PagedFileSystem.singleThreaded(pagePool);
     }
 
 }

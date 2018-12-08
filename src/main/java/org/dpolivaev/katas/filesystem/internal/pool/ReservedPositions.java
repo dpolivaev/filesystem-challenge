@@ -19,7 +19,7 @@ class ReservedPositions {
     private long bits;
 
     ReservedPositions(final Pages pages, final long availablePositions, final Random random) {
-        assert availablePositions >= 0 && availablePositions <= pages.size() * pages.pageSize() * Byte.SIZE;
+        assert availablePositions >= 0 && availablePositions <= pages.pageCount() * pages.pageSize() * Byte.SIZE;
         this.pages = pages;
         this.availablePositions = availablePositions;
         this.randomBitOffsets = random.longs(0, availablePositions).iterator();

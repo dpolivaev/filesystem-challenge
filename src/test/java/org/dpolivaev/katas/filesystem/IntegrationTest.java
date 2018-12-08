@@ -54,7 +54,7 @@ public class IntegrationTest {
     }
 
     private FileSystem openFilesystem() {
-        return FileSystem.open(fsFile.getPath(), FILE_SYSTEM_SIZE);
+        return FileSystem.open(fsFile.getPath());
     }
 
     private FileSystem createConcurrentFilesystem() {
@@ -66,7 +66,7 @@ public class IntegrationTest {
     }
 
     private FileSystem openConcurrentFilesystem() {
-        return FileSystem.openConcurrent(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
+        return FileSystem.openConcurrent(fsFile.getPath());
     }
 
     @Before
@@ -241,7 +241,7 @@ public class IntegrationTest {
         }
 
         try (final FileChannel channel = FileChannel.open(fsFile.toPath(), StandardOpenOption.WRITE)) {
-            channel.position(FileSystemFactory.PAGE_SIZE);
+            channel.position(0);
             channel.write(ByteBuffer.allocate(8));
         }
 

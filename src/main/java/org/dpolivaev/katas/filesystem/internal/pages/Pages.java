@@ -1,9 +1,11 @@
 package org.dpolivaev.katas.filesystem.internal.pages;
 
 public interface Pages {
-    long size();
+    long pageCount();
 
     int pageSize();
+
+    Page descriptorPage();
 
     Page at(long position);
 

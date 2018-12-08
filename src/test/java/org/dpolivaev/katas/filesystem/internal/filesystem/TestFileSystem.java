@@ -1,6 +1,5 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
-import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.TestPages;
 import org.dpolivaev.katas.filesystem.internal.persistence.FileSystemFactory;
@@ -32,8 +31,7 @@ public class TestFileSystem {
     private TestFileSystem(final int pagesInPool, final int poolPageSize, final boolean threadSafe, final Random random) {
         this.testPages = new TestPages(pagesInPool, poolPageSize);
         this.pagePool = new PagePool(testPages, random);
-        final Page rootDescriptor = pagePool.allocate(1);
-        final PageEditor editor = new PageEditor(rootDescriptor);
+        final PageEditor editor = new PageEditor(testPages.descriptorPage());
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         editor.write(FileSystemFactory.ROOT_UUID);
         final PagedFileSystem alternativeFileSystem;

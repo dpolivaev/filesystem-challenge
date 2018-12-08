@@ -16,5 +16,4 @@ public interface FileDescriptorStructure {
     int PAGE_LEVEL_COUNT = 5;
 
     int DATA_POSITION = PAGE_REFERENCE_POSITION + PAGE_LEVEL_COUNT * Long.BYTES;
-
 }
