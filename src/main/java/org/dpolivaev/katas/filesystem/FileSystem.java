@@ -23,20 +23,20 @@ public interface FileSystem extends Closeable {
         return FileSystemFactory.INSTANCE.open(fileName);
     }
 
-    static FileSystem createConcurrent(final File file, final long size) {
-        return FileSystemFactory.INSTANCE.createConcurrent(file, size);
+    static FileSystem createThreadSafe(final File file, final long size) {
+        return FileSystemFactory.INSTANCE.createThreadSafe(file, size);
     }
 
-    static FileSystem createConcurrent(final String fileName, final long size) {
-        return FileSystemFactory.INSTANCE.createConcurrent(fileName, size);
+    static FileSystem createThreadSafe(final String fileName, final long size) {
+        return FileSystemFactory.INSTANCE.createThreadSafe(fileName, size);
     }
 
-    static FileSystem openConcurrent(final File file) {
-        return FileSystemFactory.INSTANCE.openConcurrent(file);
+    static FileSystem openThreadSafe(final File file) {
+        return FileSystemFactory.INSTANCE.openThreadSafe(file);
     }
 
-    static FileSystem openConcurrent(final String fileName) {
-        return FileSystemFactory.INSTANCE.openConcurrent(fileName);
+    static FileSystem openThreadSafe(final String fileName) {
+        return FileSystemFactory.INSTANCE.openThreadSafe(fileName);
     }
 
     Directory root();

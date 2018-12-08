@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
-public class ConcurrentPagedDirectory extends PagedDirectory {
+public class ThreadSafePagedDirectory extends PagedDirectory {
     private final PagePool pagePool;
     private final Lock lock;
 
-    ConcurrentPagedDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory, final Lock lock) {
+    ThreadSafePagedDirectory(final PagePool pagePool, final Page directoryData, final Directory parentDirectory, final Lock lock) {
         super(pagePool, directoryData, parentDirectory);
         this.pagePool = pagePool;
         this.lock = lock;
@@ -51,12 +51,12 @@ public class ConcurrentPagedDirectory extends PagedDirectory {
 
     @Override
     protected File toFile(final FilePage page) {
-        return new ConcurrentPagedFile(page, this, lock);
+        return new ThreadSafePagedFile(page, this, lock);
     }
 
     @Override
     protected Directory toDirectory(final Page page) {
-        return new ConcurrentPagedDirectory(pagePool, page, this, lock);
+        return new ThreadSafePagedDirectory(pagePool, page, this, lock);
     }
 
     @Override

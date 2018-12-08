@@ -2,10 +2,10 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 
 import java.util.concurrent.locks.Lock;
 
-public class ConcurrentPagedFile extends PagedFile {
+public class ThreadSafePagedFile extends PagedFile {
     private final Lock lock;
 
-    ConcurrentPagedFile(final FilePage filePage, final ConcurrentPagedDirectory parentDirectory, final Lock lock) {
+    ThreadSafePagedFile(final FilePage filePage, final ThreadSafePagedDirectory parentDirectory, final Lock lock) {
         super(filePage, parentDirectory);
         this.lock = lock;
     }

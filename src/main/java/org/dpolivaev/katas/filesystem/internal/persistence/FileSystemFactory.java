@@ -38,10 +38,11 @@ public class FileSystemFactory {
         return create(file, size, false);
     }
 
-    public FileSystem createConcurrent(final String fileName, final long size) {
-        return createConcurrent(new File(fileName), size);
+    public FileSystem createThreadSafe(final String fileName, final long size) {
+        return createThreadSafe(new File(fileName), size);
     }
-    public FileSystem createConcurrent(final File file, final long size) {
+
+    public FileSystem createThreadSafe(final File file, final long size) {
         return create(file, size, true);
     }
 
@@ -53,12 +54,12 @@ public class FileSystemFactory {
         return open(new File(fileName));
     }
 
-    public FileSystem openConcurrent(final File file) {
+    public FileSystem openThreadSafe(final File file) {
         return open(file, true);
     }
 
-    public FileSystem openConcurrent(final String fileName) {
-        return openConcurrent(new File(fileName));
+    public FileSystem openThreadSafe(final String fileName) {
+        return openThreadSafe(new File(fileName));
     }
 
     private FileSystem create(final File file, final long size, final boolean threadSafe) {

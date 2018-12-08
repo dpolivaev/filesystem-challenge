@@ -24,7 +24,7 @@ public class TestFileSystem {
         return new TestFileSystem(pagesInPool, poolPageSize, false, mockRandomWithSequenceTo(pagesInPool * 98 / 100));
     }
 
-    public static TestFileSystem createConcurrent(final int pagesInPool, final int poolPageSize) {
+    public static TestFileSystem createThreadSafe(final int pagesInPool, final int poolPageSize) {
         return new TestFileSystem(pagesInPool, poolPageSize, true, new Random());
     }
 

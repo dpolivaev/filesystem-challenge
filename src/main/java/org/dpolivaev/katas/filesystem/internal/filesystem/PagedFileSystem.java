@@ -25,7 +25,7 @@ public class PagedFileSystem implements FileSystem {
         this.pagePool = pagePool;
         final Page rootDescriptor = pagePool.isAllocated((long) ROOT_PAGE_NUMBER) ? pagePool.pageAt(1) : pagePool.allocate(1);
         if (threadSafe)
-            rootDirectory = new ConcurrentPagedDirectory(pagePool, rootDescriptor, null, new ReentrantLock());
+            rootDirectory = new ThreadSafePagedDirectory(pagePool, rootDescriptor, null, new ReentrantLock());
         else
             rootDirectory = new PagedDirectory(pagePool, rootDescriptor, null);
         maximumSupportedFileSize = new FilePage(pagePool, rootDescriptor).size();

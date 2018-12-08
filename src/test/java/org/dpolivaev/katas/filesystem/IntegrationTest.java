@@ -57,16 +57,16 @@ public class IntegrationTest {
         return FileSystem.open(fsFile.getPath());
     }
 
-    private FileSystem createConcurrentFilesystem() {
-        return FileSystem.createConcurrent(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
+    private FileSystem createThreadSafeFilesystem() {
+        return FileSystem.createThreadSafe(fsFile.getPath(), (long) FILE_SYSTEM_SIZE);
     }
 
-    private FileSystem createConcurrentFilesystemInMemory() {
-        return TestFileSystem.createConcurrent(FILE_SYSTEM_SIZE / 1024, 1024).fileSystem;
+    private FileSystem createThreadSafeFilesystemInMemory() {
+        return TestFileSystem.createThreadSafe(FILE_SYSTEM_SIZE / 1024, 1024).fileSystem;
     }
 
-    private FileSystem openConcurrentFilesystem() {
-        return FileSystem.openConcurrent(fsFile.getPath());
+    private FileSystem openThreadSafeFilesystem() {
+        return FileSystem.openThreadSafe(fsFile.getPath());
     }
 
     @Before
@@ -122,11 +122,11 @@ public class IntegrationTest {
     }
 
     @Test
-    public void writesAndReadsNumbersConcurrentlyInMemory() throws Throwable {
+    public void writesAndReadsNumbersThreadSafelyInMemory() throws Throwable {
         final Semaphore availableThreads = new Semaphore(10, true);
         final LinkedBlockingQueue<Optional<Throwable>> testResults = new LinkedBlockingQueue<>();
         final int testThreadCounter = 200;
-        try (final FileSystem fileSystem = createConcurrentFilesystemInMemory()) {
+        try (final FileSystem fileSystem = createThreadSafeFilesystemInMemory()) {
             for (int i = 0; i < testThreadCounter; i++) {
                 checkWritingAndReadingNumbersAsync(fileSystem, i, availableThreads, testResults);
             }
@@ -135,11 +135,11 @@ public class IntegrationTest {
     }
 
     @Test
-    public void writesAndReadsNumbersConcurrently() throws Throwable {
+    public void writesAndReadsNumbersThreadSafely() throws Throwable {
         final Semaphore availableThreads = new Semaphore(10, true);
         final LinkedBlockingQueue<Optional<Throwable>> testResults = new LinkedBlockingQueue<>();
         final int testThreadCounter = 200;
-        try (final FileSystem fileSystem = createConcurrentFilesystem()) {
+        try (final FileSystem fileSystem = createThreadSafeFilesystem()) {
             for (int i = 0; i < testThreadCounter; i++) {
                 checkWritingAndReadingNumbersAsync(fileSystem, i, availableThreads, testResults);
             }
