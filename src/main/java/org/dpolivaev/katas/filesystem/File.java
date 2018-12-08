@@ -43,6 +43,7 @@ public interface File extends Element {
      * Restores the previous cursor position afterwards.
      *
      * @param position the new position
+     * @param runnable the executed runnable
      * @throws IllegalArgumentIOException if position is negative.
      */
     void at(long position, Runnable runnable) throws IllegalArgumentIOException;
@@ -52,7 +53,8 @@ public interface File extends Element {
      * <p>
      * Restores the original cursor position afterwards.
      *
-     * @param position the new position
+     * @param position the new position.
+     * @param supplier the executed supplier.
      * @return supplier provided value.
      * @throws IllegalArgumentIOException if position is negative.
      */
@@ -64,7 +66,8 @@ public interface File extends Element {
      * Restores the original cursor position afterwards.
      *
      * @param position the new position
-     * @return supplier provided value.
+     * @param supplier the executed supplier
+     * @return supplier provided value
      * @throws IllegalArgumentIOException if position is negative.
      */
     <T> T at(long position, Supplier<T> supplier) throws IllegalArgumentIOException;
@@ -76,6 +79,8 @@ public interface File extends Element {
 
     /**
      * Writes one byte at current position and moves the cursor forward.
+     *
+     * @param value the written value
      */
     void write(byte value);
 
