@@ -39,7 +39,7 @@ class ReservedPositions {
     }
 
     private void updateReservedBitMap(final long newBits) {
-        editor.on(page, longIndex, () -> editor.write(newBits));
+        editor.at(page, longIndex, () -> editor.write(newBits));
     }
 
     void reservePosition(final long position) {
@@ -68,7 +68,7 @@ class ReservedPositions {
     }
 
     private long readReservedBits() {
-        return editor.on(page, longIndex, editor::readLong);
+        return editor.at(page, longIndex, editor::readLong);
     }
 
     private int pageSize() {

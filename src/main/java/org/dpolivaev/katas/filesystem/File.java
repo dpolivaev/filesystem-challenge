@@ -10,11 +10,11 @@ public interface File extends Element {
 
     File setPosition(long position);
 
-    void on(long position, Runnable runnable);
+    void at(long position, Runnable runnable);
 
-    long on(long position, LongSupplier supplier);
+    long at(long position, LongSupplier supplier);
 
-    <T> T on(long position, Supplier<T> supplier);
+    <T> T at(long position, Supplier<T> supplier);
 
     long getPosition();
 

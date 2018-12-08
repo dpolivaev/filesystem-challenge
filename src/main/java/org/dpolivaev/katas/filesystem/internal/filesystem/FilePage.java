@@ -33,7 +33,7 @@ class FilePage implements Page {
     }
 
     private UUID readUUID() {
-        return editor.on(UUID_POSITION, editor::readUUID);
+        return editor.at(UUID_POSITION, editor::readUUID);
     }
 
     void validateUuid() {
@@ -61,19 +61,19 @@ class FilePage implements Page {
     }
 
     public long fileSize() {
-        return editor.on(SIZE_POSITION, editor::readLong);
+        return editor.at(SIZE_POSITION, editor::readLong);
     }
 
     private void setFileSize(final long size) {
-        editor.on(SIZE_POSITION, () -> editor.write(size));
+        editor.at(SIZE_POSITION, () -> editor.write(size));
     }
 
     String name() {
-        return editor.on(NAME_POSITION, editor::readString);
+        return editor.at(NAME_POSITION, editor::readString);
     }
 
     void setName(final String name) {
-        editor.on(NAME_POSITION, () -> editor.write(name));
+        editor.at(NAME_POSITION, () -> editor.write(name));
     }
 
     @Override

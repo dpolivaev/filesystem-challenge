@@ -108,7 +108,7 @@ class PagedDirectory implements Directory {
 
     private List<Page> descriptors(final DirectoryElements elementType) {
         final List<Page> pages = new ArrayList<>();
-        directoryData.on(0, () -> {
+        directoryData.at(0, () -> {
             for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
                 final byte element = directoryData.readByte();
                 final long pageNumber = directoryData.readLong();
@@ -121,7 +121,7 @@ class PagedDirectory implements Directory {
     }
 
     private void register(final DirectoryElements elementType, final long pageNumber) {
-        directoryData.on(0, () -> {
+        directoryData.at(0, () -> {
             for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
                 final byte element = directoryData.readByte();
                 if (element == DirectoryElements.FREE_SPACE.ordinal()) {
@@ -138,7 +138,7 @@ class PagedDirectory implements Directory {
     }
 
     private void deleteElement(final String name, final DirectoryElements elementType, final File directoryData) {
-        directoryData.on(0, () -> {
+        directoryData.at(0, () -> {
             for (long readDataCounter = 0; readDataCounter < directoryData.size(); readDataCounter = directoryData.getPosition()) {
                 final byte element = directoryData.readByte();
                 if (elementType == DirectoryElements.ANY && element != 0 || element == elementType.ordinal()) {
@@ -196,11 +196,11 @@ class PagedDirectory implements Directory {
     }
 
     private String toName(final Page descriptor) {
-        return editor.on(descriptor, NAME_POSITION, editor::readString);
+        return editor.at(descriptor, NAME_POSITION, editor::readString);
     }
 
     private void setName(final Page descriptor, final String name) {
-        editor.on(descriptor, NAME_POSITION, () -> editor.write(name));
+        editor.at(descriptor, NAME_POSITION, () -> editor.write(name));
     }
 
     @Override

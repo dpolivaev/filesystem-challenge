@@ -63,18 +63,18 @@ class PagedFile implements File {
     }
 
     @Override
-    public void on(final long position, final Runnable runnable) {
-        editor.on(position, runnable);
+    public void at(final long position, final Runnable runnable) {
+        editor.at(position, runnable);
     }
 
     @Override
-    public long on(final long position, final LongSupplier supplier) {
-        return editor.on(position, supplier);
+    public long at(final long position, final LongSupplier supplier) {
+        return editor.at(position, supplier);
     }
 
     @Override
-    public <T> T on(final long position, final Supplier<T> supplier) {
-        return editor.on(position, supplier);
+    public <T> T at(final long position, final Supplier<T> supplier) {
+        return editor.at(position, supplier);
     }
 
     @Override

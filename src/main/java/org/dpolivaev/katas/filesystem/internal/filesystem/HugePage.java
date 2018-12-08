@@ -82,11 +82,11 @@ class HugePage implements Page {
     }
 
     private void destroy(final Page page, final int index, final int level) {
-        final long pageNumber = editor.on(page, index * Long.BYTES, editor::readLong);
+        final long pageNumber = editor.at(page, index * Long.BYTES, editor::readLong);
         if (pageNumber != 0) {
             assert pageNumber > 0;
             final Page referencedPage = pagePool.pageAt(pageNumber);
-            editor.on(page, index * Long.BYTES, () -> editor.write(0L));
+            editor.at(page, index * Long.BYTES, () -> editor.write(0L));
             pagePool.release(pageNumber);
             if (level > 0) {
                 IntStream.range(0, (int) referencedPage.size() / Long.BYTES).forEach(i -> destroy(referencedPage, i, level - 1));
@@ -99,7 +99,7 @@ class HugePage implements Page {
 
     private Page allocatePoolPage(final Page page, final int index) {
         final PageAllocation allocation = pagePool.allocate();
-        editor.on(page, index * Long.BYTES, () -> editor.write(allocation.pageNumber));
+        editor.at(page, index * Long.BYTES, () -> editor.write(allocation.pageNumber));
         return allocation.page;
     }
 
@@ -121,7 +121,7 @@ class HugePage implements Page {
     }
 
     private Page referencedPage(final Page referencePage, final int index, final long levelPageSize) {
-        final long pageNumber = editor.on(referencePage, index * Long.BYTES, editor::readLong);
+        final long pageNumber = editor.at(referencePage, index * Long.BYTES, editor::readLong);
         final int poolPageSize = pagePool.pageSize();
         final Page poolPage;
         if (pageNumber != 0) {

@@ -25,7 +25,7 @@ public class PageEditor {
         this.position = position;
     }
 
-    public void on(final long position, final Runnable runnable) {
+    public void at(final long position, final Runnable runnable) {
         final long oldPosition = this.position;
         this.position = position;
         try {
@@ -35,7 +35,7 @@ public class PageEditor {
         }
     }
 
-    public long on(final long position, final LongSupplier supplier) {
+    public long at(final long position, final LongSupplier supplier) {
         final long oldPosition = this.position;
         this.position = position;
         try {
@@ -45,7 +45,7 @@ public class PageEditor {
         }
     }
 
-    public <T> T on(final long position, final Supplier<T> supplier) {
+    public <T> T at(final long position, final Supplier<T> supplier) {
         final long oldPosition = this.position;
         this.position = position;
         try {
@@ -55,31 +55,31 @@ public class PageEditor {
         }
     }
 
-    public void on(final Page page, final long position, final Runnable runnable) {
+    public void at(final Page page, final long position, final Runnable runnable) {
         final Page oldPage = this.page;
         this.page = page;
         try {
-            on(position, runnable);
+            at(position, runnable);
         } finally {
             this.page = oldPage;
         }
     }
 
-    public long on(final Page page, final long position, final LongSupplier supplier) {
+    public long at(final Page page, final long position, final LongSupplier supplier) {
         final Page oldPage = this.page;
         this.page = page;
         try {
-            return on(position, supplier);
+            return at(position, supplier);
         } finally {
             this.page = oldPage;
         }
     }
 
-    public <T> T on(final Page page, final long position, final Supplier<T> supplier) {
+    public <T> T at(final Page page, final long position, final Supplier<T> supplier) {
         final Page oldPage = this.page;
         this.page = page;
         try {
-            return on(position, supplier);
+            return at(position, supplier);
         } finally {
             this.page = oldPage;
         }
