@@ -3,6 +3,7 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.EndOfFileException;
 import org.dpolivaev.katas.filesystem.File;
+import org.dpolivaev.katas.filesystem.IllegalStateIOException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,34 +18,34 @@ public class PagedFileTest {
 
 
     @Test
-    public void anyOperationOnDeletedFile_throwsIllegalStateException() {
+    public void anyOperationOnDeletedFile_throwsIllegalStateIOException() {
 
         root.deleteFile(uut.name());
 
         assertThat(uut.exists()).isFalse();
 
-        assertThatThrownBy(() -> uut.name()).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.size()).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.getPosition()).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> another.setPosition(0)).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.write((byte)1)).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.readByte()).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> another.write(1)).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.readInt()).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.write(1L)).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.readLong()).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.write("String")).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> another.readString()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> uut.name()).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.size()).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.getPosition()).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> another.setPosition(0)).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.write((byte) 1)).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.readByte()).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> another.write(1)).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.readInt()).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.write(1L)).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.readLong()).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.write("String")).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> another.readString()).isInstanceOf(IllegalStateIOException.class);
 
         final byte[] buffer16 = new byte[16];
 
-        assertThatThrownBy(() -> uut.write(buffer16)).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.read(buffer16)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> uut.write(buffer16)).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.read(buffer16)).isInstanceOf(IllegalStateIOException.class);
 
-        assertThatThrownBy(() -> another.write(buffer16, 1, 1)).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> uut.read(buffer16, 1, 1)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> another.write(buffer16, 1, 1)).isInstanceOf(IllegalStateIOException.class);
+        assertThatThrownBy(() -> uut.read(buffer16, 1, 1)).isInstanceOf(IllegalStateIOException.class);
 
-        assertThatThrownBy(() -> uut.deleteContent()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> uut.deleteContent()).isInstanceOf(IllegalStateIOException.class);
     }
 
     @Test
@@ -62,7 +63,7 @@ public class PagedFileTest {
 
 
     @Test
-    public void throwsIllegalArgumentException_ifFileSizeIsTooHigh() {
+    public void throwsIllegalArgumentIOException_ifFileSizeIsTooHigh() {
         final long maximumSupportedFileSize = fileSystem.maximumSupportedFileSize();
         uut.setPosition(maximumSupportedFileSize - 1);
         uut.write((byte) 1);

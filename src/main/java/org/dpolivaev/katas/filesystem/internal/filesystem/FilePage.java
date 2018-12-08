@@ -1,5 +1,6 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
+import org.dpolivaev.katas.filesystem.IllegalStateIOException;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pages.Pair;
@@ -38,7 +39,7 @@ class FilePage implements Page {
 
     void validateUuid() {
         if (!exists())
-            throw new IllegalStateException("File UUID changed");
+            throw new IllegalStateIOException("File UUID changed");
     }
 
     boolean exists() {

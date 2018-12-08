@@ -25,7 +25,7 @@ public class TestPage implements Page {
     @Override
     public void write(final long offset, final byte source) {
         if (offset >= data.length)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad offset");
         data[(int) offset] = source;
     }
 

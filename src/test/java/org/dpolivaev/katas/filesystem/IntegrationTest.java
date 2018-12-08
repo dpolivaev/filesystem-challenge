@@ -245,7 +245,7 @@ public class IntegrationTest {
             channel.write(ByteBuffer.allocate(8));
         }
 
-        assertThatThrownBy(() -> openFilesystem()).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> openFilesystem()).isInstanceOf(IllegalArgumentIOException.class)
                 .hasMessageContaining("Unexpected file system version");
     }
 
@@ -257,7 +257,7 @@ public class IntegrationTest {
             channel.write(ByteBuffer.allocate(1));
         }
 
-        assertThatThrownBy(() -> openFilesystem()).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> openFilesystem()).isInstanceOf(IllegalArgumentIOException.class)
                 .hasMessage("File is too short");
     }
 

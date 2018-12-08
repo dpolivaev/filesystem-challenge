@@ -1,6 +1,7 @@
 package org.dpolivaev.katas.filesystem.internal.persistence;
 
 import org.dpolivaev.katas.filesystem.FileSystem;
+import org.dpolivaev.katas.filesystem.IllegalArgumentIOException;
 import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure;
 import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
@@ -80,15 +81,15 @@ public class FileSystemFactory {
 
     private FileSystem open(final File file, final boolean threadSafe) {
         if (!file.exists())
-            throw new IllegalArgumentException("File not found");
+            throw new IllegalArgumentIOException("File not found");
         if (file.length() < 2 * PersistentPage.PAGE_SIZE)
-            throw new IllegalArgumentException("File is too short");
+            throw new IllegalArgumentIOException("File is too short");
         final PersistentPages pages = new PersistentPages(file, 0, READ, StandardOpenOption.WRITE);
         final PageEditor editor = new PageEditor(pages.descriptorPage());
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
         final UUID existingUuid = editor.readUUID();
         if (!existingUuid.equals(ROOT_UUID))
-            throw new IllegalArgumentException("Unexpected file system version " + existingUuid);
+            throw new IllegalArgumentIOException("Unexpected file system version " + existingUuid);
         editor.setPosition(FileDescriptorStructure.SIZE_POSITION);
         final long maximalFileSize = editor.readLong();
         pages.setMaximalFileSize(maximalFileSize);

@@ -4,6 +4,7 @@ import org.assertj.core.api.ThrowableAssert;
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.dpolivaev.katas.filesystem.FileAlreadyExistsException;
+import org.dpolivaev.katas.filesystem.IllegalArgumentIOException;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -110,7 +111,7 @@ public class PagedDirectoryTest {
         };
         Stream.of(calls).forEach(c ->
                 assertThatThrownBy(c)
-                        .isInstanceOf(IllegalArgumentException.class)
+                        .isInstanceOf(IllegalArgumentIOException.class)
                         .hasMessage(message));
     }
 

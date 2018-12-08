@@ -3,6 +3,7 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
 import org.dpolivaev.katas.filesystem.FileAlreadyExistsException;
+import org.dpolivaev.katas.filesystem.IllegalArgumentIOException;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pool.PageAllocation;
@@ -100,11 +101,11 @@ class PagedDirectory implements Directory {
 
     private void checkElementName(final String name) {
         if (name == null)
-            throw new IllegalArgumentException("Name must not be null");
+            throw new IllegalArgumentIOException("Name must not be null");
         if (PageEditor.requiredLength(name) > NAME_SIZE)
-            throw new IllegalArgumentException("Name is too long");
+            throw new IllegalArgumentIOException("Name is too long");
         if (name.isEmpty())
-            throw new IllegalArgumentException("Empty name is not allowed");
+            throw new IllegalArgumentIOException("Empty name is not allowed");
     }
 
     private List<Page> descriptors(final DirectoryElements elementType) {
