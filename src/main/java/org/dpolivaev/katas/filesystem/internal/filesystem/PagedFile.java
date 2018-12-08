@@ -1,9 +1,11 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
 import org.dpolivaev.katas.filesystem.Directory;
+import org.dpolivaev.katas.filesystem.EndOfFileException;
 import org.dpolivaev.katas.filesystem.File;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -49,7 +51,7 @@ class PagedFile implements File {
     }
 
     @Override
-    public void truncate() {
+    public void deleteContent() {
         filePage.validateUuid();
         filePage.truncate();
         editor.setPosition(0);
@@ -95,15 +97,22 @@ class PagedFile implements File {
         editor.write(source, sourceOffset, length);
     }
 
+    private void validateReadSegment(final int length) {
+        if (getPosition() + length > filePage.fileSize())
+            throw new EndOfFileException();
+    }
+
     @Override
     public byte readByte() {
         filePage.validateUuid();
+        validateReadSegment(1);
         return editor.readByte();
     }
 
     @Override
     public void read(final byte[] destination, final int destinationOffset, final int length) {
         filePage.validateUuid();
+        validateReadSegment(length);
         editor.read(destination, destinationOffset, length);
     }
 
@@ -134,24 +143,32 @@ class PagedFile implements File {
     @Override
     public int readInt() {
         filePage.validateUuid();
+        validateReadSegment(Integer.BYTES);
         return editor.readInt();
     }
 
     @Override
     public long readLong() {
         filePage.validateUuid();
+        validateReadSegment(Long.BYTES);
         return editor.readLong();
     }
 
     @Override
     public String readString() {
         filePage.validateUuid();
-        return editor.readString();
+        validateReadSegment(Integer.BYTES);
+        final int length = editor.readInt();
+        validateReadSegment(length);
+        final byte[] buffer = new byte[length];
+        editor.read(buffer);
+        return new String(buffer, StandardCharsets.UTF_8);
     }
 
     @Override
     public void read(final byte[] destination) {
         filePage.validateUuid();
+        validateReadSegment(destination.length);
         editor.read(destination);
     }
 

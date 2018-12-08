@@ -97,17 +97,11 @@ class FilePage implements Page {
 
     @Override
     public byte readByte(final long offset) {
-        if (offset >= size()) {
-            throw new EndOfFileException();
-        }
         return data.readByte(offset);
     }
 
     @Override
     public void read(final long offset, final int length, final byte[] destination, final int destinationOffset) {
-        if (offset + length > size()) {
-            throw new EndOfFileException();
-        }
         data.read(offset, length, destination, destinationOffset);
     }
 

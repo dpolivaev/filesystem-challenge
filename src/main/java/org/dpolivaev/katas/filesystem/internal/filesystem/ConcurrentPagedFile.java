@@ -41,10 +41,10 @@ public class ConcurrentPagedFile extends PagedFile {
     }
 
     @Override
-    public void truncate() {
+    public void deleteContent() {
         lock.lock();
         try {
-            super.truncate();
+            super.deleteContent();
         } finally {
             lock.unlock();
         }

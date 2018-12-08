@@ -227,7 +227,7 @@ public class IntegrationTest {
         try (final FileSystem fileSystem = createFilesystem()) {
             final File file = fileSystem.root().createFile("file");
             file.write("content");
-            file.truncate();
+            file.deleteContent();
 
             assertThat(file.size()).isEqualTo(0);
             assertThat(file.getPosition()).isEqualTo(0);

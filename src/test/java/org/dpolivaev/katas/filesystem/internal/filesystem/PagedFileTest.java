@@ -1,6 +1,7 @@
 package org.dpolivaev.katas.filesystem.internal.filesystem;
 
 import org.dpolivaev.katas.filesystem.Directory;
+import org.dpolivaev.katas.filesystem.EndOfFileException;
 import org.dpolivaev.katas.filesystem.File;
 import org.junit.Test;
 
@@ -43,8 +44,22 @@ public class PagedFileTest {
         assertThatThrownBy(() -> another.write(buffer16, 1, 1)).isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> uut.read(buffer16, 1, 1)).isInstanceOf(IllegalStateException.class);
 
-        assertThatThrownBy(() -> uut.truncate()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> uut.deleteContent()).isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    public void readingAfterEndOfFile_throwsEndOfFileException() {
+        uut.deleteContent();
+
+        assertThatThrownBy(() -> uut.readByte()).isInstanceOf(EndOfFileException.class);
+        assertThatThrownBy(() -> uut.readInt()).isInstanceOf(EndOfFileException.class);
+        assertThatThrownBy(() -> uut.readLong()).isInstanceOf(EndOfFileException.class);
+        assertThatThrownBy(() -> another.readString()).isInstanceOf(EndOfFileException.class);
+        final byte[] buffer16 = new byte[16];
+        assertThatThrownBy(() -> uut.read(buffer16)).isInstanceOf(EndOfFileException.class);
+        assertThatThrownBy(() -> uut.read(buffer16, 1, 1)).isInstanceOf(EndOfFileException.class);
+    }
+
 
     @Test
     public void throwsIllegalArgumentException_ifFileSizeIsTooHigh() {

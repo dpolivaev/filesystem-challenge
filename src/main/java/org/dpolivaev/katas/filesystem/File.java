@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 public interface File extends Element {
     long size();
 
-    void truncate();
+    void deleteContent();
 
     File setPosition(long position);
 
