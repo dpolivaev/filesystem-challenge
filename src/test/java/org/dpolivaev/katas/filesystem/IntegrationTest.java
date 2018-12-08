@@ -253,7 +253,7 @@ public class IntegrationTest {
     @Test
     public void recognizesTooShortFiles() throws IOException {
         try (final FileChannel channel = FileChannel.open(fsFile.toPath(), CREATE_NEW, WRITE)) {
-            channel.position(FileSystemFactory.MINIMAL_EXTERNAL_FILE_SIZE - 2);
+            channel.position(FileSystemFactory.MINIMAL_EXTERNAL_FILE_SIZE - FileSystemFactory.PAGE_SIZE - 2);
             channel.write(ByteBuffer.allocate(1));
         }
 

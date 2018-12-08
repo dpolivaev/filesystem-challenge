@@ -88,7 +88,7 @@ public class FileSystemFactory {
     private FileSystem open(final File file, final boolean threadSafe) {
         if (!file.exists())
             throw new IllegalArgumentIOException("File not found");
-        if (file.length() < MINIMAL_EXTERNAL_FILE_SIZE)
+        if (file.length() < MINIMAL_EXTERNAL_FILE_SIZE - PAGE_SIZE)
             throw new IllegalArgumentIOException("File is too short");
         final PersistentPages pages = new PersistentPages(file, 0, READ, StandardOpenOption.WRITE);
         final PageEditor editor = new PageEditor(pages.descriptorPage());
