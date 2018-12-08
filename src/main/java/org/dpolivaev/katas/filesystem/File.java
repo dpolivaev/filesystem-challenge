@@ -65,6 +65,7 @@ public interface File extends Element {
      * <p>
      * Restores the original cursor position afterwards.
      *
+     * @param <T> the supplied object type
      * @param position the new position
      * @param supplier the executed supplier
      * @return supplier provided value
