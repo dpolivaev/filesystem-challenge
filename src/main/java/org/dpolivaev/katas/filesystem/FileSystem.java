@@ -129,12 +129,14 @@ public interface FileSystem extends Closeable {
     }
 
     /**
-     * @return file system root directory element
+     * File system root directory.
+     * @return the root directory
      */
     Directory root();
 
     /**
-     * @return maximum size of a single internal file system file, currently about 256 GB
+     * Maximum size of a single internal file system file, currently about 256 GB.
+     * @return the size
      */
     long maximumSupportedFileSize();
 
