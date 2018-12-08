@@ -28,12 +28,21 @@ public class LazyPage implements Page {
 
     @Override
     public void write(final long offset, final byte source) {
-        writingPage().write(offset, source);
+        if (source != 0 || suppliedPage != null)
+            writingPage().write(offset, source);
     }
 
     @Override
     public void write(final long offset, final int length, final byte[] source, final int sourceOffset) {
-        writingPage().write(offset, length, source, sourceOffset);
+        if (suppliedPage != null || containsNonZeroBytes(source, sourceOffset, sourceOffset + length))
+            writingPage().write(offset, length, source, sourceOffset);
+    }
+
+    private boolean containsNonZeroBytes(final byte[] source, final int sourceOffset, final int end) {
+        for (int i = sourceOffset; i < end; i++)
+            if (source[i] != 0)
+                return true;
+        return false;
     }
 
     @Override
