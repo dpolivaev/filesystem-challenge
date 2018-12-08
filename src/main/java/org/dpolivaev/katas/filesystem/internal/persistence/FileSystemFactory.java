@@ -64,6 +64,10 @@ public class FileSystemFactory {
     }
 
     private FileSystem create(final File file, final long size, final boolean threadSafe) {
+        if (file.exists())
+            throw new IllegalArgumentIOException("File already exists");
+        if (size < 2 * PersistentPage.PAGE_SIZE)
+            throw new IllegalArgumentIOException("size is too short");
         final PersistentPages pages = new PersistentPages(file, size, READ, WRITE, SPARSE, CREATE_NEW);
         final PageEditor editor = new PageEditor(pages.descriptorPage());
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);

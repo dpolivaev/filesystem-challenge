@@ -27,7 +27,7 @@ public class PageEditor {
 
     public void at(final long position, final Runnable runnable) {
         final long oldPosition = this.position;
-        this.position = position;
+        setPosition(position);
         try {
             runnable.run();
         } finally {
@@ -37,7 +37,7 @@ public class PageEditor {
 
     public long at(final long position, final LongSupplier supplier) {
         final long oldPosition = this.position;
-        this.position = position;
+        setPosition(position);
         try {
             return supplier.getAsLong();
         } finally {
@@ -47,7 +47,7 @@ public class PageEditor {
 
     public <T> T at(final long position, final Supplier<T> supplier) {
         final long oldPosition = this.position;
-        this.position = position;
+        setPosition(position);
         try {
             return supplier.get();
         } finally {

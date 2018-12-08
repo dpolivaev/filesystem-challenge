@@ -20,14 +20,20 @@ class PersistentPages implements Pages {
             this.fileChannel = FileChannel.open(file.toPath(), options);
             fileChannel.tryLock();
             descriptorPage = new PersistentPage(fileChannel, 0).subpage(0, FileSystemFactory.DESCRIPTOR_SIZE);
-            this.pageCount = maximalFileSize / pageSize();
+            this.pageCount = requiredPageCount(maximalFileSize);
         } catch (final IOException e) {
             throw new IORuntimeException(e);
         }
     }
 
+    private long requiredPageCount(final long maximalFileSize) {
+        final long pageCount = maximalFileSize == 0 ? 0 : (maximalFileSize - descriptorPage.size()) / pageSize();
+        assert pageCount >= 0;
+        return pageCount;
+    }
+
     void setMaximalFileSize(final long maximalFileSize) {
-        this.pageCount = maximalFileSize / pageSize();
+        pageCount = requiredPageCount(maximalFileSize);
     }
 
     @Override
