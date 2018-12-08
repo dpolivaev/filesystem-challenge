@@ -16,6 +16,11 @@ import java.io.File;
 public interface FileSystem extends Closeable {
 
     /**
+     * Minimal size required for file system creation.
+     */
+    int MINIMAL_EXTERNAL_FILE_SIZE = FileSystemFactory.MINIMAL_EXTERNAL_FILE_SIZE;
+
+    /**
      * Creates FileSystem instance linked to a new file.
      * <p>
      * The instance is not thread safe.
@@ -24,7 +29,7 @@ public interface FileSystem extends Closeable {
      * @param size the maximum allowed file size in bytes
      * @return FileSystem instance
      * @throws IORuntimeException         if the file can not be creared
-     * @throws IllegalArgumentIOException if the given size is less than 2K
+     * @throws IllegalArgumentIOException if the given size is less than {@link FileSystem#MINIMAL_EXTERNAL_FILE_SIZE}
      */
     static FileSystem create(final File file, final long size) throws IORuntimeException, IllegalArgumentIOException {
         return FileSystemFactory.INSTANCE.create(file, size);
@@ -39,7 +44,7 @@ public interface FileSystem extends Closeable {
      * @param size     the maximum allowed file size in bytes
      * @return FileSystem instance
      * @throws IORuntimeException         if the file can not be creared
-     * @throws IllegalArgumentIOException if the given size is less than 2K
+     * @throws IllegalArgumentIOException if the given size is less than {@link FileSystem#MINIMAL_EXTERNAL_FILE_SIZE}
      */
     static FileSystem create(final String filePath, final long size) throws IORuntimeException, IllegalArgumentIOException {
         return FileSystemFactory.INSTANCE.create(filePath, size);
@@ -83,7 +88,7 @@ public interface FileSystem extends Closeable {
      * @param size the maximum allowed file size in bytes
      * @return FileSystem instance
      * @throws IORuntimeException         if the file can not be creared
-     * @throws IllegalArgumentIOException if the given size is less than 2K
+     * @throws IllegalArgumentIOException if the given size is less than {@link FileSystem#MINIMAL_EXTERNAL_FILE_SIZE}
      */
     static FileSystem createThreadSafe(final File file, final long size) throws IORuntimeException, IllegalArgumentIOException {
         return FileSystemFactory.INSTANCE.createThreadSafe(file, size);
@@ -96,7 +101,7 @@ public interface FileSystem extends Closeable {
      * @param size     the maximum allowed file size in bytes
      * @return FileSystem instance
      * @throws IORuntimeException         if the file can not be creared
-     * @throws IllegalArgumentIOException if the given size is less than 2K
+     * @throws IllegalArgumentIOException if the given size is less than {@link FileSystem#MINIMAL_EXTERNAL_FILE_SIZE}
      */
     static FileSystem createThreadSafe(final String filePath, final long size) throws IORuntimeException, IllegalArgumentIOException {
         return FileSystemFactory.INSTANCE.createThreadSafe(filePath, size);

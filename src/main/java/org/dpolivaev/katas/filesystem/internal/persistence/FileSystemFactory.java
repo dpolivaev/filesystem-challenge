@@ -29,6 +29,8 @@ public class FileSystemFactory {
 
     static final int DESCRIPTOR_SIZE = FileDescriptorStructure.DATA_POSITION;
 
+    public static final int MINIMAL_EXTERNAL_FILE_SIZE = 3 * PersistentPage.PAGE_SIZE + FileSystemFactory.DESCRIPTOR_SIZE;
+
     private FileSystemFactory() {
     }
 
@@ -66,8 +68,8 @@ public class FileSystemFactory {
     private FileSystem create(final File file, final long size, final boolean threadSafe) {
         if (file.exists())
             throw new IllegalArgumentIOException("File already exists");
-        if (size < 2 * PersistentPage.PAGE_SIZE)
-            throw new IllegalArgumentIOException("size is too short");
+        if (size < MINIMAL_EXTERNAL_FILE_SIZE)
+            throw new IllegalArgumentIOException("File size is too small");
         final PersistentPages pages = new PersistentPages(file, size, READ, WRITE, SPARSE, CREATE_NEW);
         final PageEditor editor = new PageEditor(pages.descriptorPage());
         editor.setPosition(FileDescriptorStructure.UUID_POSITION);
@@ -86,7 +88,7 @@ public class FileSystemFactory {
     private FileSystem open(final File file, final boolean threadSafe) {
         if (!file.exists())
             throw new IllegalArgumentIOException("File not found");
-        if (file.length() < 2 * PersistentPage.PAGE_SIZE)
+        if (file.length() < MINIMAL_EXTERNAL_FILE_SIZE)
             throw new IllegalArgumentIOException("File is too short");
         final PersistentPages pages = new PersistentPages(file, 0, READ, StandardOpenOption.WRITE);
         final PageEditor editor = new PageEditor(pages.descriptorPage());

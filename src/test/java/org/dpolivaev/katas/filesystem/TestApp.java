@@ -12,7 +12,7 @@ public class TestApp {
     }
 
     private static void createFileSystem(final String path) {
-        try (final FileSystem fileSystem = FileSystem.create(path, 3072)) {
+        try (final FileSystem fileSystem = FileSystem.create(path, 3280)) {
             fileSystem.root().createFile("hello").write("Hello world");
         }
         System.out.println("Filesystem created in file " + path);

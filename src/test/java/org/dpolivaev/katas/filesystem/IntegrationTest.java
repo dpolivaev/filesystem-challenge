@@ -253,7 +253,7 @@ public class IntegrationTest {
     @Test
     public void recognizesTooShortFiles() throws IOException {
         try (final FileChannel channel = FileChannel.open(fsFile.toPath(), CREATE_NEW, WRITE)) {
-            channel.position(2 * FileSystemFactory.PAGE_SIZE - 2);
+            channel.position(FileSystemFactory.MINIMAL_EXTERNAL_FILE_SIZE - 2);
             channel.write(ByteBuffer.allocate(1));
         }
 
@@ -261,5 +261,16 @@ public class IntegrationTest {
                 .hasMessage("File is too short");
     }
 
+    @Test
+    public void minimalSize() {
+        try (final FileSystem fileSystem = FileSystem.create(fsFile, FileSystemFactory.MINIMAL_EXTERNAL_FILE_SIZE)) {
+            fileSystem.root().createFile("hello").write("Hello world");
+        }
+    }
 
+    @Test
+    public void lessThanMinimalSize() {
+        assertThatThrownBy(() -> FileSystem.create(fsFile, FileSystemFactory.MINIMAL_EXTERNAL_FILE_SIZE - 1)).isInstanceOf(IllegalArgumentIOException.class)
+                .hasMessage("File size is too small");
+    }
 }
