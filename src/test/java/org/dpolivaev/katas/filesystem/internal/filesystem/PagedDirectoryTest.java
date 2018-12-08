@@ -3,6 +3,7 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 import org.assertj.core.api.ThrowableAssert;
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
+import org.dpolivaev.katas.filesystem.FileAlreadyExistsException;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -59,7 +60,7 @@ public class PagedDirectoryTest {
     public void createFile_throwsException_ifFileAlreadyExists() {
         final File file1 = uut.createFile("file1");
         assertThatThrownBy(() -> uut.createFile("file1"))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("File 'file1' already exists");
+                .isInstanceOf(FileAlreadyExistsException.class).hasMessage("File 'file1' already exists");
 
         assertThat(file1.exists()).isTrue();
     }

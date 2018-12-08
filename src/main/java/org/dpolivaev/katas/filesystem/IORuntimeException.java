@@ -9,4 +9,8 @@ public class IORuntimeException extends RuntimeException {
 
     public IORuntimeException() {
     }
+
+    public IORuntimeException(final String message) {
+        super(message);
+    }
 }

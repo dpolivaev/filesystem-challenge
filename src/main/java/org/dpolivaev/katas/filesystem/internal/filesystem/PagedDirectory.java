@@ -2,6 +2,7 @@ package org.dpolivaev.katas.filesystem.internal.filesystem;
 
 import org.dpolivaev.katas.filesystem.Directory;
 import org.dpolivaev.katas.filesystem.File;
+import org.dpolivaev.katas.filesystem.FileAlreadyExistsException;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
 import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pool.PageAllocation;
@@ -94,7 +95,7 @@ class PagedDirectory implements Directory {
     private void checkNewElementName(final String name, final DirectoryElements elementType) {
         checkElementName(name);
         if (elementNames(elementType).contains(name))
-            throw new IllegalArgumentException("File '" + name + "' already exists");
+            throw new FileAlreadyExistsException("File '" + name + "' already exists");
     }
 
     private void checkElementName(final String name) {

@@ -1,7 +1,6 @@
 package org.dpolivaev.katas.filesystem.internal.persistence;
 
 import org.dpolivaev.katas.filesystem.FileSystem;
-import org.dpolivaev.katas.filesystem.IORuntimeException;
 import org.dpolivaev.katas.filesystem.internal.filesystem.FileDescriptorStructure;
 import org.dpolivaev.katas.filesystem.internal.filesystem.PagedFileSystem;
 import org.dpolivaev.katas.filesystem.internal.pages.Page;
@@ -9,7 +8,6 @@ import org.dpolivaev.katas.filesystem.internal.pages.PageEditor;
 import org.dpolivaev.katas.filesystem.internal.pool.PagePool;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
 import java.util.Random;
@@ -80,7 +78,7 @@ public class FileSystemFactory {
 
     private FileSystem open(final File file, final long size, final boolean threadSafe) {
         if (!file.exists())
-            throw new IORuntimeException(new FileNotFoundException());
+            throw new IllegalArgumentException("File not found");
         if (file.length() < 2 * PersistentPage.PAGE_SIZE)
             throw new IllegalArgumentException("File is too short");
         final PersistentPages pages = new PersistentPages(file, size, READ, StandardOpenOption.WRITE);

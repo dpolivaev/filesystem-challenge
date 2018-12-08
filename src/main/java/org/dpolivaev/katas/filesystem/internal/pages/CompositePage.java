@@ -11,9 +11,9 @@ abstract public class CompositePage implements Page {
     protected final int pageCount;
 
     public CompositePage(final IntFunction<Page> pages, final int pageCount) {
-        this.pageCount = pageCount;
         if (pageCount <= 0)
             throw new IllegalArgumentException("No pages");
+        this.pageCount = pageCount;
         this.pages = pages;
     }
 
